@@ -14,8 +14,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with XBMC; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
- *  MA 02110-1301  USA
+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -24,9 +23,9 @@
 #define __EPG_H
 
 #include <string>
-#include "xbmc_addon_types.h"
-#include "libXBMC_addon.h"
-#include "libXBMC_pvr.h"
+#include "kodi/xbmc_addon_types.h"
+#include "kodi/libXBMC_addon.h"
+#include "kodi/libXBMC_pvr.h"
 #include <json/json.h>
 
 class cEpg

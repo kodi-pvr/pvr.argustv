@@ -17,12 +17,12 @@
  *
  */
 
-#include "platform/os.h"
+#include "kodi/os.h"
 
 #include <vector>
 
 /* Master defines for client control */
-#include "xbmc_pvr_types.h"
+#include "kodi/xbmc_pvr_types.h"
 
 #include "channel.h"
 #include "recording.h"

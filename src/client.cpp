@@ -17,7 +17,7 @@
  */
 
 #include "client.h"
-#include "xbmc_pvr_dll.h"
+#include "kodi/xbmc_pvr_dll.h"
 #include "pvrclient-argustv.h"
 #include "utils.h"
 #include "uri.h"

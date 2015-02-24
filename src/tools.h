@@ -14,8 +14,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with XBMC; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
- *  MA 02110-1301  USA
+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -24,7 +23,7 @@
 #define __TOOLS_H
 
 #include "client.h"
-#include "platform/util/StdString.h"
+#include "kodi/util/StdString.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <stddef.h>
