@@ -18,6 +18,7 @@
 
 #include "client.h"
 #include "kodi/xbmc_pvr_dll.h"
+#include "kodi/libKODI_guilib.h"
 #include "pvrclient-argustv.h"
 #include "utils.h"
 #include "uri.h"
@@ -308,14 +309,12 @@ const char* GetMininumPVRAPIVersion(void)
 
 const char* GetGUIAPIVersion(void)
 {
-  static const char *strGuiApiVersion = XBMC_GUI_API_VERSION;
-  return strGuiApiVersion;
+  return KODI_GUILIB_API_VERSION;
 }
 
 const char* GetMininumGUIAPIVersion(void)
 {
-  static const char *strMinGuiApiVersion = XBMC_GUI_MIN_API_VERSION;
-  return strMinGuiApiVersion;
+  return KODI_GUILIB_MIN_API_VERSION;
 }
 
 //-- GetAddonCapabilities -----------------------------------------------------
