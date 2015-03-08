@@ -26,7 +26,6 @@
 #include "kodi/util/StdString.h"
 #include "kodi/libXBMC_addon.h"
 #include "kodi/libXBMC_pvr.h"
-#include "kodi/libXBMC_gui.h"
 
 #define DEFAULT_HOST                  "127.0.0.1"
 #define DEFAULT_PORT                  49943
