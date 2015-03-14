@@ -32,31 +32,34 @@
 #include "FileReader.h"
 #include "kodi/util/StdString.h"
 
-class CTsReader
+namespace ArgusTV
 {
-public:
-  CTsReader();
-  ~CTsReader(void) {};
-  long Open(const char* pszFileName);
-  long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
-  void Close();
-  int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
-  int64_t GetFileSize();
-  int64_t GetFilePointer();
-  void OnZap(void);
+  class CTsReader
+  {
+  public:
+    CTsReader();
+    ~CTsReader(void) {};
+    long Open(const char* pszFileName);
+    long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
+    void Close();
+    int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
+    int64_t GetFileSize();
+    int64_t GetFilePointer();
+    void OnZap(void);
 #if defined(TARGET_WINDOWS)
-  long long sigmaTime();
-  long long  sigmaCount();
+    long long sigmaTime();
+    long long  sigmaCount();
 #endif
 
-private:
-  bool            m_bTimeShifting;
-  bool            m_bRecording;
-  bool            m_bLiveTv;
-  CStdString      m_fileName;
-  FileReader*     m_fileReader;
+  private:
+    bool            m_bTimeShifting;
+    bool            m_bRecording;
+    bool            m_bLiveTv;
+    CStdString      m_fileName;
+    FileReader*     m_fileReader;
 #if defined(TARGET_WINDOWS)
-  LARGE_INTEGER   liDelta; 
-  LARGE_INTEGER   liCount; 
+    LARGE_INTEGER   liDelta;
+    LARGE_INTEGER   liCount;
 #endif
-};
+  };
+}
