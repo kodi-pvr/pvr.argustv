@@ -35,32 +35,35 @@
 
 #include "kodi/os.h"
 
-class FileReader
+namespace ArgusTV
 {
+  class FileReader
+  {
   public:
-    FileReader();
-    virtual ~FileReader();
+      FileReader();
+      virtual ~FileReader();
 
-    // Open and write to the file
-    virtual long GetFileName(char* *lpszFileName);
-    virtual long SetFileName(const char* pszFileName);
-    virtual long OpenFile();
-    virtual long CloseFile();
-    virtual long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
-    virtual bool IsFileInvalid();
-    virtual int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
-    virtual int64_t GetFilePointer();
-    virtual void OnZap(void);
-    virtual int64_t GetFileSize();
-    virtual bool IsBuffer(){return false;};
+      // Open and write to the file
+      virtual long GetFileName(char* *lpszFileName);
+      virtual long SetFileName(const char* pszFileName);
+      virtual long OpenFile();
+      virtual long CloseFile();
+      virtual long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
+      virtual bool IsFileInvalid();
+      virtual int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
+      virtual int64_t GetFilePointer();
+      virtual void OnZap(void);
+      virtual int64_t GetFileSize();
+      virtual bool IsBuffer(){ return false; };
 
-    void SetDebugOutput(bool bDebugOutput);
+      void SetDebugOutput(bool bDebugOutput);
 
   protected:
-    void*    m_hFile;               // Handle to file for streaming
-    char*    m_pFileName;           // The filename where we stream
-    int64_t  m_fileSize;
-    int64_t  m_fileStartPos;
+      void*    m_hFile;               // Handle to file for streaming
+      char*    m_pFileName;           // The filename where we stream
+      int64_t  m_fileSize;
+      int64_t  m_fileStartPos;
 
-    bool     m_bDebugOutput;
-};
+      bool     m_bDebugOutput;
+  };
+}

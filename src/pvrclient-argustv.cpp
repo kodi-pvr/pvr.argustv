@@ -38,6 +38,7 @@ using namespace std;
 using namespace ADDON;
 
 using namespace PLATFORM;
+using namespace ArgusTV;
 
 #define SIGNALQUALITY_INTERVAL 10
 #define MAXLIFETIME 99 //Based on VDR addon and VDR documentation. 99=Keep forever, 0=can be deleted at any time, 1..98=days to keep

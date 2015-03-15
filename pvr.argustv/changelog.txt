@@ -1,3 +1,7 @@
+v1.10.3 (14-03-2015)
+-  TSReader: attempt to fix a crash on RPi due to xbmc/xbmc#6306
+   This PR introduced a 2nd FileReader class in Kodi which conflicts with the PVR addon one...
+   The PVR FileReader class is now inside an ArgusTV namespace
 v1.10.2 (08-03-2015)
  - Updated to PVR API v1.9.5
 v1.10.1 (17-02-2015)

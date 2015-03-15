@@ -31,7 +31,10 @@
 #include "KeepAliveThread.h"
 #include "EventsThread.h"
 
-class CTsReader;
+namespace ArgusTV
+{
+  class CTsReader;
+}
 
 #undef ATV_DUMPTS
 
@@ -127,7 +130,7 @@ private:
   std::vector<cChannel*>   m_RadioChannels; // Local Radio channel cache list needed for id to guid conversion
   int                     m_epg_id_offset;
   int                     m_signalqualityInterval;
-  CTsReader*              m_tsreader;
+  ArgusTV::CTsReader*     m_tsreader;
   CKeepAliveThread*       m_keepalive;
   CEventsThread*          m_eventmonitor;
 #if defined(ATV_DUMPTS)

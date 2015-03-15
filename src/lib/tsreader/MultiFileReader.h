@@ -37,49 +37,52 @@
 #include <vector>
 #include <string>
 
-class MultiFileReaderFile
+namespace ArgusTV
 {
+  class MultiFileReaderFile
+  {
   public:
-    std::string filename;
-    int64_t startPosition;
-    int64_t length;
-    long filePositionId;
-};
+      std::string filename;
+      int64_t startPosition;
+      int64_t length;
+      long filePositionId;
+  };
 
-class MultiFileReader : public FileReader
-{
+  class MultiFileReader : public FileReader
+  {
   public:
-    MultiFileReader();
-    virtual ~MultiFileReader();
+      MultiFileReader();
+      virtual ~MultiFileReader();
 
-    virtual long GetFileName(char* *lpszFileName);
-    virtual long SetFileName(const char* pszFileName);
-    virtual long OpenFile();
-    virtual long CloseFile();
-    virtual long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
-    virtual bool IsFileInvalid();
+      virtual long GetFileName(char* *lpszFileName);
+      virtual long SetFileName(const char* pszFileName);
+      virtual long OpenFile();
+      virtual long CloseFile();
+      virtual long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
+      virtual bool IsFileInvalid();
 
-    virtual int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
-    virtual int64_t GetFilePointer();
-    virtual int64_t GetFileSize();
-    virtual void OnZap(void);
+      virtual int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
+      virtual int64_t GetFilePointer();
+      virtual int64_t GetFileSize();
+      virtual void OnZap(void);
 
   protected:
-    long RefreshTSBufferFile();
-    long GetFileLength(const char* pFilename, int64_t &length);
+      long RefreshTSBufferFile();
+      long GetFileLength(const char* pFilename, int64_t &length);
 
-    FileReader m_TSBufferFile;
-    int64_t m_startPosition;
-    int64_t m_endPosition;
-    int64_t m_currentReadPosition;
-    long m_filesAdded;
-    long m_filesRemoved;
-    int64_t m_lastZapPosition;
+      FileReader m_TSBufferFile;
+      int64_t m_startPosition;
+      int64_t m_endPosition;
+      int64_t m_currentReadPosition;
+      long m_filesAdded;
+      long m_filesRemoved;
+      int64_t m_lastZapPosition;
 
-    std::vector<MultiFileReaderFile *> m_tsFiles;
+      std::vector<MultiFileReaderFile *> m_tsFiles;
 
-    FileReader m_TSFile;
-    long     m_TSFileId;
-    bool     m_bDelay;
-    bool     m_bDebugOutput;
-};
+      FileReader m_TSFile;
+      long     m_TSFileId;
+      bool     m_bDelay;
+      bool     m_bDebugOutput;
+  };
+}
