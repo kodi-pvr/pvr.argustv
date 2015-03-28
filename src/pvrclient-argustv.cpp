@@ -364,6 +364,12 @@ PVR_ERROR cPVRClientArgusTV::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &chan
             broadcast.iEpisodeNumber      = 0;
             broadcast.iEpisodePartNumber  = 0;
             broadcast.strEpisodeName      = "";
+            broadcast.strOriginalTitle    = "";
+            broadcast.strCast             = "";
+            broadcast.strDirector         = "";
+            broadcast.strWriter           = "";
+            broadcast.iYear               = 0;
+            broadcast.strIMDBNumber       = "";
 
             PVR->TransferEpgEntry(handle, &broadcast);
           }
@@ -544,6 +550,7 @@ PVR_ERROR cPVRClientArgusTV::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
       memset(&tag, 0 , sizeof(PVR_CHANNEL_GROUP));
 
       tag.bIsRadio     = bRadio;
+      tag.iPosition    = 0; // default ordering of the groups
       strncpy(tag.strGroupName, name.c_str(), sizeof(tag.strGroupName));
 
       PVR->TransferChannelGroup(handle, &tag);
