@@ -52,6 +52,7 @@ std::string             g_szUserPath   = "";
 std::string             g_szClientPath = "";
 CHelper_libXBMC_addon  *XBMC           = NULL;
 CHelper_libXBMC_pvr    *PVR            = NULL;
+CHelper_libKODI_guilib  *GUI		   = NULL;
 
 extern "C" {
 
@@ -84,6 +85,17 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     SAFE_DELETE(XBMC);
     return ADDON_STATUS_PERMANENT_FAILURE;
   }
+
+  // register gui 
+  GUI = new CHelper_libKODI_guilib;
+  if (!GUI->RegisterMe(hdl))
+  {
+	SAFE_DELETE(PVR);
+	SAFE_DELETE(GUI);
+	SAFE_DELETE(XBMC);
+	return ADDON_STATUS_PERMANENT_FAILURE;
+  }
+
 
   XBMC->Log(LOG_INFO, "Creating the ARGUS TV PVR-client");
 
@@ -169,6 +181,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   {
     SAFE_DELETE(g_client);
     SAFE_DELETE(PVR);
+	SAFE_DELETE(GUI);
     SAFE_DELETE(XBMC);
     m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
   }
@@ -197,6 +210,7 @@ void ADDON_Destroy()
   }
 
   SAFE_DELETE(PVR);
+  SAFE_DELETE(GUI);
   SAFE_DELETE(XBMC);
 
   m_CurStatus = ADDON_STATUS_UNKNOWN;

@@ -307,6 +307,11 @@ namespace ArgusTV
   int AddOneTimeSchedule(const std::string& channelid, const time_t starttime, const std::string& title, int prerecordseconds, int postrecordseconds, int lifetime, Json::Value& response);
 
   /**
+  * \brief Add a xbmc timer as a one time schedule
+  */
+  int AddSeriesSchedule(const std::string& channelid, const time_t starttime, const std::string& title, int prerecordseconds, int postrecordseconds, int lifetime, Json::Value& response, int runType, bool anyChannel, bool anyTime);
+
+  /**
    * \brief Add a xbmc timer as a manual schedule
    */
   int AddManualSchedule(const std::string& channelid, const time_t starttime, const time_t duration, const std::string& title, int prerecordseconds, int postrecordseconds, int lifetime, Json::Value& response);
