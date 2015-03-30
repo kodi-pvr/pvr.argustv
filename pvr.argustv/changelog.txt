@@ -1,3 +1,5 @@
+v1.10.6 (30-03-2015)
+-	Merged upstream pull req PVR API bump 1.9.6 changes from margro
 v1.10.5 (28-03-2015)
 -	Added series recording options -- Credits to kurstyreturns and scrarecrow420 of the Server.WMC / pvr.wmc team for most of the code
 v1.10.4 (17-03-2015)
