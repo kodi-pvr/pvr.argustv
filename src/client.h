@@ -26,6 +26,7 @@
 #include "kodi/util/StdString.h"
 #include "kodi/libXBMC_addon.h"
 #include "kodi/libXBMC_pvr.h"
+#include "kodi/libKODI_guilib.h"
 
 #define DEFAULT_HOST                  "127.0.0.1"
 #define DEFAULT_PORT                  49943
@@ -54,5 +55,6 @@ extern std::string  g_szBaseURL;
 
 extern ADDON::CHelper_libXBMC_addon *XBMC;
 extern CHelper_libXBMC_pvr   *PVR;
+extern CHelper_libKODI_guilib   *GUI;
 
 #endif /* CLIENT_H */
