@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 v1.10.4 (28-03-2015)
 - Updated to PVR API v1.9.6
+=======
+v1.10.4 (17-03-2015)
+-  Added option for all recordings to be in folders
+>>>>>>> Option to group single recordings in folders
 v1.10.3 (14-03-2015)
 -  TSReader: attempt to fix a crash on RPi due to xbmc/xbmc#6306
    This PR introduced a 2nd FileReader class in Kodi which conflicts with the PVR addon one...

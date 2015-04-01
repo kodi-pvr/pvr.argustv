@@ -698,7 +698,7 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(ADDON_HANDLE handle)
               strncpy(tag.strPlot, recording.Description(), sizeof(tag.strPlot));
               tag.iPlayCount     = recording.FullyWatchedCount();
               tag.iLastPlayedPosition = recording.LastWatchedPosition();
-              if (nrOfRecordings > 1)
+			  if (nrOfRecordings > 1 || g_bUseFolder)
               {
                 recording.Transform(true);
                 strncpy(tag.strDirectory, recordinggroup.ProgramTitle().c_str(), sizeof(tag.strDirectory)); //used in XBMC as directory structure below "Server X - hostname"
