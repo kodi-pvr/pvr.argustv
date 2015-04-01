@@ -45,3 +45,86 @@ msgstr ""
 msgctxt "#30006"
 msgid "Delay after tuning (ms)"
 msgstr ""
+
+msgctxt "#30007"
+msgid "Single recordings in folder"
+msgstr ""
+
+#Series Recording Strings
+
+msgctxt "#30100"
+msgid "Recording Preference"
+msgstr ""
+
+msgctxt "#30101"
+msgid "Record this episode only"
+msgstr ""
+
+msgctxt "#30102"
+msgid "Record the series"
+msgstr ""
+
+msgctxt "#30103"
+msgid "Record Only:"
+msgstr ""
+
+msgctxt "#30104"
+msgid "All"
+msgstr ""
+
+msgctxt "#30105"
+msgid "First runs only"
+msgstr ""
+
+msgctxt "#30106"
+msgid "Episodes once"
+msgstr ""
+
+msgctxt "#30109"
+msgid "Both First runs / Episodes once"
+msgstr ""
+
+
+msgctxt "#30107"
+msgid "Channel:"
+msgstr ""
+
+msgctxt "#30108"
+msgid "Any Channel"
+msgstr ""
+
+#empty string with id 30109
+
+msgctxt "#30110"
+msgid "Airtime:"
+msgstr ""
+
+msgctxt "#30111"
+msgid "Anytime"
+msgstr ""
+
+#empty strings from id 30112 to 30119
+
+msgctxt "#30120"
+msgid "Delete Timer"
+msgstr ""
+
+msgctxt "#30121"
+msgid "Delete this episode timer only"
+msgstr ""
+
+msgctxt "#30122"
+msgid "Delete the entire series"
+msgstr ""
+
+msgctxt "#30130"
+msgid "(Any Time)"
+msgstr ""
+
+msgctxt "#30131"
+msgid "Episodes Once"
+msgstr ""
+
+msgctxt "#30132"
+msgid "Current Airtime"
+msgstr ""

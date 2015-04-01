@@ -18,7 +18,7 @@
  *
  */
 
-#include "client.h"
+
 //#include "timers.h"
 #include "channel.h"
 #include "activerecording.h"
@@ -31,7 +31,8 @@
 #include "argustvrpc.h"
 #include "kodi/util/timeutils.h"
 #include "kodi/util/StdString.h"
-
+#include "DialogRecordPref.h" 
+#include "DialogDeleteTimer.h"
 #include "lib/tsreader/TSReader.h"
 
 using namespace std;
@@ -550,7 +551,11 @@ PVR_ERROR cPVRClientArgusTV::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
       memset(&tag, 0 , sizeof(PVR_CHANNEL_GROUP));
 
       tag.bIsRadio     = bRadio;
+<<<<<<< HEAD
       tag.iPosition    = 0; // default ordering of the groups
+=======
+	  tag.iPosition = 0; // default ordering of the groups
+>>>>>>> 65500abf2651207310b8f9e948b5485d8804d761
       strncpy(tag.strGroupName, name.c_str(), sizeof(tag.strGroupName));
 
       PVR->TransferChannelGroup(handle, &tag);
@@ -698,7 +703,7 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(ADDON_HANDLE handle)
               strncpy(tag.strPlot, recording.Description(), sizeof(tag.strPlot));
               tag.iPlayCount     = recording.FullyWatchedCount();
               tag.iLastPlayedPosition = recording.LastWatchedPosition();
-              if (nrOfRecordings > 1)
+			  if (nrOfRecordings > 1 || g_bUseFolder)
               {
                 recording.Transform(true);
                 strncpy(tag.strDirectory, recordinggroup.ProgramTitle().c_str(), sizeof(tag.strDirectory)); //used in XBMC as directory structure below "Server X - hostname"
@@ -957,6 +962,15 @@ PVR_ERROR cPVRClientArgusTV::AddTimer(const PVR_TIMER &timerinfo)
   XBMC->Log(LOG_DEBUG, "%s: XBMC channel %d translated to ARGUS channel %s.", __FUNCTION__,
     timerinfo.iClientChannelUid, pChannel->Guid().c_str());
 
+  bool isSeries = false;						// whether show being requested is a series
+
+  // series specific params for recording
+  bool recSeries = false;						// if true, request a series recording
+  int runType = 0;								// the type of episodes to record (all, new, live)
+  bool anyChannel = true;							// whether to rec series from ANY channel
+  bool anyTime = true;								// whether to rec series at ANY time
+
+
   // Try to get original EPG data from ARGUS
   struct tm* convert = localtime(&timerinfo.startTime);
   struct tm tm_start = *convert;
@@ -970,10 +984,24 @@ PVR_ERROR cPVRClientArgusTV::AddTimer(const PVR_TIMER &timerinfo)
   std::string programTitle = timerinfo.strTitle;
   if (retval >= 0)
   {
+
     XBMC->Log(LOG_DEBUG, "%s: Getting EPG Data for ARGUS TV channel %s returned %d entries.", __FUNCTION__, pChannel->GuideChannelID().c_str(), epgResponse.size());
-    if (epgResponse.size() > 0)
+	XBMC->Log(LOG_DEBUG, epgResponse.toStyledString().c_str());
+	if (epgResponse.size() > 0)
     {
       programTitle = epgResponse[0u]["Title"].asString();
+	  if (!epgResponse[0u]["SeriesNumber"].isNull()) {
+		isSeries = true;
+		// fill in params for dialog windows
+		recSeries = true;										// get reset of params for dialog windows
+		if (epgResponse[0u]["IsPremiere"].asInt() == 0)
+			runType = 3;
+		else
+			runType = 0;										// all (no filter)=0, firstRun=1, episode once=2, first run and episode once = 3
+																// runType 3 is what you want if you want one recording of the premiere of a show
+		anyChannel = true;										//  -- sometimes you'll get a "premiere" repeated in the same day or week so
+		anyTime = true;											// first run records it and episode once ignores any others
+	  }
     }
   }
   else
@@ -984,7 +1012,47 @@ PVR_ERROR cPVRClientArgusTV::AddTimer(const PVR_TIMER &timerinfo)
   Json::Value addScheduleResponse;
   time_t starttime = timerinfo.startTime;
   if (starttime == 0) starttime = time(NULL);
-  retval = ArgusTV::AddOneTimeSchedule(pChannel->Guid(), starttime, programTitle, timerinfo.iMarginStart * 60, timerinfo.iMarginEnd * 60, timerinfo.iLifetime, addScheduleResponse);
+  
+  //Only popup the Record Prefs dialog if the show is part of a series per the EPG data
+  //Otherwise just do the One Time Schedule
+  if (!isSeries)
+  {
+	  retval = ArgusTV::AddOneTimeSchedule(pChannel->Guid(), starttime, programTitle, timerinfo.iMarginStart * 60, timerinfo.iMarginEnd * 60, timerinfo.iLifetime, addScheduleResponse);
+  }
+  else
+  {
+	  string channelName = pChannel->Name();
+	  CStdString curTimeString;
+	  curTimeString = XBMC->GetLocalizedString(30132);  //"Current Airtime"
+	  CDialogRecordPref vWindow(recSeries, runType, anyChannel, anyTime, channelName /*channelName*/, curTimeString /*= startTimeStr*/, programTitle/*showName*/);
+	  XBMC->Log(LOG_DEBUG, "Finsihed creating vWindow");
+	  int dlogResult = vWindow.DoModal();
+	  if (dlogResult == 1)								// present dialog with recording options
+	  {
+		  recSeries = vWindow.RecSeries;
+		  if (recSeries)
+		  {
+			  runType = vWindow.RunType;					// the type of episodes to record (0->all, 1->new, 2->live)
+			  anyChannel = vWindow.AnyChannel;			// whether to rec series from ANY channel
+			  anyTime = vWindow.AnyTime;					// whether to rec series at ANY time
+		  }
+	  }
+	  else if (dlogResult == 0)
+		  return PVR_ERROR_NO_ERROR;						// user canceled timer in dialog
+	  else
+	  {
+	  }
+
+	  if (recSeries)
+	  {
+		  retval = ArgusTV::AddSeriesSchedule(pChannel->Guid(), starttime, programTitle, timerinfo.iMarginStart * 60, timerinfo.iMarginEnd * 60, timerinfo.iLifetime, addScheduleResponse, runType, anyChannel, anyTime);
+	  }
+	  else 
+	  {
+		  retval = ArgusTV::AddOneTimeSchedule(pChannel->Guid(), starttime, programTitle, timerinfo.iMarginStart * 60, timerinfo.iMarginEnd * 60, timerinfo.iLifetime, addScheduleResponse);
+	  }
+	  
+  }
   if (retval < 0) 
   {
     return PVR_ERROR_SERVER_ERROR;
@@ -992,9 +1060,10 @@ PVR_ERROR cPVRClientArgusTV::AddTimer(const PVR_TIMER &timerinfo)
 
   std::string scheduleid = addScheduleResponse["ScheduleId"].asString();
 
-  XBMC->Log(LOG_DEBUG, "%s: ARGUS one-time schedule added with id %s.", __FUNCTION__,
+  XBMC->Log(LOG_DEBUG, "%s: ARGUS schedule added with id %s.", __FUNCTION__,
     scheduleid.c_str());
 
+  XBMC->Log(LOG_DEBUG, addScheduleResponse.toStyledString().c_str());
 
   // Ok, we created a schedule, but did that lead to an upcoming recording?
   Json::Value upcomingProgramsResponse;
@@ -1093,13 +1162,37 @@ PVR_ERROR cPVRClientArgusTV::DeleteTimer(const PVR_TIMER &timerinfo, bool force)
         }
         else
         {
-          retval = ArgusTV::CancelUpcomingProgram(upcomingrecording.ScheduleId(), upcomingrecording.ChannelId(), 
-            upcomingrecording.StartTime(), upcomingrecording.GuideProgramId());
-          if (retval < 0) 
-          {
-            XBMC->Log(LOG_ERROR, "Unable to cancel upcoming program from server.");
-            return PVR_ERROR_SERVER_ERROR;
-          }
+				bool deleteSeries = false;
+
+				CDialogDeleteTimer vWindow(deleteSeries, timerinfo.strTitle);
+				int dlogResult = vWindow.DoModal();
+				if (dlogResult == 1)								// present dialog with delete timer options
+				{
+					deleteSeries = vWindow.DeleteSeries;
+				}
+				else if (dlogResult == 0)
+					return PVR_ERROR_NO_ERROR;						// user canceled in delete timer dialog
+				//else if dialog fails, just delete the episode
+			
+				if (deleteSeries)
+				{
+					retval = ArgusTV::DeleteSchedule(upcomingrecording.ScheduleId());
+					if (retval < 0)
+					{
+						XBMC->Log(LOG_NOTICE, "Unable to delete schedule %s from server.", schedulename.c_str());
+						return PVR_ERROR_SERVER_ERROR;
+					}
+				}
+				else
+				{
+					retval = ArgusTV::CancelUpcomingProgram(upcomingrecording.ScheduleId(), upcomingrecording.ChannelId(),
+						upcomingrecording.StartTime(), upcomingrecording.GuideProgramId());
+					if (retval < 0)
+					{
+						XBMC->Log(LOG_ERROR, "Unable to cancel upcoming program from server.");
+						return PVR_ERROR_SERVER_ERROR;
+					}
+				}
         }
 
         // Trigger an update of the PVR timers

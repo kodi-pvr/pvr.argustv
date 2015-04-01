@@ -1087,7 +1087,6 @@ namespace ArgusTV
     return retval;
   }
 
-
   /**
    * \brief Add a xbmc timer as a one time schedule
    */
@@ -1159,6 +1158,110 @@ namespace ArgusTV
     }
 
     return retval;
+  }
+
+  /**
+  * \brief Add a xbmc timer as a one time schedule
+  */
+  int AddSeriesSchedule(const std::string& channelid, const time_t starttime, const std::string& title, int prerecordseconds, int postrecordseconds, int lifetime, Json::Value& response, int runType, bool anyChannel, bool anyTime)
+  {
+	  int retval = -1;
+
+	  XBMC->Log(LOG_DEBUG, "AddSeriesSchedule");
+	  struct tm* convert = localtime(&starttime);
+	  struct tm tm_start = *convert;
+
+	  // Get empty schedule from the server
+	  Json::Value newSchedule;
+	  if (ArgusTV::GetEmptySchedule(newSchedule) < 0) return retval;
+
+	  // Fill relevant members
+	  CStdString modifiedtitle = title;
+	  modifiedtitle.Replace("\"", "\\\"");
+
+	  newSchedule["KeepUntilMode"] = Json::Value(lifetimeToKeepUntilMode(lifetime));
+	  newSchedule["KeepUntilValue"] = Json::Value(lifetimeToKeepUntilValue(lifetime));	  
+	  newSchedule["PostRecordSeconds"] = Json::Value(postrecordseconds);
+	  newSchedule["PreRecordSeconds"] = Json::Value(prerecordseconds);
+	  newSchedule["IsActive"] = Json::Value(true);
+	  newSchedule["IsOneTime"] = Json::Value(false);
+
+	  Json::Value rule(Json::objectValue);
+	  rule["Arguments"] = Json::arrayValue;
+	  rule["Arguments"].append(Json::Value(modifiedtitle.c_str()));
+	  rule["Type"] = Json::Value("TitleEquals");
+	  newSchedule["Rules"].append(rule);
+
+	  if (!anyTime)
+	  {
+		  newSchedule["Name"] = Json::Value((modifiedtitle).c_str());
+
+		  char formatbuffer[256];
+		  rule = Json::objectValue;
+		  rule["Arguments"] = Json::arrayValue;
+		  snprintf(formatbuffer, sizeof(formatbuffer), "%i-%02i-%02iT00:00:00", tm_start.tm_year + 1900, tm_start.tm_mon + 1, tm_start.tm_mday);
+		  rule["Arguments"].append(Json::Value(formatbuffer));
+		  rule["Type"] = Json::Value("OnDate");
+		  newSchedule["Rules"].append(rule);
+
+		  rule = Json::objectValue;
+		  rule["Arguments"] = Json::arrayValue;
+		  snprintf(formatbuffer, sizeof(formatbuffer), "%02i:%02i:%02i", tm_start.tm_hour, tm_start.tm_min, tm_start.tm_sec);
+		  rule["Arguments"].append(Json::Value(formatbuffer));
+		  rule["Type"] = Json::Value("AroundTime");
+		  newSchedule["Rules"].append(rule);
+	  }
+	  else {
+		  CStdString anyTimeString;
+		  anyTimeString = XBMC->GetLocalizedString(30130);  //"(Any Time)"
+		  newSchedule["Name"] = Json::Value((modifiedtitle + " " + anyTimeString).c_str());
+	  }
+
+	//When runType is 0 then the below will be both false -- the same as no options checked in the Argus Scheduler Console application
+	//NewEpisodesOnly = Episodes Once = option 2 or 3 from Kodi dialog
+	rule = Json::objectValue;
+	rule["Arguments"] = Json::arrayValue;
+	rule["Arguments"].append(Json::Value(runType & 2 ? true : false));
+	rule["Type"] = Json::Value("NewEpisodesOnly");
+	newSchedule["Rules"].append(rule);
+
+	//SkipRepeats = First runs only = option 1 or 3 from Kodi dialog
+	rule = Json::objectValue;
+	rule["Arguments"] = Json::arrayValue;
+	rule["Arguments"].append(Json::Value(runType & 1 ? true : false));
+	rule["Type"] = Json::Value("SkipRepeats");
+	newSchedule["Rules"].append(rule);
+	 
+
+	  if (!anyChannel)
+	  {
+		  rule = Json::objectValue;
+		  rule["Arguments"] = Json::arrayValue;
+		  rule["Arguments"].append(Json::Value(channelid.c_str()));
+		  rule["Type"] = Json::Value("Channels");
+		  newSchedule["Rules"].append(rule);
+	  }
+
+	  XBMC->Log(LOG_DEBUG, newSchedule.toStyledString().c_str());
+	  Json::FastWriter writer;
+	  std::string tmparguments = writer.write(newSchedule);
+
+	  retval = ArgusTVJSONRPC("ArgusTV/Scheduler/SaveSchedule", tmparguments.c_str(), response);
+
+	  if (retval >= 0)
+	  {
+		  if (response.type() != Json::objectValue)
+		  {
+			  XBMC->Log(LOG_DEBUG, "Unknown response format. Expected Json::objectValue\n");
+			  return -1;
+		  }
+	  }
+	  else
+	  {
+		  XBMC->Log(LOG_DEBUG, "AddSeriesSchedule failed. Return value: %i\n", retval);
+	  }
+
+	  return retval;
   }
 
   /**

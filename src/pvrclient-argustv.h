@@ -31,6 +31,8 @@
 #include "KeepAliveThread.h"
 #include "EventsThread.h"
 
+#include "client.h"
+
 namespace ArgusTV
 {
   class CTsReader;
