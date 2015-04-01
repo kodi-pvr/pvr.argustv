@@ -551,7 +551,11 @@ PVR_ERROR cPVRClientArgusTV::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
       memset(&tag, 0 , sizeof(PVR_CHANNEL_GROUP));
 
       tag.bIsRadio     = bRadio;
+<<<<<<< HEAD
       tag.iPosition    = 0; // default ordering of the groups
+=======
+	  tag.iPosition = 0; // default ordering of the groups
+>>>>>>> 65500abf2651207310b8f9e948b5485d8804d761
       strncpy(tag.strGroupName, name.c_str(), sizeof(tag.strGroupName));
 
       PVR->TransferChannelGroup(handle, &tag);
