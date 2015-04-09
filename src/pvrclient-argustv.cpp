@@ -425,6 +425,7 @@ int cPVRClientArgusTV::GetNumChannels()
 
 PVR_ERROR cPVRClientArgusTV::GetChannels(ADDON_HANDLE handle, bool bRadio)
 {
+  CLockObject lock(m_ChannelCacheMutex);
   Json::Value response;
   int retval = -1;
 
@@ -1122,6 +1123,7 @@ PVR_ERROR cPVRClientArgusTV::UpdateTimer(const PVR_TIMER &timerinfo)
 /** Live stream handling */
 cChannel* cPVRClientArgusTV::FetchChannel(int channelid, bool LogError)
 {
+  CLockObject lock(m_ChannelCacheMutex);
   cChannel* rc = FetchChannel(m_TVChannels, channelid, false);
   if (rc == NULL) rc = FetchChannel(m_RadioChannels, channelid, false);
 
