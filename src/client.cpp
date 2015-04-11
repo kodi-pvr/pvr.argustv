@@ -34,6 +34,7 @@ std::string g_szHostname           = DEFAULT_HOST;         ///< The Host name or
 int         g_iPort                = DEFAULT_PORT;         ///< The TVServerXBMC listening port (default: 49943)
 int         g_iConnectTimeout      = DEFAULT_TIMEOUT;      ///< The Socket connection timeout
 bool        g_bRadioEnabled        = DEFAULT_RADIO;        ///< Send also Radio channels list to XBMC
+bool        g_bUseFolder		   = DEFAULT_USEFOLDER;    ///< Use folders for single recordings
                                                            ///< ARGUS TV uses shares to communicate with clients 
 std::string g_szUser               = DEFAULT_USER;         ///< Windows user account used to access share
 std::string g_szPass               = DEFAULT_PASS;         ///< Windows user password used to access share
@@ -155,6 +156,14 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     g_iTuneDelay = DEFAULT_TUNEDELAY;
   }
 
+  /* Read setting "usefolder" from settings.xml */
+  if (!XBMC->GetSetting("usefolder", &g_bUseFolder))
+  {
+	  /* If setting is unknown fallback to defaults */
+	  XBMC->Log(LOG_ERROR, "Couldn't get 'usefolder' setting, falling back to 'false' as default");
+	  g_bUseFolder = DEFAULT_USEFOLDER;
+  }
+
   /* Connect to ARGUS TV */
   if (!g_client->Connect())
   {
@@ -271,6 +280,11 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
   {
     XBMC->Log(LOG_INFO, "Changed setting 'tunedelay' from %u to %u", g_iTuneDelay, *(int*) settingValue);
     g_iTuneDelay = *(int*) settingValue;
+  }
+  else if (str == "usefolder")
+  {
+    XBMC->Log(LOG_INFO, "Changed setting 'usefolder' from %u to %u", g_bUseFolder, *(bool*)settingValue);
+    g_bUseFolder = *(bool*)settingValue;
   }
 
   return ADDON_STATUS_OK;
