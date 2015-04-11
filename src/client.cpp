@@ -159,9 +159,9 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   /* Read setting "usefolder" from settings.xml */
   if (!XBMC->GetSetting("usefolder", &g_bUseFolder))
   {
-	  /* If setting is unknown fallback to defaults */
-	  XBMC->Log(LOG_ERROR, "Couldn't get 'usefolder' setting, falling back to 'false' as default");
-	  g_bUseFolder = DEFAULT_USEFOLDER;
+    /* If setting is unknown fallback to defaults */
+	XBMC->Log(LOG_ERROR, "Couldn't get 'usefolder' setting, falling back to 'false' as default");
+	g_bUseFolder = DEFAULT_USEFOLDER;
   }
 
   /* Connect to ARGUS TV */
