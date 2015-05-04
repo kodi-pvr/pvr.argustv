@@ -19,8 +19,8 @@
 
 #include <string>
 #include <json/json.h>
-#include "kodi/util/StdString.h"
-#include "kodi/util/util.h"
+#include "platform/util/StdString.h"
+#include "platform/util/util.h"
 
 // don't use the UNUSED macro from StdString.h as it will generate "error: statement has no effect [-Werror=unused-value]"
 #define NOTUSED(x) ((void) x)

@@ -17,7 +17,7 @@
  *
  */
 
-#include "kodi/os.h"
+#include "platform/os.h"
 
 #include <vector>
 
