@@ -30,7 +30,7 @@
 
 #include "client.h"
 #include "FileReader.h"
-#include "kodi/util/StdString.h"
+#include "platform/util/StdString.h"
 
 namespace ArgusTV
 {

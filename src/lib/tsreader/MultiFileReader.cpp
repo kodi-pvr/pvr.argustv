@@ -37,14 +37,14 @@
 #include <string>
 #include "utils.h"
 #include <algorithm>
-#include "kodi/util/timeutils.h"
-#include "kodi/util/StdString.h"
+#include "platform/util/timeutils.h"
+#include "platform/util/StdString.h"
 
 #include <limits.h>
 
 #if !defined(TARGET_WINDOWS)
 #include <sys/time.h>
-#include "kodi/os.h"
+#include "platform/os.h"
 #define SUCCEEDED(hr) (((HRESULT)(hr)) >= 0)
 #endif
 

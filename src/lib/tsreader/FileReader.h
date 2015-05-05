@@ -33,7 +33,7 @@
  *  http://forums.dvbowners.com/
  */
 
-#include "kodi/os.h"
+#include "platform/os.h"
 
 namespace ArgusTV
 {
