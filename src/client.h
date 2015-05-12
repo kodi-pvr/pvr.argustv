@@ -34,6 +34,7 @@
 #define DEFAULT_USER                  "Guest"
 #define DEFAULT_PASS                  ""
 #define DEFAULT_TUNEDELAY             200
+#define DEFAULT_USEFOLDER             false
 
 extern bool         g_bCreated;           ///< Shows that the Create function was successfully called
 extern std::string  g_szUserPath;         ///< The Path to the user directory inside user profile
@@ -47,6 +48,7 @@ extern bool         g_bRadioEnabled;
 extern std::string  g_szUser;
 extern std::string  g_szPass;
 extern int          g_iTuneDelay;
+extern bool         g_bUseFolder;
 
 extern std::string  g_szBaseURL;
 
