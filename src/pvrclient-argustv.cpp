@@ -872,6 +872,9 @@ PVR_ERROR cPVRClientArgusTV::GetTimers(ADDON_HANDLE handle)
     cUpcomingRecording upcomingrecording;
     if (upcomingrecording.Parse(upcomingRecordingsResponse[i]))
     {
+      /* TODO: Implement own timer types to get support for the timer features introduced with PVR API 1.9.7 */
+      tag.iTimerType = PVR_TIMER_TYPE_NONE;
+
       tag.iClientIndex      = upcomingrecording.ID();
       tag.iClientChannelUid = upcomingrecording.ChannelID();
       tag.startTime         = upcomingrecording.StartTime();
@@ -924,7 +927,6 @@ PVR_ERROR cPVRClientArgusTV::GetTimers(ADDON_HANDLE handle)
       tag.strSummary[0]     = '\0';
       tag.iPriority         = 0;
       tag.iLifetime         = 0;
-      tag.bIsRepeating      = false;
       tag.firstDay          = 0;
       tag.iWeekdays         = 0;
       tag.iEpgUid           = 0;
