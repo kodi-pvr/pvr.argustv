@@ -25,7 +25,8 @@
 
 using namespace ADDON;
 
-CEventsThread::CEventsThread(void)
+CEventsThread::CEventsThread(void) :
+  m_subscribed(false)
 {
   XBMC->Log(LOG_DEBUG, "CEventsThread:: constructor");
 }

@@ -37,11 +37,12 @@ using namespace ADDON;
 
 namespace ArgusTV
 {
-  CTsReader::CTsReader()
+  CTsReader::CTsReader() :
+    m_fileReader(NULL),
+    m_bLiveTv(false),
+    m_bRecording(false),
+    m_bTimeShifting(false)
   {
-    m_fileReader = NULL;
-    m_bLiveTv = false;
-    m_bTimeShifting = false;
 #if defined(TARGET_WINDOWS)
     liDelta.QuadPart = liCount.QuadPart = 0;
 #endif
