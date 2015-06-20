@@ -28,10 +28,11 @@ using namespace std;
 
 using namespace ADDON;
 
-cEpg::cEpg()
+cEpg::cEpg() :
+  m_starttime(0),
+  m_endtime(0),
+  m_utcdiff(0)
 {
-  m_starttime       = 0;
-  m_endtime         = 0;
 }
 
 cEpg::~cEpg()

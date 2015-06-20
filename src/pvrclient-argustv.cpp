@@ -59,6 +59,8 @@ cPVRClientArgusTV::cPVRClientArgusTV()
   m_iCurrentChannel        = -1;
   m_keepalive              = new CKeepAliveThread();
   m_eventmonitor           = new CEventsThread();
+  m_iBackendVersion        = 0;
+  m_signalqualityInterval  = 0;
   m_TVChannels.clear();
   m_RadioChannels.clear();
   // due to lack of static constructors, we initialize manually
