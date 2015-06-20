@@ -55,4 +55,10 @@ extern std::string  g_szBaseURL;
 extern ADDON::CHelper_libXBMC_addon *XBMC;
 extern CHelper_libXBMC_pvr   *PVR;
 
+/*!
+* @brief PVR macros for string exchange
+*/
+#define PVR_STRCPY(dest, source) do { strncpy(dest, source, sizeof(dest)-1); dest[sizeof(dest)-1] = '\0'; } while(0)
+#define PVR_STRCLR(dest) memset(dest, 0, sizeof(dest))
+
 #endif /* CLIENT_H */
