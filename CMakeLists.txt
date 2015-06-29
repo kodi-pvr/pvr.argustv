@@ -59,7 +59,7 @@ if(WIN32)
 set(RESOURCE_FILES pvr.argustv/addon.xml
                 pvr.argustv/changelog.txt
                 pvr.argustv/resources/settings.xml
-                pvr.argustv/resources/language/English/strings.po)
+                pvr.argustv/resources/language/resource.language.en_gb/strings.po)
 source_group("Resource Files" FILES ${RESOURCE_FILES})
 endif(WIN32)
 
