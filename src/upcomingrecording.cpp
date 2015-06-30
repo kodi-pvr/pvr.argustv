@@ -25,19 +25,21 @@
 #include "argustvrpc.h"
 #include "upcomingrecording.h"
 
-cUpcomingRecording::cUpcomingRecording(void)
+cUpcomingRecording::cUpcomingRecording(void) :
+  date(0),
+  starttime(0),
+  stoptime(0),
+  prerecordseconds(0),
+  postrecordseconds(0),
+  iscancelled(false),
+  isallocated(true),
+  isinconflict(true),
+  id(0),
+  ichannelid(0)
 {
   channeldisplayname = "";
   channelid = "";
-  date = 0;
-  starttime = 0;
-  stoptime = 0;
   title = "";
-  iscancelled = false;
-  isallocated = true;
-  isinconflict = true;
-  id = 0;
-  ichannelid = 0;
 }
 
 cUpcomingRecording::~cUpcomingRecording(void)

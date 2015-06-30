@@ -64,6 +64,7 @@ cRecording::cRecording(void)
   starrating = 0.0;
   subtitle = "";
   title = "";
+  id = 0;
 }
 
 cRecording::~cRecording(void)
