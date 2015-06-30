@@ -59,6 +59,8 @@ cPVRClientArgusTV::cPVRClientArgusTV()
   m_iCurrentChannel        = -1;
   m_keepalive              = new CKeepAliveThread();
   m_eventmonitor           = new CEventsThread();
+  m_iBackendVersion        = 0;
+  m_signalqualityInterval  = 0;
   m_TVChannels.clear();
   m_RadioChannels.clear();
   // due to lack of static constructors, we initialize manually
@@ -465,15 +467,15 @@ PVR_ERROR cPVRClientArgusTV::GetChannels(ADDON_HANDLE handle, bool bRadio)
         PVR_CHANNEL tag;
         memset(&tag, 0 , sizeof(tag));
         tag.iUniqueId =  channel->ID();
-        strncpy(tag.strChannelName, channel->Name(), sizeof(tag.strChannelName));
+        PVR_STRCPY(tag.strChannelName, channel->Name());
         std::string logopath = ArgusTV::GetChannelLogo(channel->Guid()).c_str();
-        strncpy(tag.strIconPath, logopath.c_str(), sizeof(tag.strIconPath));
+        PVR_STRCPY(tag.strIconPath, logopath.c_str());
         tag.iEncryptionSystem = (unsigned int) -1; //How to fetch this from ARGUS TV??
         tag.bIsRadio = (channel->Type() == ArgusTV::Radio ? true : false);
         tag.bIsHidden = false;
         //Use OpenLiveStream to read from the timeshift .ts file or an rtsp stream
         memset(tag.strStreamURL, 0, sizeof(tag.strStreamURL));
-        strncpy(tag.strInputFormat, "video/mp2t", sizeof(tag.strInputFormat));
+        PVR_STRCPY(tag.strInputFormat, "video/mp2t");
         tag.iChannelNumber = channel->LCN();
 
         if (!tag.bIsRadio)
@@ -552,7 +554,7 @@ PVR_ERROR cPVRClientArgusTV::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
 
       tag.bIsRadio     = bRadio;
       tag.iPosition    = 0; // default ordering of the groups
-      strncpy(tag.strGroupName, name.c_str(), sizeof(tag.strGroupName));
+      PVR_STRCPY(tag.strGroupName, name.c_str());
 
       PVR->TransferChannelGroup(handle, &tag);
     }
@@ -617,7 +619,7 @@ PVR_ERROR cPVRClientArgusTV::GetChannelGroupMembers(ADDON_HANDLE handle, const P
     PVR_CHANNEL_GROUP_MEMBER tag;
     memset(&tag,0 , sizeof(PVR_CHANNEL_GROUP_MEMBER));
 
-    strncpy(tag.strGroupName, group.strGroupName, sizeof(tag.strGroupName));
+    PVR_STRCPY(tag.strGroupName, group.strGroupName);
     tag.iChannelUniqueId = id;
     tag.iChannelNumber   = lcn;
 
@@ -690,28 +692,28 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(ADDON_HANDLE handle)
               PVR_RECORDING tag;
               memset(&tag, 0 , sizeof(tag));
 
-              strncpy(tag.strRecordingId, recording.RecordingId(), sizeof(tag.strRecordingId));
-              strncpy(tag.strChannelName, recording.ChannelDisplayName(), sizeof(tag.strChannelName));
+              PVR_STRCPY(tag.strRecordingId, recording.RecordingId());
+              PVR_STRCPY(tag.strChannelName, recording.ChannelDisplayName());
               tag.iLifetime      = MAXLIFETIME; //TODO: recording.Lifetime();
               tag.iPriority      = recording.SchedulePriority();
               tag.recordingTime  = recording.RecordingStartTime();
               tag.iDuration      = recording.RecordingStopTime() - recording.RecordingStartTime();
-              strncpy(tag.strPlot, recording.Description(), sizeof(tag.strPlot));
+              PVR_STRCPY(tag.strPlot, recording.Description());
               tag.iPlayCount     = recording.FullyWatchedCount();
               tag.iLastPlayedPosition = recording.LastWatchedPosition();
               if (nrOfRecordings > 1 || g_bUseFolder)
               {
                 recording.Transform(true);
-                strncpy(tag.strDirectory, recordinggroup.ProgramTitle().c_str(), sizeof(tag.strDirectory)); //used in XBMC as directory structure below "Server X - hostname"
+                PVR_STRCPY(tag.strDirectory, recordinggroup.ProgramTitle().c_str()); //used in XBMC as directory structure below "Server X - hostname"
               }
               else
               {
                 recording.Transform(false);
-                tag.strDirectory[0] = '\0';
+                PVR_STRCLR(tag.strDirectory);
               }
-              strncpy(tag.strTitle, recording.Title(), sizeof(tag.strTitle));
-              strncpy(tag.strPlotOutline, recording.SubTitle(), sizeof(tag.strPlotOutline));
-              strncpy(tag.strStreamURL, recording.RecordingFileName(), sizeof(tag.strStreamURL));
+              PVR_STRCPY(tag.strTitle, recording.Title());
+              PVR_STRCPY(tag.strPlotOutline, recording.SubTitle());
+              PVR_STRCPY(tag.strStreamURL, recording.RecordingFileName());
               PVR->TransferRecordingEntry(handle, &tag);
               iNumRecordings++;
             }
@@ -917,7 +919,7 @@ PVR_ERROR cPVRClientArgusTV::GetTimers(ADDON_HANDLE handle)
         }
       }
 
-      strncpy(tag.strTitle, upcomingrecording.Title().c_str(), sizeof(tag.strTitle));
+      PVR_STRCPY(tag.strTitle, upcomingrecording.Title().c_str());
       tag.strDirectory[0]   = '\0';
       tag.strSummary[0]     = '\0';
       tag.iPriority         = 0;

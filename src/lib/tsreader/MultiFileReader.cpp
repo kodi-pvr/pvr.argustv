@@ -461,10 +461,7 @@ namespace ArgusTV
         {
           // If we're adding files the changes are the one at the back has a partial length
           // so we need update it.
-          if (m_bDebugOutput)
-            GetFileLength(file->filename.c_str(), file->length);
-          else
-            GetFileLength(file->filename.c_str(), file->length);
+          GetFileLength(file->filename.c_str(), file->length);
         }
 
         nextStartPosition = file->startPosition + file->length;
