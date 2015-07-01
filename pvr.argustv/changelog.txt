@@ -1,3 +1,5 @@
+v1.20.0 (01-07-2015)
+- Force update after libplatform dependency update
 v1.10.9 (29-06-2015)
 - Coverity fixes
 v1.10.8 (28-06-2015)
