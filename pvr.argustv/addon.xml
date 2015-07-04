@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.argustv"
-  version="1.11.0"
+  version="1.11.1"
   name="ARGUS TV client"
   provider-name="Fred Hoogduin, Marcel Groothuis">
   <requires>
     <c-pluff version="0.1"/>
-    <import addon="xbmc.pvr" version="1.9.7"/>
+    <import addon="xbmc.pvr" version="2.0.0"/>
   </requires>
   <extension
     point="xbmc.pvrclient"
