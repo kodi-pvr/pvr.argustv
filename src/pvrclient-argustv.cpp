@@ -1167,6 +1167,14 @@ bool cPVRClientArgusTV::_OpenLiveStream(const PVR_CHANNEL &channelinfo)
 {
   XBMC->Log(LOG_DEBUG, "->_OpenLiveStream(%i)", channelinfo.iUniqueId);
 
+  if (((int)channelinfo.iUniqueId) == m_iCurrentChannel)
+  {
+    XBMC->Log(LOG_NOTICE, "New channel uid equal to the already streaming channel. Skipping re-tune.");
+    return true;
+  }
+
+  m_iCurrentChannel = -1; // make sure that it is not a valid channel nr in case it will fail lateron
+
   cChannel* channel = FetchChannel(channelinfo.iUniqueId);
 
   if (channel)
