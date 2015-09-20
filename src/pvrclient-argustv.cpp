@@ -372,6 +372,7 @@ PVR_ERROR cPVRClientArgusTV::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &chan
             broadcast.strWriter           = "";
             broadcast.iYear               = 0;
             broadcast.strIMDBNumber       = "";
+            broadcast.iFlags              = EPG_TAG_FLAG_UNDEFINED;
 
             PVR->TransferEpgEntry(handle, &broadcast);
           }
