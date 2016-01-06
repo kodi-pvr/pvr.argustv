@@ -33,7 +33,7 @@
  *  http://forums.dvbowners.com/
  */
 
-#include "platform/os.h"
+#include "p8-platform/os.h"
 
 namespace ArgusTV
 {

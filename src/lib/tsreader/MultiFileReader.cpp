@@ -37,19 +37,19 @@
 #include <string>
 #include "utils.h"
 #include <algorithm>
-#include "platform/util/timeutils.h"
-#include "platform/util/StdString.h"
+#include "p8-platform/util/timeutils.h"
+#include "p8-platform/util/StdString.h"
 
 #include <limits.h>
 
 #if !defined(TARGET_WINDOWS)
 #include <sys/time.h>
-#include "platform/os.h"
+#include "p8-platform/os.h"
 #define SUCCEEDED(hr) (((HRESULT)(hr)) >= 0)
 #endif
 
 using namespace ADDON;
-using namespace PLATFORM;
+using namespace P8PLATFORM;
 
 //Maximum time in msec to wait for the buffer file to become available - Needed for DVB radio (this sometimes takes some time)
 #define MAX_BUFFER_TIMEOUT 1500
@@ -123,7 +123,7 @@ namespace ArgusTV
     if (RefreshTSBufferFile() == S_FALSE)
     {
       // For radio the buffer sometimes needs some time to become available, so wait and try it more than once
-      PLATFORM::CTimeout timeout(MAX_BUFFER_TIMEOUT);
+      P8PLATFORM::CTimeout timeout(MAX_BUFFER_TIMEOUT);
 
       do
       {

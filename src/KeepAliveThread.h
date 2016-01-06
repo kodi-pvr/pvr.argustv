@@ -16,9 +16,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "platform/threads/threads.h"
+#include "p8-platform/threads/threads.h"
 
-class CKeepAliveThread : public PLATFORM::CThread
+class CKeepAliveThread : public P8PLATFORM::CThread
 {
 public:
   CKeepAliveThread();

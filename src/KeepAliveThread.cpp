@@ -18,7 +18,7 @@
  *
  */
 
-#include "platform/os.h"
+#include "p8-platform/os.h"
 #include "client.h" //for XBMC->Log
 #include "utils.h"
 #include "argustvrpc.h"
@@ -43,7 +43,7 @@ void *CKeepAliveThread::Process()
   {
     int retval = ArgusTV::KeepLiveStreamAlive();
     XBMC->Log(LOG_DEBUG, "CKeepAliveThread:: KeepLiveStreamAlive returned %i", (int) retval);
-    // The new PLATFORM:: thread library has a problem with stopping a thread that is doing a long sleep
+    // The new P8PLATFORM:: thread library has a problem with stopping a thread that is doing a long sleep
     for (int i = 0; i < 100; i++)
     {
       if (Sleep(100)) break;
