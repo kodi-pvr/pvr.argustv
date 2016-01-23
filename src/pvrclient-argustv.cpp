@@ -29,15 +29,15 @@
 #include "utils.h"
 #include "pvrclient-argustv.h"
 #include "argustvrpc.h"
-#include "platform/util/timeutils.h"
-#include "platform/util/StdString.h"
+#include "p8-platform/util/timeutils.h"
+#include "p8-platform/util/StdString.h"
 
 #include "lib/tsreader/TSReader.h"
 
 using namespace std;
 using namespace ADDON;
 
-using namespace PLATFORM;
+using namespace P8PLATFORM;
 using namespace ArgusTV;
 
 #define SIGNALQUALITY_INTERVAL 10

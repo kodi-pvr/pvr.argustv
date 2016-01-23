@@ -25,13 +25,13 @@
 
 #include <stdio.h>
 #include <sys/stat.h>
-#include "platform/os.h"
+#include "p8-platform/os.h"
 #include "client.h"
 #include "pvrclient-argustv.h"
 #include "utils.h"
 #include "argustvrpc.h"
-#include "platform/threads/mutex.h"
-#include "platform/util/StdString.h"
+#include "p8-platform/threads/mutex.h"
+#include "p8-platform/util/StdString.h"
 
 using namespace ADDON;
 
@@ -43,7 +43,7 @@ using namespace ADDON;
  */
 namespace ArgusTV
 {
-  PLATFORM::CMutex communication_mutex;
+  P8PLATFORM::CMutex communication_mutex;
 
   /**
    * \brief Do some internal housekeeping at the start
@@ -65,7 +65,7 @@ namespace ArgusTV
 
   int ArgusTVRPC(const std::string& command, const std::string& arguments, std::string& json_response)
   {
-    PLATFORM::CLockObject critsec(communication_mutex);
+    P8PLATFORM::CLockObject critsec(communication_mutex);
     std::string url = g_szBaseURL + command;
     int retval = E_FAILED;
     XBMC->Log(LOG_DEBUG, "URL: %s\n", url.c_str());
@@ -98,7 +98,7 @@ namespace ArgusTV
 
   int ArgusTVRPCToFile(const std::string& command, const std::string& arguments, std::string& filename, long& http_response)
   {
-    PLATFORM::CLockObject critsec(communication_mutex);
+    P8PLATFORM::CLockObject critsec(communication_mutex);
     std::string url = g_szBaseURL + command;
     int retval = E_FAILED;
     XBMC->Log(LOG_DEBUG, "URL: %s writing to file %s\n", url.c_str(), filename.c_str());

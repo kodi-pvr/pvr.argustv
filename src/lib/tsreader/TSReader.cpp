@@ -31,7 +31,7 @@
 #include "client.h" //for XBMC->Log
 #include "MultiFileReader.h"
 #include "utils.h"
-#include "platform/os.h"
+#include "p8-platform/os.h"
 
 using namespace ADDON;
 

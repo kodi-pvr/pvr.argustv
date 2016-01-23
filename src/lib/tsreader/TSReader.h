@@ -30,7 +30,7 @@
 
 #include "client.h"
 #include "FileReader.h"
-#include "platform/util/StdString.h"
+#include "p8-platform/util/StdString.h"
 
 namespace ArgusTV
 {

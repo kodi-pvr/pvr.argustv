@@ -17,7 +17,7 @@
  *
  */
 
-#include "platform/os.h"
+#include "p8-platform/os.h"
 
 #include <vector>
 
@@ -126,7 +126,7 @@ private:
   time_t                  m_BackendUTCoffset;
   time_t                  m_BackendTime;
 
-  PLATFORM::CMutex        m_ChannelCacheMutex;
+  P8PLATFORM::CMutex        m_ChannelCacheMutex;
   std::vector<cChannel*>   m_TVChannels; // Local TV channel cache list needed for id to guid conversion
   std::vector<cChannel*>   m_RadioChannels; // Local Radio channel cache list needed for id to guid conversion
   int                     m_epg_id_offset;

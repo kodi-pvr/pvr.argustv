@@ -86,7 +86,7 @@ void *CEventsThread::Process()
         if (events.size() > 0u) HandleEvents(events);
       }
     }
-    // The new PLATFORM:: thread library has a problem with stopping a thread that is doing a long sleep
+    // The new P8PLATFORM:: thread library has a problem with stopping a thread that is doing a long sleep
     for (int i = 0; i < 100; i++)
     {
       if (Sleep(100)) break;

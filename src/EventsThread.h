@@ -19,9 +19,9 @@
  *
  */
 
-#include "platform/threads/threads.h"
+#include "p8-platform/threads/threads.h"
 
-class CEventsThread : public PLATFORM::CThread
+class CEventsThread : public P8PLATFORM::CThread
 {
 public:
   CEventsThread(void);

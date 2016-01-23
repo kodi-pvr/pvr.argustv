@@ -24,10 +24,10 @@
  */
 
 #include "tools.h"
-#include "platform/util/timeutils.h"
+#include "p8-platform/util/timeutils.h"
 
 using namespace ADDON;
-using namespace PLATFORM;
+using namespace P8PLATFORM;
 
 // --- cTimeMs ---------------------------------------------------------------
 
