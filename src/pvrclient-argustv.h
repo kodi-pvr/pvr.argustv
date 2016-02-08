@@ -92,7 +92,6 @@ public:
   long long SeekLiveStream(long long pos, int whence);
   long long PositionLiveStream(void);
   long long LengthLiveStream(void);
-  int GetCurrentClientChannel();
   bool SwitchChannel(const PVR_CHANNEL &channel);
   PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus);
   bool CanPauseAndSeek(void);

@@ -591,11 +591,6 @@ long long LengthLiveStream(void)
   return g_client->LengthLiveStream();
 }
 
-int GetCurrentClientChannel()
-{
-  return g_client->GetCurrentClientChannel();
-}
-
 bool SwitchChannel(const PVR_CHANNEL &channelinfo)
 {
   return g_client->SwitchChannel(channelinfo);

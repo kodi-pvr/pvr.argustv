@@ -1433,11 +1433,6 @@ bool cPVRClientArgusTV::SwitchChannel(const PVR_CHANNEL &channelinfo)
 }
 
 
-int cPVRClientArgusTV::GetCurrentClientChannel()
-{
-  return m_iCurrentChannel;
-}
-
 PVR_ERROR cPVRClientArgusTV::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 {
   static PVR_SIGNAL_STATUS tag;
