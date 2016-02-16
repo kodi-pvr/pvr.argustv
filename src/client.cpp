@@ -18,7 +18,6 @@
 
 #include "client.h"
 #include "kodi/xbmc_pvr_dll.h"
-#include "kodi/libKODI_guilib.h"
 #include "pvrclient-argustv.h"
 #include "utils.h"
 #include "uri.h"
@@ -323,12 +322,12 @@ const char* GetMininumPVRAPIVersion(void)
 
 const char* GetGUIAPIVersion(void)
 {
-  return KODI_GUILIB_API_VERSION;
+  return ""; // GUI API not used
 }
 
 const char* GetMininumGUIAPIVersion(void)
 {
-  return KODI_GUILIB_MIN_API_VERSION;
+  return ""; // GUI API not used
 }
 
 //-- GetAddonCapabilities -----------------------------------------------------
@@ -592,11 +591,6 @@ long long LengthLiveStream(void)
   return g_client->LengthLiveStream();
 }
 
-int GetCurrentClientChannel()
-{
-  return g_client->GetCurrentClientChannel();
-}
-
 bool SwitchChannel(const PVR_CHANNEL &channelinfo)
 {
   return g_client->SwitchChannel(channelinfo);
@@ -681,6 +675,8 @@ bool IsTimeshifting(void) { return false; }
 time_t GetPlayingTime() { return 0; }
 time_t GetBufferTimeStart() { return 0; }
 time_t GetBufferTimeEnd() { return 0; }
+bool IsRealTimeStream() { return true; }
 PVR_ERROR UndeleteRecording(const PVR_RECORDING& recording) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR DeleteAllRecordingsFromTrash() { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR DeleteAllRecordingsFromTrash() { return PVR_ERROR_NOT_IMPLEMENTED;}
+PVR_ERROR SetEPGTimeFrame(int) { return PVR_ERROR_NOT_IMPLEMENTED; }
 } //end extern "C"

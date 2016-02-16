@@ -715,6 +715,10 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(ADDON_HANDLE handle)
               PVR_STRCPY(tag.strTitle, recording.Title());
               PVR_STRCPY(tag.strPlotOutline, recording.SubTitle());
               PVR_STRCPY(tag.strStreamURL, recording.RecordingFileName());
+
+              /* TODO: PVR API 5.0.0: Implement this */
+              tag.iChannelUid = PVR_CHANNEL_INVALID_UID;
+
               PVR->TransferRecordingEntry(handle, &tag);
               iNumRecordings++;
             }
@@ -1432,11 +1436,6 @@ bool cPVRClientArgusTV::SwitchChannel(const PVR_CHANNEL &channelinfo)
   return fRc;
 }
 
-
-int cPVRClientArgusTV::GetCurrentClientChannel()
-{
-  return m_iCurrentChannel;
-}
 
 PVR_ERROR cPVRClientArgusTV::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 {
