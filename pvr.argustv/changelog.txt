@@ -1,3 +1,5 @@
+v2.2.0 (08-03-2016)
+- Update to PVR addon API v5.1.0
 v2.1.0 (14-02-2016)
 - Update to PVR addon API v5.0.0
 v2.0.1 (23-01-2016)
