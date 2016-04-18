@@ -36,6 +36,11 @@ namespace Json
   void printValueTree( const Json::Value& value, const std::string& path = "." );
 }
 
+namespace BASE64
+{
+  std::string b64_encode(unsigned char const* in, unsigned int in_len, bool urlEncode);
+}
+
 std::string ToCIFS(std::string& UNCName);
 std::string ToUNC(std::string& CIFSName);
 std::string ToUNC(const char* CIFSName);

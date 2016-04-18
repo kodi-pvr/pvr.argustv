@@ -73,9 +73,8 @@ namespace ArgusTV
     if (hFile != NULL)
     {
       XBMC->CURLAddOption(hFile, XFILE::CURL_OPTION_PROTOCOL, "Content-Type", "application/json");
-      char *b64encoded = XBMC->EncodeBase64(reinterpret_cast<const uint8_t*>(arguments.c_str()), arguments.length());
-      XBMC->CURLAddOption(hFile, XFILE::CURL_OPTION_PROTOCOL, "postdata", b64encoded);
-      XBMC->FreeString(b64encoded);
+      std::string b64encoded = BASE64::b64_encode(reinterpret_cast<const uint8_t*>(arguments.c_str()), arguments.length(), false);
+      XBMC->CURLAddOption(hFile, XFILE::CURL_OPTION_PROTOCOL, "postdata", b64encoded.c_str());
 
       if (XBMC->CURLOpen(hFile, XFILE::READ_NO_CACHE))
       {
