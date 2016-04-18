@@ -84,6 +84,49 @@ namespace Json
   }
 } //namespace Json
 
+namespace BASE64
+{
+
+static const char *to_base64 =
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
+abcdefghijklmnopqrstuvwxyz\
+0123456789+/";
+
+std::string b64_encode(unsigned char const* in, unsigned int in_len, bool urlEncode)
+{
+  std::string ret;
+  int i(3);
+  unsigned char c_3[3];
+  unsigned char c_4[4];
+
+  while (in_len) {
+    i = in_len > 2 ? 3 : in_len;
+    in_len -= i;
+    c_3[0] = *(in++);
+    c_3[1] = i > 1 ? *(in++) : 0;
+    c_3[2] = i > 2 ? *(in++) : 0;
+
+    c_4[0] = (c_3[0] & 0xfc) >> 2;
+    c_4[1] = ((c_3[0] & 0x03) << 4) + ((c_3[1] & 0xf0) >> 4);
+    c_4[2] = ((c_3[1] & 0x0f) << 2) + ((c_3[2] & 0xc0) >> 6);
+    c_4[3] = c_3[2] & 0x3f;
+
+    for (int j = 0; (j < i + 1); ++j)
+    {
+      if (urlEncode && to_base64[c_4[j]] == '+')
+        ret += "%2B";
+      else if (urlEncode && to_base64[c_4[j]] == '/')
+        ret += "%2F";
+      else
+        ret += to_base64[c_4[j]];
+    }
+  }
+  while ((i++ < 3))
+    ret += urlEncode ? "%3D" : "=";
+  return ret;
+}
+
+} //Namespace BASE64
 
 // transform [\\nascat\qrecordings\NCIS\2012-05-15_20-30_SBS 6_NCIS.ts]
 // into      [smb://user:password@nascat/qrecordings/NCIS/2012-05-15_20-30_SBS 6_NCIS.ts]

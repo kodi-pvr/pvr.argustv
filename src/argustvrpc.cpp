@@ -69,11 +69,14 @@ namespace ArgusTV
     std::string url = g_szBaseURL + command;
     int retval = E_FAILED;
     XBMC->Log(LOG_DEBUG, "URL: %s\n", url.c_str());
-    void* hFile = XBMC->OpenFileForWrite(url.c_str(), 0);
+    void* hFile = XBMC->CURLCreate(url.c_str());
     if (hFile != NULL)
     {
-      int rc = XBMC->WriteFile(hFile, arguments.c_str(), arguments.length());
-      if (rc >= 0)
+      XBMC->CURLAddOption(hFile, XFILE::CURL_OPTION_PROTOCOL, "Content-Type", "application/json");
+      std::string b64encoded = BASE64::b64_encode(reinterpret_cast<const uint8_t*>(arguments.c_str()), arguments.length(), false);
+      XBMC->CURLAddOption(hFile, XFILE::CURL_OPTION_PROTOCOL, "postdata", b64encoded.c_str());
+
+      if (XBMC->CURLOpen(hFile, XFILE::READ_NO_CACHE))
       {
         std::string result;
         result.clear();
