@@ -2,7 +2,7 @@
 <addon
   id="pvr.argustv"
   version="2.2.1"
-  name="ARGUS TV client"
+  name="ARGUS TV PVR Client Addon"
   provider-name="Fred Hoogduin, Marcel Groothuis">
   <requires>
     <c-pluff version="0.1"/>
