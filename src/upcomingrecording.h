@@ -19,7 +19,7 @@
  *
  */
 
-#include "kodi/libXBMC_pvr.h"
+#include "libXBMC_pvr.h"
 #include <string>
 #include <json/json.h>
 
