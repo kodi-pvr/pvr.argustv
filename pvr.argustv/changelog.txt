@@ -1,3 +1,5 @@
+v2.4.0 (18-05-2016)
+- Cmake: rename find_package kodi to Kodi
 v2.3.0 (13-05-2016)
 - Update to PVR addon API v5.2.0
 - Fix includes
