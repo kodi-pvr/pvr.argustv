@@ -35,14 +35,8 @@ CEventsThread::CEventsThread(void) :
 CEventsThread::~CEventsThread(void)
 {
   XBMC->Log(LOG_DEBUG, "CEventsThread:: destructor");
-  if (m_subscribed)
-  {
-    int retval = ArgusTV::UnsubscribeServiceEvents(m_monitorId);
-    if (retval < 0)
-    {
-      XBMC->Log(LOG_NOTICE, "CEventsThread:: unsubscribe from events failed");
-    }
-  }
+  // v17 Krypton. When exiting Kodi with this addon still subscribed,
+  // network services are already unavailable. ArgusTV::UnsubscribeServiceEvents won't succeed
 }
 
 void CEventsThread::Connect()
