@@ -1,3 +1,5 @@
+v3.0.0
+- Initial Kodi v18 version
 v2.5.0 (20-09-2016)
 - Correct PVR API reference to v5.2.0
 - Disable unsubscribing from events (at least for v17 Krypton)
