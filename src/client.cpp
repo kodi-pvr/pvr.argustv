@@ -209,20 +209,6 @@ ADDON_STATUS ADDON_GetStatus()
   return m_CurStatus;
 }
 
-//-- HasSettings --------------------------------------------------------------
-// Report "true", yes this AddOn have settings
-//-----------------------------------------------------------------------------
-bool ADDON_HasSettings()
-{
-  return true;
-}
-
-unsigned int ADDON_GetSettings(ADDON_StructSetting ***sSet)
-{
-  NOTUSED(sSet);
-  return 0;
-}
-
 //-- SetSetting ---------------------------------------------------------------
 // Called everytime a setting is changed by the user and to inform AddOn about
 // new setting and to do required stuff to apply it.
@@ -292,11 +278,6 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
 void ADDON_Stop()
 {
   ADDON_Destroy();
-}
-
-void ADDON_FreeSettings()
-{
-
 }
 
 /***********************************************************
