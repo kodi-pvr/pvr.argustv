@@ -64,7 +64,7 @@ source_group("Resource Files" FILES ${RESOURCE_FILES})
 endif(WIN32)
 
 # Make sure that CMake adds the headers to the MSVC project
-list(APPEND ARGUSTV_SOURCES ${ARGUSTV_HEADERS} ${RESOURCE_FILES})
+list(APPEND ARGUSTV_SOURCES ${ARGUSTV_HEADERS})
 
 set(DEPLIBS ${p8-platform_LIBRARIES} tsreader)
 
