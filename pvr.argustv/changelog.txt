@@ -1,9 +1,11 @@
-v3.0.1
+v3.0.2 (16-05-2017)
+- Removed old no more needed version functions
+v3.0.1 (12-05-2017)
 - Language updates
 - Set dependency versions automatic during build
 - Removed never used kodi to addon functions
 - Build system fixes
-v3.0.0
+v3.0.0 (05-12-2016)
 - Initial Kodi v18 version
 v2.5.0 (20-09-2016)
 - Correct PVR API reference to v5.2.0
