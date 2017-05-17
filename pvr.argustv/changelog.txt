@@ -1,3 +1,6 @@
+v3.0.3 (17-05-2017)
+- Update Debian package control
+- PVR addon callback way changes
 v3.0.2 (16-05-2017)
 - Removed old no more needed version functions
 v3.0.1 (12-05-2017)
