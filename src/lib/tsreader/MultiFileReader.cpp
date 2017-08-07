@@ -38,7 +38,6 @@
 #include "utils.h"
 #include <algorithm>
 #include "p8-platform/util/timeutils.h"
-#include "p8-platform/util/StdString.h"
 
 #include <limits.h>
 
