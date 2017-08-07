@@ -474,8 +474,6 @@ PVR_ERROR cPVRClientArgusTV::GetChannels(ADDON_HANDLE handle, bool bRadio)
         tag.iEncryptionSystem = (unsigned int) -1; //How to fetch this from ARGUS TV??
         tag.bIsRadio = (channel->Type() == ArgusTV::Radio ? true : false);
         tag.bIsHidden = false;
-        //Use OpenLiveStream to read from the timeshift .ts file or an rtsp stream
-        memset(tag.strStreamURL, 0, sizeof(tag.strStreamURL));
         PVR_STRCPY(tag.strInputFormat, "video/mp2t");
         tag.iChannelNumber = channel->LCN();
 
