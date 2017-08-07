@@ -21,6 +21,7 @@
 #include "pvrclient-argustv.h"
 #include "utils.h"
 #include "uri.h"
+#include "p8-platform/util/util.h"
 
 using namespace std;
 using namespace ADDON;

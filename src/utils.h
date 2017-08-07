@@ -19,8 +19,6 @@
 
 #include <string>
 #include <json/json.h>
-#include "p8-platform/util/StdString.h"
-#include "p8-platform/util/util.h"
 
 // don't use the UNUSED macro from StdString.h as it will generate "error: statement has no effect [-Werror=unused-value]"
 #define NOTUSED(x) ((void) x)
@@ -44,11 +42,3 @@ namespace BASE64
 std::string ToCIFS(std::string& UNCName);
 std::string ToUNC(std::string& CIFSName);
 std::string ToUNC(const char* CIFSName);
-
-#if defined(TARGET_WINDOWS)
-namespace UTF8Util
-{
-  CStdStringW ConvertUTF8ToUTF16(const char* pszTextUTF8);
-  CStdStringA ConvertUTF16ToUTF8(const WCHAR * pszTextUTF16);
-}
-#endif

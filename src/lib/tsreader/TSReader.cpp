@@ -32,6 +32,7 @@
 #include "MultiFileReader.h"
 #include "utils.h"
 #include "p8-platform/os.h"
+#include "p8-platform/util/util.h"
 
 using namespace ADDON;
 

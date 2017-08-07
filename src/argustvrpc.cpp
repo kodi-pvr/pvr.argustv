@@ -31,8 +31,10 @@
 #include "utils.h"
 #include "argustvrpc.h"
 #include "p8-platform/threads/mutex.h"
-#include "p8-platform/util/StdString.h"
-
+#include "p8-platform/util/StringUtils.h"
+#ifdef TARGET_WINDOWS_STORE
+#include "p8-platform/windows/CharsetConverter.h"
+#endif
 using namespace ADDON;
 
 // Some version dependent API strings
@@ -123,13 +125,13 @@ namespace ArgusTV
 
         if (XBMC->CURLOpen(hFile, XFILE::READ_NO_CACHE))
         {
-          byte buffer[1024];
+          unsigned char buffer[1024];
           int bytesRead = 0;
           retval = 0;
           do
           {
             bytesRead = XBMC->ReadFile(hFile, buffer, sizeof(buffer));
-            int written = fwrite(buffer, sizeof(byte), bytesRead, ofile);
+            int written = fwrite(buffer, sizeof(unsigned char), bytesRead, ofile);
             if (bytesRead != written)
             {
               XBMC->Log(LOG_ERROR, "Error while writing to %s (%d bytes written, while asked to write %d bytes).", 
@@ -201,8 +203,14 @@ namespace ArgusTV
   std::string GetChannelLogo(const std::string& channelGUID)
   {
 #if defined(TARGET_WINDOWS)
+#if defined(TARGET_WINDOWS_STORE)
+    wchar_t wpath[MAX_PATH];
+    GetTempPath(MAX_PATH, wpath);
+    std::string tmppath = p8::windows::FromW(wpath);
+#else
     char tmppath[MAX_PATH];
     GetTempPath(MAX_PATH, tmppath);
+#endif
 #elif defined(TARGET_LINUX) || defined(TARGET_DARWIN) || defined(TARGET_FREEBSD)
     std::string tmppath = "/tmp/";
 #else
@@ -1110,8 +1118,8 @@ namespace ArgusTV
     if (ArgusTV::GetEmptySchedule(newSchedule) < 0) return retval;
 
     // Fill relevant members
-    CStdString modifiedtitle = title;
-    modifiedtitle.Replace("\"", "\\\"");
+    std::string modifiedtitle = title;
+    StringUtils::Replace(modifiedtitle, "\"", "\\\"");
 
     newSchedule["KeepUntilMode"] = Json::Value(lifetimeToKeepUntilMode(lifetime));
     newSchedule["KeepUntilValue"] = Json::Value(lifetimeToKeepUntilValue(lifetime));
@@ -1189,8 +1197,8 @@ namespace ArgusTV
     if (ArgusTV::GetEmptySchedule(newSchedule) < 0) return retval;
 
     // Fill relevant members
-    CStdString modifiedtitle = title;
-    modifiedtitle.Replace("\"", "\\\"");
+    std::string modifiedtitle = title;
+    StringUtils::Replace(modifiedtitle, "\"", "\\\"");
 
     newSchedule["IsOneTime"] = Json::Value(true);
     newSchedule["KeepUntilMode"] = Json::Value(lifetimeToKeepUntilMode(lifetime));

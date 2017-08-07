@@ -30,7 +30,7 @@
 #include "pvrclient-argustv.h"
 #include "argustvrpc.h"
 #include "p8-platform/util/timeutils.h"
-#include "p8-platform/util/StdString.h"
+#include "p8-platform/util/util.h"
 
 #include "lib/tsreader/TSReader.h"
 

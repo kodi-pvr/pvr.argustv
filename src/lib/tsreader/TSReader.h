@@ -30,7 +30,6 @@
 
 #include "client.h"
 #include "FileReader.h"
-#include "p8-platform/util/StdString.h"
 
 namespace ArgusTV
 {
@@ -55,7 +54,7 @@ namespace ArgusTV
     bool            m_bTimeShifting;
     bool            m_bRecording;
     bool            m_bLiveTv;
-    CStdString      m_fileName;
+    std::string     m_fileName;
     FileReader*     m_fileReader;
 #if defined(TARGET_WINDOWS)
     LARGE_INTEGER   liDelta;
