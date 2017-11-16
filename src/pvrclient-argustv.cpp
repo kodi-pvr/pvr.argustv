@@ -34,6 +34,8 @@
 
 #include "lib/tsreader/TSReader.h"
 
+#include <map>
+
 using namespace std;
 using namespace ADDON;
 
@@ -349,7 +351,7 @@ PVR_ERROR cPVRClientArgusTV::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &chan
             m_epg_id_offset++;
             broadcast.iUniqueBroadcastId  = m_epg_id_offset;
             broadcast.strTitle            = epg.Title();
-            broadcast.iChannelNumber      = channel.iUniqueId;
+            broadcast.iUniqueChannelId      = channel.iUniqueId;
             broadcast.startTime           = epg.StartTime();
             broadcast.endTime             = epg.EndTime();
             broadcast.strPlotOutline      = epg.Subtitle();
@@ -664,6 +666,8 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(ADDON_HANDLE handle)
   int retval = -1;
   int iNumRecordings = 0;
 
+  m_RecordingsMap.clear();
+
   XBMC->Log(LOG_DEBUG, "RequestRecordingsList()");
   int64_t t = GetTimeMs();
   retval = ArgusTV::GetRecordingGroupByTitle(recordinggroupresponse);
@@ -712,7 +716,8 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(ADDON_HANDLE handle)
               }
               PVR_STRCPY(tag.strTitle, recording.Title());
               PVR_STRCPY(tag.strPlotOutline, recording.SubTitle());
-              PVR_STRCPY(tag.strStreamURL, recording.RecordingFileName());
+
+              m_RecordingsMap[tag.strRecordingId] = recording.RecordingFileName();
 
               /* TODO: PVR API 5.0.0: Implement this */
               tag.iChannelUid = PVR_CHANNEL_INVALID_UID;
@@ -736,9 +741,12 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(ADDON_HANDLE handle)
 PVR_ERROR cPVRClientArgusTV::DeleteRecording(const PVR_RECORDING &recinfo)
 {
   PVR_ERROR rc = PVR_ERROR_FAILED;
+  std::string UNCname;
 
-  XBMC->Log(LOG_DEBUG, "->DeleteRecording(%s)", recinfo.strRecordingId);
-  std::string UNCname = ToUNC(recinfo.strStreamURL);
+  if (!FindRecEntryUNC(recinfo.strRecordingId, UNCname))
+    return PVR_ERROR_FAILED;
+
+  XBMC->Log(LOG_DEBUG, "->DeleteRecording(%s)", UNCname.c_str());
 
   XBMC->Log(LOG_DEBUG, "->DeleteRecording(%s == \"%s\")", recinfo.strRecordingId, UNCname.c_str());
   // JSONify the stream_url
@@ -763,9 +771,12 @@ PVR_ERROR cPVRClientArgusTV::RenameRecording(const PVR_RECORDING &recinfo)
 
 PVR_ERROR cPVRClientArgusTV::SetRecordingLastPlayedPosition(const PVR_RECORDING &recinfo, int lastplayedposition)
 {
-  XBMC->Log(LOG_DEBUG, "->SetRecordingLastPlayedPosition(index=%s [%s], %d)", recinfo.strRecordingId, recinfo.strStreamURL, lastplayedposition);
+  std::string recordingfilename;
 
-  std::string recordingfilename = ToUNC(recinfo.strStreamURL);
+  if (!FindRecEntryUNC(recinfo.strRecordingId, recordingfilename))
+    return PVR_ERROR_FAILED;
+
+  XBMC->Log(LOG_DEBUG, "->SetRecordingLastPlayedPosition(index=%s [%s], %d)", recinfo.strRecordingId, recordingfilename.c_str(), lastplayedposition);
 
   // JSONify the stream_url
   Json::Value recordingname (recordingfilename);
@@ -783,9 +794,12 @@ PVR_ERROR cPVRClientArgusTV::SetRecordingLastPlayedPosition(const PVR_RECORDING 
 
 int cPVRClientArgusTV::GetRecordingLastPlayedPosition(const PVR_RECORDING &recinfo)
 {
-  XBMC->Log(LOG_DEBUG, "->GetRecordingLastPlayedPosition(index=%s [%s])", recinfo.strRecordingId, recinfo.strStreamURL);
+  std::string recordingfilename;
 
-  std::string recordingfilename = ToUNC(recinfo.strStreamURL);
+  if (!FindRecEntryUNC(recinfo.strRecordingId, recordingfilename))
+    return 0;
+
+  XBMC->Log(LOG_DEBUG, "->GetRecordingLastPlayedPosition(index=%s [%s])", recinfo.strRecordingId, recordingfilename.c_str());
 
   // JSONify the stream_url
   Json::Value response;
@@ -800,16 +814,19 @@ int cPVRClientArgusTV::GetRecordingLastPlayedPosition(const PVR_RECORDING &recin
   }
 
   retval = response.asInt();
-  XBMC->Log(LOG_DEBUG, "GetRecordingLastPlayedPosition(index=%s [%s]) returns %d.\n", recinfo.strRecordingId, recinfo.strStreamURL, retval);
+  XBMC->Log(LOG_DEBUG, "GetRecordingLastPlayedPosition(index=%s [%s]) returns %d.\n", recinfo.strRecordingId, recordingfilename.c_str(), retval);
 
   return retval;
 }
 
 PVR_ERROR cPVRClientArgusTV::SetRecordingPlayCount(const PVR_RECORDING &recinfo, int playcount)
 {
-  XBMC->Log(LOG_DEBUG, "->SetRecordingPlayCount(index=%s [%s], %d)", recinfo.strRecordingId, recinfo.strStreamURL, playcount);
+  std::string recordingfilename;
 
-  std::string recordingfilename = ToUNC(recinfo.strStreamURL);
+  if (!FindRecEntryUNC(recinfo.strRecordingId, recordingfilename))
+    return PVR_ERROR_FAILED;
+
+  XBMC->Log(LOG_DEBUG, "->SetRecordingPlayCount(index=%s [%s], %d)", recinfo.strRecordingId, recordingfilename.c_str(), playcount);
 
   // JSONify the stream_url
   Json::Value recordingname (recordingfilename);
@@ -969,14 +986,14 @@ PVR_ERROR cPVRClientArgusTV::AddTimer(const PVR_TIMER &timerinfo)
     timerinfo.iClientChannelUid, pChannel->Guid().c_str());
 
   // Try to get original EPG data from ARGUS
-  struct tm* convert = localtime(&timerinfo.startTime);
-  struct tm tm_start = *convert;
-  convert = localtime(&timerinfo.endTime);
-  struct tm tm_end = *convert;
+  time_t startTime = timerinfo.startTime;
+  struct tm* tm_start = localtime(&startTime);
+  time_t endTime = timerinfo.endTime;
+  struct tm* tm_end = localtime(&endTime);
 
   Json::Value epgResponse;
   XBMC->Log(LOG_DEBUG, "%s: Getting EPG Data for ARGUS TV channel %s", __FUNCTION__, pChannel->GuideChannelID().c_str());
-  int retval = ArgusTV::GetEPGData(pChannel->GuideChannelID(), tm_start, tm_end, epgResponse);
+  int retval = ArgusTV::GetEPGData(pChannel->GuideChannelID(), *tm_start, *tm_end, epgResponse);
 
   std::string programTitle = timerinfo.strTitle;
   if (retval >= 0)
@@ -1419,25 +1436,6 @@ void cPVRClientArgusTV::CloseLiveStream()
   }
 }
 
-
-bool cPVRClientArgusTV::SwitchChannel(const PVR_CHANNEL &channelinfo)
-{
-  XBMC->Log(LOG_DEBUG, "->SwitchChannel(%i)", channelinfo.iUniqueId);
-  bool fRc = false;
-
-  if (g_iTuneDelay == 0)
-  {
-    // Close existing live stream before opening a new one.
-    // This is slower, but it helps XBMC playback when the streams change types (e.g. SD->HD).
-    // It also gives a better tuner allocation when using multiple clients with a limited count of tuners.
-    CloseLiveStream();
-  }
-  fRc = OpenLiveStream(channelinfo);
-
-  return fRc;
-}
-
-
 PVR_ERROR cPVRClientArgusTV::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 {
   static PVR_SIGNAL_STATUS tag;
@@ -1488,13 +1486,29 @@ PVR_ERROR cPVRClientArgusTV::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   return PVR_ERROR_NO_ERROR;
 }
 
+bool cPVRClientArgusTV::FindRecEntryUNC(const std::string &recId, std::string &recEntryURL)
+{
+  auto iter = m_RecordingsMap.find(recId);
+  if (iter == m_RecordingsMap.end())
+    return false;
+
+  recEntryURL = ToUNC(iter->second.c_str());
+  if (recEntryURL == "")
+    return false;
+
+  return true;
+}
 
 /************************************************************/
 /** Record stream handling */
 bool cPVRClientArgusTV::OpenRecordedStream(const PVR_RECORDING &recinfo)
 {
-  XBMC->Log(LOG_DEBUG, "->OpenRecordedStream(%s)", recinfo.strStreamURL);
-  std::string UNCname = ToUNC(recinfo.strStreamURL);
+  std::string UNCname;
+
+  if (!FindRecEntryUNC(recinfo.strRecordingId, UNCname))
+    return false;
+
+  XBMC->Log(LOG_DEBUG, "->OpenRecordedStream(%s)", UNCname.c_str());
 
   if (m_tsreader != NULL)
   {
