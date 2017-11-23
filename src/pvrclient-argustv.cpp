@@ -1223,23 +1223,25 @@ bool cPVRClientArgusTV::_OpenLiveStream(const PVR_CHANNEL &channelinfo)
         case ArgusTV::NoFreeCardFound:
           XBMC->Log(LOG_INFO, "No free tuner found.");
           XBMC->QueueNotification(QUEUE_ERROR, "No free tuner found!");
-          break;
+          return false;
         case ArgusTV::IsScrambled:
           XBMC->Log(LOG_INFO, "Scrambled channel.");
           XBMC->QueueNotification(QUEUE_ERROR, "Scrambled channel!");
-          break;
+          return false;
         case ArgusTV::ChannelTuneFailed:
           XBMC->Log(LOG_INFO, "Tuning failed.");
           XBMC->QueueNotification(QUEUE_ERROR, "Tuning failed!");
-          break;
+          return false;
         default:
           XBMC->Log(LOG_ERROR, "Tuning failed, unknown error");
           XBMC->QueueNotification(QUEUE_ERROR, "Unknown error!");
-          break;
+          return false;
       }
     }
 
     filename = ToCIFS(filename);
+
+    InsertUser(filename);
 
     if (retval != E_SUCCESS || filename.length() == 0)
     {
@@ -1492,11 +1494,23 @@ bool cPVRClientArgusTV::FindRecEntryUNC(const std::string &recId, std::string &r
   if (iter == m_RecordingsMap.end())
     return false;
 
-  recEntryURL = ToUNC(iter->second.c_str());
+  recEntryURL = ToUNC(iter->second);
   if (recEntryURL == "")
     return false;
 
   return true;
+}
+
+bool cPVRClientArgusTV::FindRecEntry(const std::string &recId, std::string &recEntryURL)
+{
+  auto iter = m_RecordingsMap.find(recId);
+  if (iter == m_RecordingsMap.end())
+    return false;
+
+  recEntryURL = iter->second;
+  InsertUser(recEntryURL);
+
+  return !recEntryURL.empty();
 }
 
 /************************************************************/
@@ -1505,7 +1519,7 @@ bool cPVRClientArgusTV::OpenRecordedStream(const PVR_RECORDING &recinfo)
 {
   std::string UNCname;
 
-  if (!FindRecEntryUNC(recinfo.strRecordingId, UNCname))
+  if (!FindRecEntry(recinfo.strRecordingId, UNCname))
     return false;
 
   XBMC->Log(LOG_DEBUG, "->OpenRecordedStream(%s)", UNCname.c_str());

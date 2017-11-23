@@ -44,7 +44,9 @@
 #if !defined(TARGET_WINDOWS)
 #include <sys/time.h>
 #include "p8-platform/os.h"
+#if !defined(TARGET_DARWIN)
 #define SUCCEEDED(hr) (((HRESULT)(hr)) >= 0)
+#endif
 #endif
 
 using namespace ADDON;

@@ -1,3 +1,6 @@
+v3.3.2
+- Use account info for smb shares if added in settings
+
 v3.3.1
 - Bump jsoncpp to version 1.8.3
 

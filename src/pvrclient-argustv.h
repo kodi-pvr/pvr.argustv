@@ -115,6 +115,7 @@ private:
   void Close();
   bool _OpenLiveStream(const PVR_CHANNEL &channel);
   bool FindRecEntryUNC(const std::string &recId, std::string &recEntryURL);
+  bool FindRecEntry(const std::string &recId, std::string &recEntryURL);
 
   int                     m_iCurrentChannel;
   bool                    m_bConnected;
