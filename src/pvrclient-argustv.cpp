@@ -751,8 +751,9 @@ PVR_ERROR cPVRClientArgusTV::DeleteRecording(const PVR_RECORDING &recinfo)
   XBMC->Log(LOG_DEBUG, "->DeleteRecording(%s == \"%s\")", recinfo.strRecordingId, UNCname.c_str());
   // JSONify the stream_url
   Json::Value recordingname (UNCname);
-  Json::FastWriter writer;
-  std::string jsonval = writer.write(recordingname);
+  Json::StreamWriterBuilder wbuilder;
+  std::string jsonval = Json::writeString(wbuilder, recordingname);
+
   if (ArgusTV::DeleteRecording(jsonval) >= 0)
   {
     // Trigger XBMC to update it's list
@@ -780,8 +781,8 @@ PVR_ERROR cPVRClientArgusTV::SetRecordingLastPlayedPosition(const PVR_RECORDING 
 
   // JSONify the stream_url
   Json::Value recordingname (recordingfilename);
-  Json::FastWriter writer;
-  std::string jsonval = writer.write(recordingname);
+  Json::StreamWriterBuilder wbuilder;
+  std::string jsonval = Json::writeString(wbuilder, recordingname);
   int retval = ArgusTV::SetRecordingLastWatchedPosition(jsonval, lastplayedposition);
   if (retval < 0)
   {
@@ -804,8 +805,8 @@ int cPVRClientArgusTV::GetRecordingLastPlayedPosition(const PVR_RECORDING &recin
   // JSONify the stream_url
   Json::Value response;
   Json::Value recordingname (recordingfilename);
-  Json::FastWriter writer;
-  std::string jsonval = writer.write(recordingname);
+  Json::StreamWriterBuilder wbuilder;
+  std::string jsonval = Json::writeString(wbuilder, recordingname);
   int retval = ArgusTV::GetRecordingLastWatchedPosition(jsonval, response);
   if (retval < 0)
   {
@@ -830,8 +831,8 @@ PVR_ERROR cPVRClientArgusTV::SetRecordingPlayCount(const PVR_RECORDING &recinfo,
 
   // JSONify the stream_url
   Json::Value recordingname (recordingfilename);
-  Json::FastWriter writer;
-  std::string jsonval = writer.write(recordingname);
+  Json::StreamWriterBuilder wbuilder;
+  std::string jsonval = Json::writeString(wbuilder, recordingname);
   int retval = ArgusTV::SetRecordingFullyWatchedCount(jsonval, playcount);
   if (retval < 0)
   {

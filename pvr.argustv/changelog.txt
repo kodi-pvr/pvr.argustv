@@ -1,3 +1,6 @@
+v3.3.3
+- Change to non deprecated jsoncpp methods
+
 v3.3.2
 - Use account info for smb shares if added in settings
 

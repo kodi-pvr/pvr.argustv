@@ -23,6 +23,7 @@
  * Tested under Windows and Linux
  */
 
+#include <memory>
 #include <stdio.h>
 #include <sys/stat.h>
 #include "p8-platform/os.h"
@@ -171,15 +172,15 @@ namespace ArgusTV
 #endif
       if (response.length() != 0)
       {
-        Json::Reader reader;
+        std::string jsonReaderError;
+        Json::CharReaderBuilder jsonReaderBuilder;
+        std::unique_ptr<Json::CharReader> const reader(jsonReaderBuilder.newCharReader());
 
-        bool parsingSuccessful = reader.parse(response, json_response);
-
-        if ( !parsingSuccessful )
+        if (!reader->parse(response.c_str(), response.c_str() + response.size(), &json_response, &jsonReaderError))
         {
             XBMC->Log(LOG_DEBUG, "Failed to parse %s: \n%s\n", 
             response.c_str(),
-            reader.getFormatedErrorMessages().c_str() );
+            jsonReaderError.c_str() );
             return E_FAILED;
         }
       }
@@ -489,8 +490,8 @@ namespace ArgusTV
   int AreRecordingSharesAccessible(Json::Value& thisplugin, Json::Value& response)
   {
     XBMC->Log(LOG_DEBUG, "AreRecordingSharesAccessible");
-    Json::FastWriter writer;
-    std::string arguments = writer.write(thisplugin);
+    Json::StreamWriterBuilder wbuilder;
+    std::string arguments = Json::writeString(wbuilder, thisplugin);
 
     int retval = ArgusTVJSONRPC("ArgusTV/Control/AreRecordingSharesAccessible", arguments, response);
 
@@ -542,8 +543,8 @@ namespace ArgusTV
     std::string arguments = command;
     if (!g_current_livestream.empty())
     {
-      Json::FastWriter writer;
-      arguments.append(writer.write(g_current_livestream)).append("}");
+      Json::StreamWriterBuilder wbuilder;
+      arguments.append(Json::writeString(wbuilder, g_current_livestream)).append("}");
     }
     else
     {
@@ -601,8 +602,8 @@ namespace ArgusTV
   {
     if(!g_current_livestream.empty())
     {
-      Json::FastWriter writer;
-      std::string arguments = writer.write(g_current_livestream);
+      Json::StreamWriterBuilder wbuilder;
+      std::string arguments = Json::writeString(wbuilder, g_current_livestream);
 
       std::string response;
       int retval = ArgusTVRPC("ArgusTV/Control/StopLiveStream", arguments, response);
@@ -632,8 +633,8 @@ namespace ArgusTV
   {
     if(!g_current_livestream.empty())
     {
-      Json::FastWriter writer;
-      std::string arguments = writer.write(g_current_livestream);
+      Json::StreamWriterBuilder wbuilder;
+      std::string arguments = Json::writeString(wbuilder, g_current_livestream);
 
       int retval = ArgusTVJSONRPC("ArgusTV/Control/GetLiveStreamTuningDetails", arguments, response);
 
@@ -658,8 +659,8 @@ namespace ArgusTV
     //true
     if(!g_current_livestream.empty())
     {
-      Json::FastWriter writer;
-      std::string arguments = writer.write(g_current_livestream);
+      Json::StreamWriterBuilder wbuilder;
+      std::string arguments = Json::writeString(wbuilder, g_current_livestream);
 
       Json::Value response;
       int retval = ArgusTVJSONRPC("ArgusTV/Control/KeepLiveStreamAlive", arguments, response);
@@ -728,8 +729,8 @@ namespace ArgusTV
     jsArgument["ProgramTitle"] = title;
     jsArgument["Category"] = Json::nullValue;
     jsArgument["ChannelId"] = Json::nullValue;
-    Json::FastWriter writer;
-    std::string arguments = writer.write(jsArgument);
+    Json::StreamWriterBuilder wbuilder;
+    std::string arguments = Json::writeString(wbuilder, jsArgument);
 
     int retval = ArgusTV::ArgusTVJSONRPC(command, arguments, response);
     if (retval < 0)
@@ -1031,8 +1032,8 @@ namespace ArgusTV
 
     XBMC->Log(LOG_DEBUG, "AbortActiveRecording");
 
-    Json::FastWriter writer;
-    std::string arguments = writer.write(activeRecording);
+    Json::StreamWriterBuilder wbuilder;
+    std::string arguments = Json::writeString(wbuilder, activeRecording);
 
     std::string response;
     retval = ArgusTVRPC("ArgusTV/Control/AbortActiveRecording", arguments, response);
@@ -1154,8 +1155,8 @@ namespace ArgusTV
     rule["Type"] = Json::Value("Channels");
     newSchedule["Rules"].append(rule);
 
-    Json::FastWriter writer;
-    std::string tmparguments = writer.write(newSchedule);
+    Json::StreamWriterBuilder wbuilder;
+    std::string tmparguments = Json::writeString(wbuilder, newSchedule);
 
     retval = ArgusTVJSONRPC("ArgusTV/Scheduler/SaveSchedule", tmparguments.c_str(), response);
 
@@ -1226,8 +1227,8 @@ namespace ArgusTV
     rule["Type"] = Json::Value("Channels");
     newSchedule["Rules"].append(rule);
 
-    Json::FastWriter writer;
-    std::string tmparguments = writer.write(newSchedule);
+    Json::StreamWriterBuilder wbuilder;
+    std::string tmparguments = Json::writeString(wbuilder, newSchedule);
 
     retval = ArgusTVJSONRPC("ArgusTV/Scheduler/SaveSchedule", tmparguments, response);
 
@@ -1280,8 +1281,8 @@ namespace ArgusTV
     XBMC->Log(LOG_DEBUG, "GetUpcomingProgramsForSchedule");
 
     char arguments[1024];
-    Json::FastWriter writer;
-    snprintf( arguments, sizeof(arguments), "{\"IncludeCancelled\":true,\"Schedule\":%s}", writer.write(schedule).c_str());
+    Json::StreamWriterBuilder wbuilder;
+    snprintf( arguments, sizeof(arguments), "{\"IncludeCancelled\":true,\"Schedule\":%s}", Json::writeString(wbuilder, schedule).c_str());
 
     retval = ArgusTVJSONRPC("ArgusTV/Scheduler/UpcomingProgramsForSchedule", arguments, response);
 
