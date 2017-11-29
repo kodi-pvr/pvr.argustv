@@ -42,3 +42,5 @@ namespace BASE64
 std::string ToCIFS(std::string& UNCName);
 std::string ToUNC(std::string& CIFSName);
 std::string ToUNC(const char* CIFSName);
+bool InsertUser(std::string& UNCName);
+

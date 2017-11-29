@@ -144,6 +144,27 @@ std::string ToCIFS(std::string& UNCName)
   return CIFSname;
 }
 
+bool InsertUser(std::string& UNCName)
+{
+  if (g_szUser.empty())
+    return false;
+
+  if (UNCName.find("smb://") == 0)
+  {
+    std::string SMBPrefix = "smb://" + g_szUser;
+
+    if (!g_szPass.empty())
+     SMBPrefix.append(":" + g_szPass);
+
+    SMBPrefix.append("@");
+
+    UNCName.replace(0, std::string("smb://").length(), SMBPrefix);
+    XBMC->Log(LOG_DEBUG, "Account Info added to SMB url");
+    return true;
+  }
+  return false;
+}
+
 
 // transform [smb://user:password@nascat/qrecordings/NCIS/2012-05-15_20-30_SBS 6_NCIS.ts]
 // into      [\\nascat\qrecordings\NCIS\2012-05-15_20-30_SBS 6_NCIS.ts]
