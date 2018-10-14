@@ -1,2 +1,2 @@
-usr/lib/*/addons/pvr.argustv/pvr.argustv.so* /usr/lib/kodi/addons/pvr.argustv
-usr/share/kodi/addons/pvr.argustv
+usr/lib/*
+usr/share/*
