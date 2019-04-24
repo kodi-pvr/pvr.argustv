@@ -312,11 +312,11 @@ PVR_ERROR cPVRClientArgusTV::GetBackendTime(time_t *localTime, int *gmtOffset)
 /************************************************************/
 /** EPG handling */
 
-PVR_ERROR cPVRClientArgusTV::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
+PVR_ERROR cPVRClientArgusTV::GetEpg(ADDON_HANDLE handle, int iChannelUid, time_t iStart, time_t iEnd)
 {
-  XBMC->Log(LOG_DEBUG, "->RequestEPGForChannel(%i)", channel.iUniqueId);
+  XBMC->Log(LOG_DEBUG, "->RequestEPGForChannel(%i)", iChannelUid);
 
-  cChannel* atvchannel = FetchChannel(channel.iUniqueId);
+  cChannel* atvchannel = FetchChannel(iChannelUid);
   XBMC->Log(LOG_DEBUG, "ARGUS TV channel %p)", atvchannel);
 
   struct tm* convert = localtime(&iStart);
@@ -351,7 +351,7 @@ PVR_ERROR cPVRClientArgusTV::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &chan
             m_epg_id_offset++;
             broadcast.iUniqueBroadcastId  = m_epg_id_offset;
             broadcast.strTitle            = epg.Title();
-            broadcast.iUniqueChannelId      = channel.iUniqueId;
+            broadcast.iUniqueChannelId    = iChannelUid;
             broadcast.startTime           = epg.StartTime();
             broadcast.endTime             = epg.EndTime();
             broadcast.strPlotOutline      = epg.Subtitle();
@@ -363,7 +363,6 @@ PVR_ERROR cPVRClientArgusTV::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &chan
             broadcast.firstAired          = 0;
             broadcast.iParentalRating     = 0;
             broadcast.iStarRating         = 0;
-            broadcast.bNotify             = false;
             broadcast.iSeriesNumber       = 0;
             broadcast.iEpisodeNumber      = 0;
             broadcast.iEpisodePartNumber  = 0;
@@ -384,12 +383,12 @@ PVR_ERROR cPVRClientArgusTV::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &chan
     }
     else
     {
-      XBMC->Log(LOG_ERROR, "GetEPGData failed for channel id:%i", channel.iUniqueId);
+      XBMC->Log(LOG_ERROR, "GetEPGData failed for channel id:%i", iChannelUid);
     }
   }
   else
   {
-    XBMC->Log(LOG_ERROR, "Channel (%i) did not return a channel class.", channel.iUniqueId);
+    XBMC->Log(LOG_ERROR, "Channel (%i) did not return a channel class.", iChannelUid);
     XBMC->QueueNotification(QUEUE_ERROR, "Can't map XBMC Channel to ARGUS");
   }
 

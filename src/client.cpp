@@ -389,9 +389,9 @@ PVR_ERROR CallMenuHook(const PVR_MENUHOOK &menuhook, const PVR_MENUHOOK_DATA &it
 /*******************************************/
 /** PVR EPG Functions                     **/
 
-PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
+PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t iStart, time_t iEnd)
 {
-  return g_client->GetEpg(handle, channel, iStart, iEnd);
+  return g_client->GetEpg(handle, iChannelUid, iStart, iEnd);
 }
 
 /*******************************************/
@@ -619,10 +619,10 @@ DemuxPacket* DemuxRead(void) { return NULL; }
 void DemuxAbort(void) {}
 void DemuxReset(void) {}
 void DemuxFlush(void) {}
+void FillBuffer(bool mode) {}
 PVR_ERROR GetRecordingEdl(const PVR_RECORDING&, PVR_EDL_ENTRY[], int*) { return PVR_ERROR_NOT_IMPLEMENTED; };
 bool SeekTime(double,bool,double*) { return false; }
 void SetSpeed(int) {};
-bool IsTimeshifting(void) { return false; }
 bool IsRealTimeStream() { return true; }
 PVR_ERROR UndeleteRecording(const PVR_RECORDING& recording) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR DeleteAllRecordingsFromTrash() { return PVR_ERROR_NOT_IMPLEMENTED;}
