@@ -19,7 +19,7 @@
  *
  */
 
-#include "libXBMC_pvr.h"
+#include "kodi/libXBMC_pvr.h"
 #include <string>
 #include <json/json.h>
 #include "argustvrpc.h"
