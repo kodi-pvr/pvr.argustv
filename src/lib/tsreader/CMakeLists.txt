@@ -1,16 +1,16 @@
 cmake_minimum_required(VERSION 3.5)
-PROJECT(TSReader)
+project(TSReader)
 
 # Source files
-SET(SOURCES FileReader.cpp
+set(SOURCES FileReader.cpp
             MultiFileReader.cpp
             TSReader.cpp)
 
 # Header files
-SET(HEADERS FileReader.h
+set(HEADERS FileReader.h
             MultiFileReader.h
             TSReader.h)
 
-SOURCE_GROUP("Header Files" FILES ${HEADERS})
+source_group("Header Files" FILES ${HEADERS})
 
-ADD_LIBRARY(tsreader STATIC ${HEADERS} ${SOURCES})
+add_library(tsreader STATIC ${HEADERS} ${SOURCES})
