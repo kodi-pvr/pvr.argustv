@@ -10,10 +10,6 @@ include_directories(${p8-platform_INCLUDE_DIRS}
                     ${KODI_INCLUDE_DIR}
                     ${PROJECT_SOURCE_DIR}/src)
 
-if(NOT WIN32)
-  add_options(ALL_LANGUAGES ALL_BUILDS "-fPIC")
-endif()
-
 # Source files
 set(ARGUSTV_SOURCES src/activerecording.cpp
                     src/argustvrpc.cpp

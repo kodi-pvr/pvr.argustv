@@ -12,6 +12,7 @@ set(SOURCES src/lib_json/json_reader.cpp
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_library(jsoncpp ${SOURCES})
+set_property(TARGET jsoncpp PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 install(TARGETS jsoncpp DESTINATION ${CMAKE_INSTALL_PREFIX}/lib) 
 install(DIRECTORY include/json DESTINATION ${CMAKE_INSTALL_PREFIX}/include/jsoncpp)

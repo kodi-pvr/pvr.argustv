@@ -14,3 +14,4 @@ set(HEADERS FileReader.h
 source_group("Header Files" FILES ${HEADERS})
 
 add_library(tsreader STATIC ${HEADERS} ${SOURCES})
+set_property(TARGET tsreader PROPERTY POSITION_INDEPENDENT_CODE ON)
