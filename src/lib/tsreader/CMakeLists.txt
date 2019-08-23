@@ -1,8 +1,5 @@
+cmake_minimum_required(VERSION 3.5)
 PROJECT(TSReader)
-
-ENABLE_LANGUAGE(CXX)
-
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 # Source files
 SET(SOURCES FileReader.cpp
