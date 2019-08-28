@@ -13,5 +13,9 @@ set(HEADERS FileReader.h
 
 source_group("Header Files" FILES ${HEADERS})
 
+if(WIN32)
+  add_compile_options(/wd4996)
+endif()
+
 add_library(tsreader STATIC ${HEADERS} ${SOURCES})
 set_property(TARGET tsreader PROPERTY POSITION_INDEPENDENT_CODE ON)
