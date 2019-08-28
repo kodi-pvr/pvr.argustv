@@ -1,19 +1,21 @@
-PROJECT(TSReader)
-
-ENABLE_LANGUAGE(CXX)
-
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
+project(TSReader)
 
 # Source files
-SET(SOURCES FileReader.cpp
+set(SOURCES FileReader.cpp
             MultiFileReader.cpp
             TSReader.cpp)
 
 # Header files
-SET(HEADERS FileReader.h
+set(HEADERS FileReader.h
             MultiFileReader.h
             TSReader.h)
 
-SOURCE_GROUP("Header Files" FILES ${HEADERS})
+source_group("Header Files" FILES ${HEADERS})
 
-ADD_LIBRARY(tsreader STATIC ${HEADERS} ${SOURCES})
+if(WIN32)
+  add_compile_options(/wd4996)
+endif()
+
+add_library(tsreader STATIC ${HEADERS} ${SOURCES})
+set_property(TARGET tsreader PROPERTY POSITION_INDEPENDENT_CODE ON)

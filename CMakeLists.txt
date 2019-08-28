@@ -1,10 +1,7 @@
+cmake_minimum_required(VERSION 3.5)
 project(pvr.argustv)
 
-cmake_minimum_required(VERSION 2.6)
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
-
-enable_language(CXX)
 
 find_package(Kodi REQUIRED)
 find_package(kodiplatform REQUIRED)
@@ -12,12 +9,8 @@ find_package(p8-platform REQUIRED)
 
 include_directories(${kodiplatform_INCLUDE_DIRS}
                     ${p8-platform_INCLUDE_DIRS}
-                    ${KODI_INCLUDE_DIR}
+                    ${KODI_INCLUDE_DIR}/.. # Hack way with "/..", need bigger Kodi cmake rework to match right include ways
                     ${PROJECT_SOURCE_DIR}/src)
-
-if(NOT WIN32)
-  add_options(ALL_LANGUAGES ALL_BUILDS "-fPIC")
-endif()
 
 # Source files
 set(ARGUSTV_SOURCES src/activerecording.cpp
@@ -61,6 +54,7 @@ set(RESOURCE_FILES pvr.argustv/addon.xml
                 pvr.argustv/resources/settings.xml
                 pvr.argustv/resources/language/resource.language.en_gb/strings.po)
 source_group("Resource Files" FILES ${RESOURCE_FILES})
+add_compile_options(/wd4996)
 endif(WIN32)
 
 # Make sure that CMake adds the headers to the MSVC project
