@@ -11,6 +11,10 @@ set(SOURCES src/lib_json/json_reader.cpp
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+if(WIN32)
+  add_compile_options(/wd4996)
+endif()
+
 add_library(jsoncpp ${SOURCES})
 set_property(TARGET jsoncpp PROPERTY POSITION_INDEPENDENT_CODE ON)
 

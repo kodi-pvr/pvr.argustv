@@ -52,6 +52,7 @@ set(RESOURCE_FILES pvr.argustv/addon.xml
                 pvr.argustv/resources/settings.xml
                 pvr.argustv/resources/language/resource.language.en_gb/strings.po)
 source_group("Resource Files" FILES ${RESOURCE_FILES})
+add_compile_options(/wd4996)
 endif(WIN32)
 
 # Make sure that CMake adds the headers to the MSVC project
