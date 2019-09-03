@@ -33,7 +33,7 @@
 #include "argustvrpc.h"
 #include "p8-platform/threads/mutex.h"
 #include "p8-platform/util/StringUtils.h"
-#ifdef TARGET_WINDOWS_STORE
+#if defined(TARGET_WINDOWS) && defined(UNICODE)
 #include "p8-platform/windows/CharsetConverter.h"
 #endif
 using namespace ADDON;
@@ -204,7 +204,7 @@ namespace ArgusTV
   std::string GetChannelLogo(const std::string& channelGUID)
   {
 #if defined(TARGET_WINDOWS)
-#if defined(TARGET_WINDOWS_STORE)
+#if defined(UNICODE)
     wchar_t wpath[MAX_PATH];
     GetTempPath(MAX_PATH, wpath);
     std::string tmppath = p8::windows::FromW(wpath);
