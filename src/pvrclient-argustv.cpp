@@ -360,7 +360,7 @@ PVR_ERROR cPVRClientArgusTV::GetEpg(ADDON_HANDLE handle, int iChannelUid, time_t
             broadcast.iGenreType          = EPG_GENRE_USE_STRING;
             broadcast.iGenreSubType       = 0;
             broadcast.strGenreDescription = epg.Genre();
-            broadcast.firstAired          = 0;
+            broadcast.strFirstAired       = "";
             broadcast.iParentalRating     = 0;
             broadcast.iStarRating         = 0;
             broadcast.iSeriesNumber       = 0;

@@ -1,3 +1,6 @@
+v4.2.0
+- Update to PVR addon API v6.2.0
+
 v4.1.0
 - Update: Recompile for 6.1.0 PVR Addon API compatibility
 
