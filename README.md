@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/kodi-pvr/pvr.argustv.svg?branch=Leia)](https://travis-ci.org/kodi-pvr/pvr.argustv/branches)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/kodi-pvr/pvr.argustv?branch=Leia&svg=true)](https://ci.appveyor.com/project/kodi-pvr/pvr-argustv?branch=Leia)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/5120/badge.svg)](https://scan.coverity.com/projects/5120)
 
 # ARGUS TV PVR
