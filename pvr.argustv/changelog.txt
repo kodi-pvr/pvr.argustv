@@ -1,3 +1,6 @@
+v4.1.2
+- PVR API 6.2.0
+
 v4.1.1
 - Fix windows unicode GetTempPath parameters
 - Replace AppVeyor with Azure for test build (better performance)
