@@ -360,12 +360,12 @@ PVR_ERROR cPVRClientArgusTV::GetEpg(ADDON_HANDLE handle, int iChannelUid, time_t
             broadcast.iGenreType          = EPG_GENRE_USE_STRING;
             broadcast.iGenreSubType       = 0;
             broadcast.strGenreDescription = epg.Genre();
-            broadcast.firstAired          = 0;
+            broadcast.strFirstAired       = "";
             broadcast.iParentalRating     = 0;
             broadcast.iStarRating         = 0;
-            broadcast.iSeriesNumber       = 0;
-            broadcast.iEpisodeNumber      = 0;
-            broadcast.iEpisodePartNumber  = 0;
+            broadcast.iSeriesNumber       = EPG_TAG_INVALID_SERIES_EPISODE;
+            broadcast.iEpisodeNumber      = EPG_TAG_INVALID_SERIES_EPISODE;
+            broadcast.iEpisodePartNumber  = EPG_TAG_INVALID_SERIES_EPISODE;
             broadcast.strEpisodeName      = "";
             broadcast.strOriginalTitle    = "";
             broadcast.strCast             = "";
@@ -693,6 +693,8 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(ADDON_HANDLE handle)
             {
               PVR_RECORDING tag;
               memset(&tag, 0 , sizeof(tag));
+              tag.iSeriesNumber = PVR_RECORDING_INVALID_SERIES_EPISODE;
+              tag.iEpisodeNumber = PVR_RECORDING_INVALID_SERIES_EPISODE;
 
               PVR_STRCPY(tag.strRecordingId, recording.RecordingId());
               PVR_STRCPY(tag.strChannelName, recording.ChannelDisplayName());
