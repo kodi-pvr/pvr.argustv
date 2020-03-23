@@ -23,7 +23,7 @@
 #define __EPG_H
 
 #include <string>
-#include "kodi/xbmc_addon_types.h"
+#include "kodi/AddonBase.h"
 #include "kodi/libXBMC_addon.h"
 #include "kodi/libXBMC_pvr.h"
 #include <json/json.h>
