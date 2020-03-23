@@ -1,3 +1,8 @@
+v4.1.3
+- Add: GPL2 license file and show GPL2 on README.md
+- Update: Debian build code
+- Update: Some minor cleanups
+
 v4.1.2
 - PVR API 6.2.0
 
