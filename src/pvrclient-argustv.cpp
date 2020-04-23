@@ -120,11 +120,11 @@ bool cPVRClientArgusTV::Connect()
         XBMC->Log(LOG_INFO, "Ping Ok. The client and server are compatible, API version %d.\n", m_iBackendVersion);
         break;
       case -1:
-        XBMC->Log(LOG_NOTICE, "Ping Ok. The ARGUS TV server is too new for this version of the add-on.\n");
+        XBMC->Log(LOG_INFO, "Ping Ok. The ARGUS TV server is too new for this version of the add-on.\n");
         XBMC->QueueNotification(QUEUE_ERROR, "The ARGUS TV server is too new for this version of the add-on");
         return false;
       case 1:
-        XBMC->Log(LOG_NOTICE, "Ping Ok. The ARGUS TV server is too old for this version of the add-on.\n");
+        XBMC->Log(LOG_INFO, "Ping Ok. The ARGUS TV server is too old for this version of the add-on.\n");
         XBMC->QueueNotification(QUEUE_ERROR, "The ARGUS TV server is too old for this version of the add-on");
         return false;
       default:
@@ -1117,7 +1117,7 @@ PVR_ERROR cPVRClientArgusTV::DeleteTimer(const PVR_TIMER &timerinfo, bool force)
           retval = ArgusTV::DeleteSchedule(upcomingrecording.ScheduleId());
           if (retval < 0)
           {
-            XBMC->Log(LOG_NOTICE, "Unable to delete schedule %s from server.", schedulename.c_str());
+            XBMC->Log(LOG_INFO, "Unable to delete schedule %s from server.", schedulename.c_str());
             return PVR_ERROR_SERVER_ERROR;
           }
         }
@@ -1194,7 +1194,7 @@ bool cPVRClientArgusTV::_OpenLiveStream(const PVR_CHANNEL &channelinfo)
 
   if (((int)channelinfo.iUniqueId) == m_iCurrentChannel)
   {
-    XBMC->Log(LOG_NOTICE, "New channel uid equal to the already streaming channel. Skipping re-tune.");
+    XBMC->Log(LOG_INFO, "New channel uid equal to the already streaming channel. Skipping re-tune.");
     return true;
   }
 
@@ -1337,7 +1337,7 @@ int cPVRClientArgusTV::ReadLiveStream(unsigned char* pBuffer, unsigned int iBuff
     {
       usleep(400000);
       read_timeouts++;
-      XBMC->Log(LOG_NOTICE, "ReadLiveStream requested %d but only read %d bytes.", iBufferSize, read_wanted);
+      XBMC->Log(LOG_INFO, "ReadLiveStream requested %d but only read %d bytes.", iBufferSize, read_wanted);
       return read_wanted;
     }
     read_done += read_wanted;
@@ -1565,7 +1565,7 @@ int cPVRClientArgusTV::ReadRecordedStream(unsigned char* pBuffer, unsigned int i
   long lRc = 0;
   if ((lRc = m_tsreader->Read(pBuffer, iBuffersize, &read_done)) > 0)
   {
-    XBMC->Log(LOG_NOTICE, "ReadRecordedStream requested %d but only read %d bytes.", iBuffersize, read_done);
+    XBMC->Log(LOG_INFO, "ReadRecordedStream requested %d but only read %d bytes.", iBuffersize, read_done);
   }
   return read_done;
 }

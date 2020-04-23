@@ -463,12 +463,12 @@ namespace ArgusTV
       if (response.type() != Json::arrayValue)
       {
         retval = E_FAILED;
-        XBMC->Log(LOG_NOTICE, "GetPluginServices did not return a Json::arrayValue [%d].", response.type());
+        XBMC->Log(LOG_INFO, "GetPluginServices did not return a Json::arrayValue [%d].", response.type());
       }
     }
     else
     {
-      XBMC->Log(LOG_NOTICE, "GetPluginServices remote call failed.");
+      XBMC->Log(LOG_INFO, "GetPluginServices remote call failed.");
     }
     return retval;
   }
@@ -702,12 +702,12 @@ namespace ArgusTV
       if (response.type() != Json::arrayValue)
       {
         retval = E_FAILED;
-        XBMC->Log(LOG_NOTICE, "GetRecordingGroupByTitle did not return a Json::arrayValue [%d].", response.type());
+        XBMC->Log(LOG_INFO, "GetRecordingGroupByTitle did not return a Json::arrayValue [%d].", response.type());
       }
     }
     else
     {
-      XBMC->Log(LOG_NOTICE, "GetRecordingGroupByTitle remote call failed.");
+      XBMC->Log(LOG_INFO, "GetRecordingGroupByTitle remote call failed.");
     }
     return retval;
   }
@@ -727,7 +727,7 @@ namespace ArgusTV
     int retval = ArgusTV::ArgusTVJSONRPC(command, arguments, response);
     if (retval < 0)
     {
-      XBMC->Log(LOG_NOTICE, "GetFullRecordingsForTitle remote call failed. (%d)", retval);
+      XBMC->Log(LOG_INFO, "GetFullRecordingsForTitle remote call failed. (%d)", retval);
     }
 
     return retval;
@@ -836,12 +836,12 @@ namespace ArgusTV
       if (response.type() != Json::objectValue)
       {
         retval = E_FAILED;
-        XBMC->Log(LOG_NOTICE, "GetScheduleById did not return a Json::objectValue [%d].", response.type());
+        XBMC->Log(LOG_INFO, "GetScheduleById did not return a Json::objectValue [%d].", response.type());
       }
     }
     else
     {
-      XBMC->Log(LOG_NOTICE, "GetScheduleById remote call failed.");
+      XBMC->Log(LOG_INFO, "GetScheduleById remote call failed.");
     }
 
     return retval;
@@ -866,12 +866,12 @@ namespace ArgusTV
       if (response.type() != Json::objectValue)
       {
         retval = E_FAILED;
-        XBMC->Log(LOG_NOTICE, "GetProgramById did not return a Json::objectValue [%d].", response.type());
+        XBMC->Log(LOG_INFO, "GetProgramById did not return a Json::objectValue [%d].", response.type());
       }
     }
     else
     {
-      XBMC->Log(LOG_NOTICE, "GetProgramById remote call failed.");
+      XBMC->Log(LOG_INFO, "GetProgramById remote call failed.");
     }
 
     return retval;
@@ -1316,7 +1316,7 @@ namespace ArgusTV
       if (response.type() != Json::stringValue)
       {
         retval = E_FAILED;
-        XBMC->Log(LOG_NOTICE, "SubscribeServiceEvents did not return a Json::stringValue [%d].", response.type());
+        XBMC->Log(LOG_INFO, "SubscribeServiceEvents did not return a Json::stringValue [%d].", response.type());
       }
     }
     else
@@ -1363,7 +1363,7 @@ namespace ArgusTV
       if (response.type() != Json::objectValue)
       {
         retval = E_FAILED;
-        XBMC->Log(LOG_NOTICE, "GetServiceEvents did not return a Json::objectValue [%d].", response.type());
+        XBMC->Log(LOG_INFO, "GetServiceEvents did not return a Json::objectValue [%d].", response.type());
       }
     }
     else
