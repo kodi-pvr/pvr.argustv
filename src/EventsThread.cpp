@@ -54,7 +54,7 @@ void CEventsThread::Connect()
   else
   {
     m_subscribed = false;
-    XBMC->Log(LOG_NOTICE, "CEventsThread:: subscribe to events failed");
+    XBMC->Log(LOG_INFO, "CEventsThread:: subscribe to events failed");
   }
 }
 

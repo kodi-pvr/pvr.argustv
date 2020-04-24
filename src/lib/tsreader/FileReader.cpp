@@ -114,7 +114,7 @@ namespace ArgusTV
     // Is the file already opened
     if (!IsFileInvalid())
     {
-      XBMC->Log(LOG_NOTICE, "FileReader::OpenFile() file already open");
+      XBMC->Log(LOG_INFO, "FileReader::OpenFile() file already open");
       return S_OK;
     }
 
