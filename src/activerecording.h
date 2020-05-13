@@ -24,4 +24,3 @@ public:
 private:
   std::string upcomingprogramid;
 };
-

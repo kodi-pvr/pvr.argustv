@@ -7,6 +7,7 @@
  */
 
 #include "recording.h"
+
 #include "utils.h"
 
 #include <stdlib.h>
@@ -22,7 +23,7 @@ bool cRecording::Parse(const Json::Value& data)
   category = data["Category"].asString();
   channeldisplayname = data["ChannelDisplayName"].asString();
   channelid = data["ChannelId"].asString();
-  channeltype = (CArgusTV::ChannelType) data["ChannelType"].asInt();
+  channeltype = (CArgusTV::ChannelType)data["ChannelType"].asInt();
   description = data["Description"].asString();
   director = data["Director"].asString();
   episodenumber = data["EpisodeNumber"].asInt();
@@ -35,10 +36,10 @@ bool cRecording::Parse(const Json::Value& data)
   ispartialrecording = data["IsPartialRecording"].asBool();
   ispremiere = data["IsPremiere"].asBool();
   isrepeat = data["IsRepeat"].asBool();
-  keepuntilmode = (CArgusTV::KeepUntilMode) data["KeepUntilMode"].asInt();
+  keepuntilmode = (CArgusTV::KeepUntilMode)data["KeepUntilMode"].asInt();
   keepuntilvalue = data["KeepUntilValue"].asInt();
   lastwatchedposition = data["LastWatchedPosition"].asInt();
-  fullywatchedcount = data ["FullyWatchedCount"].asInt();
+  fullywatchedcount = data["FullyWatchedCount"].asInt();
   t = data["LastWatchedTime"].asString();
   lastwatchedtime = CArgusTV::WCFDateToTimeT(t, offset);
   t = data["ProgramStartTime"].asString();
@@ -56,7 +57,7 @@ bool cRecording::Parse(const Json::Value& data)
   recordingstoptime = CArgusTV::WCFDateToTimeT(t, offset);
   scheduleid = data["ScheduleId"].asString();
   schedulename = data["ScheduleName"].asString();
-  schedulepriority = (CArgusTV::SchedulePriority) data["SchedulePriority"].asInt();
+  schedulepriority = (CArgusTV::SchedulePriority)data["SchedulePriority"].asInt();
   seriesnumber = data["SeriesNumber"].asInt();
   starrating = data["StarRating"].asDouble();
   subtitle = data["SubTitle"].asString();

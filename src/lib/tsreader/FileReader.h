@@ -26,37 +26,38 @@
 #pragma once
 
 #include "p8-platform/os.h"
+
 #include <kodi/Filesystem.h>
 
 namespace ArgusTV
 {
-  class FileReader
-  {
-  public:
-      FileReader() = default;
-      virtual ~FileReader() = default;
+class FileReader
+{
+public:
+  FileReader() = default;
+  virtual ~FileReader() = default;
 
-      // Open and write to the file
-      virtual std::string GetFileName() const;
-      virtual long SetFileName(const std::string& fileName);
-      virtual long OpenFile();
-      virtual long CloseFile();
-      virtual long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
-      virtual bool IsFileInvalid();
-      virtual int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
-      virtual int64_t GetFilePointer();
-      virtual void OnZap(void);
-      virtual int64_t GetFileSize();
-      virtual bool IsBuffer(){ return false; };
+  // Open and write to the file
+  virtual std::string GetFileName() const;
+  virtual long SetFileName(const std::string& fileName);
+  virtual long OpenFile();
+  virtual long CloseFile();
+  virtual long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long* dwReadBytes);
+  virtual bool IsFileInvalid();
+  virtual int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
+  virtual int64_t GetFilePointer();
+  virtual void OnZap(void);
+  virtual int64_t GetFileSize();
+  virtual bool IsBuffer() { return false; };
 
-      void SetDebugOutput(bool bDebugOutput);
+  void SetDebugOutput(bool bDebugOutput);
 
-  protected:
-      kodi::vfs::CFile m_file;        // Handle to file for streaming
-      std::string m_fileName;         // The filename where we stream
-      int64_t  m_fileSize = 0;
-      int64_t  m_fileStartPos = 0;
+protected:
+  kodi::vfs::CFile m_file; // Handle to file for streaming
+  std::string m_fileName; // The filename where we stream
+  int64_t m_fileSize = 0;
+  int64_t m_fileStartPos = 0;
 
-      bool     m_bDebugOutput = false;
-  };
-}
+  bool m_bDebugOutput = false;
+};
+} // namespace ArgusTV

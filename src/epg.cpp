@@ -6,14 +6,15 @@
  *  See LICENSE.md for more information.
  */
 
+#include "epg.h"
+
+#include "addon.h"
+#include "pvrclient-argustv.h"
+#include "utils.h"
+
 #include <kodi/General.h>
 #include <stdio.h>
 #include <vector>
-
-#include "epg.h"
-#include "utils.h"
-#include "addon.h"
-#include "pvrclient-argustv.h"
 
 void cEpg::Reset()
 {
@@ -23,8 +24,8 @@ void cEpg::Reset()
   m_description.clear();
   m_genre.clear();
 
-  m_starttime       = 0;
-  m_endtime         = 0;
+  m_starttime = 0;
+  m_endtime = 0;
 }
 
 bool cEpg::Parse(const Json::Value& data)
@@ -74,11 +75,10 @@ bool cEpg::Parse(const Json::Value& data)
 
     return true;
   }
-  catch(std::exception &e)
+  catch (std::exception& e)
   {
     kodi::Log(ADDON_LOG_ERROR, "Exception '%s' during parse EPG json data.", e.what());
   }
 
   return false;
 }
-

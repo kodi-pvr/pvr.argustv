@@ -7,9 +7,14 @@
  */
 
 #include "addon.h"
+
 #include "pvrclient-argustv.h"
 
-ADDON_STATUS CArgusTVAddon::CreateInstance(int instanceType, const std::string& instanceID, KODI_HANDLE instance, const std::string& version, KODI_HANDLE& addonInstance)
+ADDON_STATUS CArgusTVAddon::CreateInstance(int instanceType,
+                                           const std::string& instanceID,
+                                           KODI_HANDLE instance,
+                                           const std::string& version,
+                                           KODI_HANDLE& addonInstance)
 {
   ADDON_STATUS curStatus = ADDON_STATUS_UNKNOWN;
 
@@ -37,7 +42,9 @@ ADDON_STATUS CArgusTVAddon::CreateInstance(int instanceType, const std::string& 
   return curStatus;
 }
 
-void CArgusTVAddon::DestroyInstance(int instanceType, const std::string& instanceID, KODI_HANDLE addonInstance)
+void CArgusTVAddon::DestroyInstance(int instanceType,
+                                    const std::string& instanceID,
+                                    KODI_HANDLE addonInstance)
 {
   const auto& it = m_usedInstances.find(instanceID);
   if (it != m_usedInstances.end())
@@ -47,7 +54,8 @@ void CArgusTVAddon::DestroyInstance(int instanceType, const std::string& instanc
   }
 }
 
-ADDON_STATUS CArgusTVAddon::SetSetting(const std::string& settingName, const kodi::CSettingValue& settingValue)
+ADDON_STATUS CArgusTVAddon::SetSetting(const std::string& settingName,
+                                       const kodi::CSettingValue& settingValue)
 {
   return m_settings.SetSetting(settingName, settingValue);
 }

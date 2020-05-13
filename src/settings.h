@@ -26,7 +26,10 @@ public:
   bool Load();
   ADDON_STATUS SetSetting(const std::string& settingName, const kodi::CSettingValue& settingValue);
 
-  std::string BaseURL() const { return "http://" + m_szHostname + ":" + std::to_string(m_iPort) + "/"; }
+  std::string BaseURL() const
+  {
+    return "http://" + m_szHostname + ":" + std::to_string(m_iPort) + "/";
+  }
 
   const std::string& Hostname() const { return m_szHostname; }
   int Port() const { return m_iPort; }

@@ -45,5 +45,4 @@ private:
   std::string scheduleid;
   std::string schedulename;
   CArgusTV::SchedulePriority schedulepriority = CArgusTV::Normal;
-
 };

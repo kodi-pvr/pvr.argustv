@@ -8,10 +8,9 @@
 
 #pragma once
 
-#include "p8-platform/threads/mutex.h"
-
 #include <cstdlib>
 #include <json/json.h>
+#include <p8-platform/threads/mutex.h>
 #include <string>
 
 #define ATV_2_2_0 (60)
@@ -25,12 +24,14 @@
 class CArgusTV
 {
 public:
-  enum ChannelType {
+  enum ChannelType
+  {
     Television = 0,
     Radio = 1
   };
 
-  enum RecordingGroupMode {
+  enum RecordingGroupMode
+  {
     GroupByProgramTitle = 0,
     GroupBySchedule = 1,
     GroupByCategory = 2,
@@ -38,7 +39,8 @@ public:
     GroupByRecordingDay = 4
   };
 
-  enum SchedulePriority {
+  enum SchedulePriority
+  {
     VeryLow = 0,
     Low = 1,
     Normal = 2,
@@ -46,28 +48,31 @@ public:
     VeryHigh = 4
   };
 
-  enum ScheduleType {
-    Recording = 82,   // 'R'
-    Suggestion = 83,  // 'S'
-    Alert = 45        // 'A'
+  enum ScheduleType
+  {
+    Recording = 82, // 'R'
+    Suggestion = 83, // 'S'
+    Alert = 45 // 'A'
   };
 
 
-
-  enum KeepUntilMode {
+  enum KeepUntilMode
+  {
     UntilSpaceIsNeeded = 0,
     Forever = 1,
     NumberOfDays = 2,
-    NumberOfEpisodes =3
+    NumberOfEpisodes = 3
   };
 
-  enum VideoAspectRatio {
+  enum VideoAspectRatio
+  {
     Unknown = 0,
     Standard = 1,
     Widescreen = 2
   };
 
-  enum LiveStreamResult {
+  enum LiveStreamResult
+  {
     Succeed = 0,
     NoFreeCardFound = 1,
     ChannelTuneFailed = 2,
@@ -77,7 +82,8 @@ public:
     NotSupported = 99
   };
 
-  enum ServiceEventGroups {
+  enum ServiceEventGroups
+  {
     SystemEvents = 0x01,
     GuideEvents = 0x02,
     ScheduleEvents = 0x04,
@@ -96,7 +102,9 @@ public:
    * \param json_response Reference to a std::string used to store the json response string
    * \return 0 on ok, -1 on a failure
    */
-  int ArgusTVRPC(const std::string& command, const std::string& arguments, std::string& json_response);
+  int ArgusTVRPC(const std::string& command,
+                 const std::string& arguments,
+                 std::string& json_response);
 
   /**
    * \brief Send a REST command to ARGUS and return the JSON response
@@ -104,7 +112,9 @@ public:
    * \param json_response Reference to a Json::Value used to store the parsed Json value
    * \return 0 on ok, -1 on a failure
    */
-  int ArgusTVJSONRPC(const std::string& command, const std::string& arguments, Json::Value& json_response);
+  int ArgusTVJSONRPC(const std::string& command,
+                     const std::string& arguments,
+                     Json::Value& json_response);
 
   /**
    * \brief Send a REST command to ARGUS, write the response to a file and return the filename
@@ -113,7 +123,10 @@ public:
    * \param htt_presponse Reference to a long used to store the HTTP response code
    * \return 0 on ok, -1 on a failure
    */
-  int ArgusTVRPCToFile(const std::string& command, const std::string& arguments, std::string& newfilename, long& http_response);
+  int ArgusTVRPCToFile(const std::string& command,
+                       const std::string& arguments,
+                       std::string& newfilename,
+                       long& http_response);
 
   /**
    * \brief Ping core service.
@@ -154,7 +167,10 @@ public:
    * \param channel_id  The ArgusTV ChannelID of the channel
    * \param stream      Reference to a string that will point to the tsbuffer file/RTSP stream
    */
-  int TuneLiveStream(const std::string& channel_id, ChannelType channeltype, const std::string channelname, std::string& stream);
+  int TuneLiveStream(const std::string& channel_id,
+                     ChannelType channeltype,
+                     const std::string channelname,
+                     std::string& stream);
 
   /**
    * \brief Stops the last tuned live stream
@@ -188,7 +204,10 @@ public:
    * \param epg_start        Start from this date
    * \param epg_stop         Until this date
    */
-  int GetEPGData(const std::string& guidechannel_id, struct tm epg_start, struct tm epg_end, Json::Value& response);
+  int GetEPGData(const std::string& guidechannel_id,
+                 struct tm epg_start,
+                 struct tm epg_end,
+                 Json::Value& response);
 
   /**
    * \brief Fetch the recording groups sorted by title
@@ -229,7 +248,8 @@ public:
    * \param recordingfilename full UNC path of the recording file
    * \param lastwatchedposition last watched position in seconds
    */
-  int SetRecordingLastWatchedPosition(const std::string& recordingfilename, int lastwatchedposition);
+  int SetRecordingLastWatchedPosition(const std::string& recordingfilename,
+                                      int lastwatchedposition);
 
   /**
    * \brief Set the play count for this recording
@@ -288,7 +308,10 @@ public:
   /**
    * \brief Cancel an upcoming program
    */
-  int CancelUpcomingProgram(const std::string& scheduleid, const std::string& channelid, const time_t starttime, const std::string& upcomingprogramid);
+  int CancelUpcomingProgram(const std::string& scheduleid,
+                            const std::string& channelid,
+                            const time_t starttime,
+                            const std::string& upcomingprogramid);
 
   /**
    * \brief Retrieve an empty schedule from the server
@@ -298,12 +321,25 @@ public:
   /**
    * \brief Add a xbmc timer as a one time schedule
    */
-  int AddOneTimeSchedule(const std::string& channelid, const time_t starttime, const std::string& title, int prerecordseconds, int postrecordseconds, int lifetime, Json::Value& response);
+  int AddOneTimeSchedule(const std::string& channelid,
+                         const time_t starttime,
+                         const std::string& title,
+                         int prerecordseconds,
+                         int postrecordseconds,
+                         int lifetime,
+                         Json::Value& response);
 
   /**
    * \brief Add a xbmc timer as a manual schedule
    */
-  int AddManualSchedule(const std::string& channelid, const time_t starttime, const time_t duration, const std::string& title, int prerecordseconds, int postrecordseconds, int lifetime, Json::Value& response);
+  int AddManualSchedule(const std::string& channelid,
+                        const time_t starttime,
+                        const time_t duration,
+                        const std::string& title,
+                        int prerecordseconds,
+                        int postrecordseconds,
+                        int lifetime,
+                        Json::Value& response);
 
   /**
    * \brief Delete a ArgusTV schedule

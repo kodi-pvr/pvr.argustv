@@ -8,7 +8,8 @@
 
 #pragma once
 
-#include "p8-platform/threads/threads.h"
+#include <json/json.h>
+#include <p8-platform/threads/threads.h>
 
 class cPVRClientArgusTV;
 
@@ -20,7 +21,7 @@ public:
   void Connect(void);
 
 private:
-  virtual void *Process(void);
+  virtual void* Process(void);
 
   void HandleEvents(Json::Value events);
 
@@ -28,4 +29,3 @@ private:
   std::string m_monitorId;
   cPVRClientArgusTV& m_instance;
 };
-

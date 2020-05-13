@@ -6,18 +6,20 @@
  *  See LICENSE.md for more information.
  */
 
-#include <vector>
+#include "upcomingrecording.h"
+
+#include "argustvrpc.h"
 #include "utils.h"
+
 #include <stdlib.h>
 #include <string.h>
-#include "argustvrpc.h"
-#include "upcomingrecording.h"
+#include <vector>
 
 bool cUpcomingRecording::Parse(const Json::Value& data)
 {
   int offset;
   std::string t;
-  Json::Value channelobject,programobject;
+  Json::Value channelobject, programobject;
 
   programobject = data["Program"];
   date = 0;

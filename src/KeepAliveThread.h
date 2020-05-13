@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "p8-platform/threads/threads.h"
+#include <p8-platform/threads/threads.h>
 
 class cPVRClientArgusTV;
 
@@ -19,8 +19,7 @@ public:
   virtual ~CKeepAliveThread(void);
 
 private:
-  virtual void *Process(void);
+  virtual void* Process(void);
 
   cPVRClientArgusTV& m_instance;
 };
-

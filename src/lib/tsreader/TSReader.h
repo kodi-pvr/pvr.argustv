@@ -24,32 +24,32 @@
 
 namespace ArgusTV
 {
-  class CTsReader
-  {
-  public:
-    CTsReader();
-    ~CTsReader(void) = default;
-    long Open(const std::string& fileName);
-    long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
-    void Close();
-    int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
-    int64_t GetFileSize();
-    int64_t GetFilePointer();
-    void OnZap(void);
+class CTsReader
+{
+public:
+  CTsReader();
+  ~CTsReader(void) = default;
+  long Open(const std::string& fileName);
+  long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long* dwReadBytes);
+  void Close();
+  int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
+  int64_t GetFileSize();
+  int64_t GetFilePointer();
+  void OnZap(void);
 #if defined(TARGET_WINDOWS)
-    long long sigmaTime();
-    long long sigmaCount();
+  long long sigmaTime();
+  long long sigmaCount();
 #endif
 
-  private:
-    bool            m_bTimeShifting = false;
-    bool            m_bRecording = false;
-    bool            m_bLiveTv = false;
-    std::string     m_fileName;
-    FileReader*     m_fileReader = nullptr;
+private:
+  bool m_bTimeShifting = false;
+  bool m_bRecording = false;
+  bool m_bLiveTv = false;
+  std::string m_fileName;
+  FileReader* m_fileReader = nullptr;
 #if defined(TARGET_WINDOWS)
-    LARGE_INTEGER   liDelta;
-    LARGE_INTEGER   liCount;
+  LARGE_INTEGER liDelta;
+  LARGE_INTEGER liCount;
 #endif
-  };
-}
+};
+} // namespace ArgusTV

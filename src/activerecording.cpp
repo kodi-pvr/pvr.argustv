@@ -7,6 +7,7 @@
  */
 
 #include "activerecording.h"
+
 #include "utils.h"
 
 #include <stdlib.h>

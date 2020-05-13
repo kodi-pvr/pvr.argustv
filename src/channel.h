@@ -35,4 +35,3 @@ private:
   int lcn = 0;
   int id = 0;
 };
-

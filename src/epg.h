@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include <kodi/AddonBase.h>
 #include <json/json.h>
+#include <kodi/AddonBase.h>
 #include <string>
 
 class cEpg

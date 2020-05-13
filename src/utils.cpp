@@ -7,81 +7,79 @@
  */
 
 #if defined(TARGET_WINDOWS)
-#pragma warning(disable:4244) //wchar to char = loss of data
+#pragma warning(disable : 4244) //wchar to char = loss of data
 #endif
 
 #include "utils.h"
+
 #include "addon.h"
 
-#include "p8-platform/os.h"
 #include <algorithm> // sort
-#include <string>
 #include <kodi/General.h>
+#include <p8-platform/os.h>
+#include <string>
 
 namespace Json
 {
-  void printValueTree( const Json::Value& value, const std::string& path)
+void printValueTree(const Json::Value& value, const std::string& path)
+{
+  switch (value.type())
   {
-    switch ( value.type() )
-    {
     case Json::nullValue:
-      kodi::Log(ADDON_LOG_DEBUG, "%s=null\n", path.c_str() );
+      kodi::Log(ADDON_LOG_DEBUG, "%s=null\n", path.c_str());
       break;
     case Json::intValue:
-      kodi::Log(ADDON_LOG_DEBUG, "%s=%d\n", path.c_str(), value.asInt() );
+      kodi::Log(ADDON_LOG_DEBUG, "%s=%d\n", path.c_str(), value.asInt());
       break;
     case Json::uintValue:
-      kodi::Log(ADDON_LOG_DEBUG, "%s=%u\n", path.c_str(), value.asUInt() );
+      kodi::Log(ADDON_LOG_DEBUG, "%s=%u\n", path.c_str(), value.asUInt());
       break;
     case Json::realValue:
-      kodi::Log(ADDON_LOG_DEBUG, "%s=%.16g\n", path.c_str(), value.asDouble() );
+      kodi::Log(ADDON_LOG_DEBUG, "%s=%.16g\n", path.c_str(), value.asDouble());
       break;
     case Json::stringValue:
-      kodi::Log(ADDON_LOG_DEBUG, "%s=\"%s\"\n", path.c_str(), value.asString().c_str() );
+      kodi::Log(ADDON_LOG_DEBUG, "%s=\"%s\"\n", path.c_str(), value.asString().c_str());
       break;
     case Json::booleanValue:
-      kodi::Log(ADDON_LOG_DEBUG, "%s=%s\n", path.c_str(), value.asBool() ? "true" : "false" );
+      kodi::Log(ADDON_LOG_DEBUG, "%s=%s\n", path.c_str(), value.asBool() ? "true" : "false");
       break;
     case Json::arrayValue:
+    {
+      kodi::Log(ADDON_LOG_DEBUG, "%s=[]\n", path.c_str());
+      int size = value.size();
+      for (int index = 0; index < size; ++index)
       {
-        kodi::Log(ADDON_LOG_DEBUG, "%s=[]\n", path.c_str() );
-        int size = value.size();
-        for ( int index =0; index < size; ++index )
-        {
-          static char buffer[16];
-          snprintf( buffer, 16, "[%d]", index );
-          printValueTree( value[index], path + buffer );
-        }
+        static char buffer[16];
+        snprintf(buffer, 16, "[%d]", index);
+        printValueTree(value[index], path + buffer);
       }
-      break;
+    }
+    break;
     case Json::objectValue:
+    {
+      kodi::Log(ADDON_LOG_DEBUG, "%s={}\n", path.c_str());
+      Json::Value::Members members(value.getMemberNames());
+      std::sort(members.begin(), members.end());
+      std::string suffix = *(path.end() - 1) == '.' ? "" : ".";
+      for (Json::Value::Members::iterator it = members.begin(); it != members.end(); ++it)
       {
-        kodi::Log(ADDON_LOG_DEBUG, "%s={}\n", path.c_str() );
-        Json::Value::Members members( value.getMemberNames() );
-        std::sort( members.begin(), members.end() );
-        std::string suffix = *(path.end()-1) == '.' ? "" : ".";
-        for ( Json::Value::Members::iterator it = members.begin();
-          it != members.end();
-          ++it )
-        {
-          const std::string &name = *it;
-          printValueTree( value[name], path + suffix + name );
-        }
+        const std::string& name = *it;
+        printValueTree(value[name], path + suffix + name);
       }
-      break;
+    }
+    break;
     default:
       break;
-    }
   }
+}
 } //namespace Json
 
 namespace BASE64
 {
 
-static const char *to_base64 =
-"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
-abcdefghijklmnopqrstuvwxyz\
-0123456789+/";
+static const char* to_base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                               "abcdefghijklmnopqrstuvwxyz"
+                               "0123456789+/";
 
 std::string b64_encode(unsigned char const* in, unsigned int in_len, bool urlEncode)
 {
@@ -90,7 +88,8 @@ std::string b64_encode(unsigned char const* in, unsigned int in_len, bool urlEnc
   unsigned char c_3[3];
   unsigned char c_4[4];
 
-  while (in_len) {
+  while (in_len)
+  {
     i = in_len > 2 ? 3 : in_len;
     in_len -= i;
     c_3[0] = *(in++);
@@ -130,7 +129,7 @@ std::string ToCIFS(std::string& UNCName)
   {
     CIFSname.replace(found, 1, "/");
   }
-  CIFSname.erase(0,2);
+  CIFSname.erase(0, 2);
   CIFSname.insert(0, SMBPrefix);
   return CIFSname;
 }
@@ -145,7 +144,7 @@ bool InsertUser(const CArgusTVAddon& base, std::string& UNCName)
     std::string SMBPrefix = "smb://" + base.GetSettings().User();
 
     if (!base.GetSettings().Pass().empty())
-     SMBPrefix.append(":" + base.GetSettings().Pass());
+      SMBPrefix.append(":" + base.GetSettings().Pass());
 
     SMBPrefix.append("@");
 
@@ -163,7 +162,7 @@ std::string ToUNC(std::string& CIFSName)
 {
   std::string UNCname = CIFSName;
 
-  UNCname.erase(0,6);
+  UNCname.erase(0, 6);
   size_t found;
   while ((found = UNCname.find("/")) != std::string::npos)
   {

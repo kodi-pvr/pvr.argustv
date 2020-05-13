@@ -12,8 +12,8 @@
 #include "pvrclient-argustv.h"
 #include "utils.h"
 
-#include "p8-platform/os.h"
 #include <kodi/General.h>
+#include <p8-platform/os.h>
 
 CKeepAliveThread::CKeepAliveThread(cPVRClientArgusTV& instance) : m_instance(instance)
 {
@@ -25,19 +25,20 @@ CKeepAliveThread::~CKeepAliveThread()
   kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: destructor");
 }
 
-void *CKeepAliveThread::Process()
+void* CKeepAliveThread::Process()
 {
   kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: thread started");
   while (!IsStopped())
   {
     int retval = m_instance.GetRPC().KeepLiveStreamAlive();
-    kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: KeepLiveStreamAlive returned %i", (int) retval);
+    kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: KeepLiveStreamAlive returned %i", (int)retval);
     // The new P8PLATFORM:: thread library has a problem with stopping a thread that is doing a long sleep
     for (int i = 0; i < 100; i++)
     {
-      if (Sleep(100)) break;
+      if (Sleep(100))
+        break;
     }
   }
   kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: thread stopped");
-  return NULL;
+  return nullptr;
 }

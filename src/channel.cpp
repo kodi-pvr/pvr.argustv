@@ -6,22 +6,24 @@
  *  See LICENSE.md for more information.
  */
 
-#include <vector>
 #include "channel.h"
+
 #include "utils.h"
+
 #include <stdlib.h>
 #include <string.h>
+#include <vector>
 
 bool cChannel::Parse(const Json::Value& data)
 {
-    //Json::printValueTree(data);
+  //Json::printValueTree(data);
 
-    name = data["DisplayName"].asString();
-    type = (CArgusTV::ChannelType) data["ChannelType"].asInt();
-    lcn = data["LogicalChannelNumber"].asInt();
-	id = data["Id"].asInt();
-    guid = data["ChannelId"].asString();
-    guidechannelid = data["GuideChannelId"].asString();
+  name = data["DisplayName"].asString();
+  type = (CArgusTV::ChannelType)data["ChannelType"].asInt();
+  lcn = data["LogicalChannelNumber"].asInt();
+  id = data["Id"].asInt();
+  guid = data["ChannelId"].asString();
+  guidechannelid = data["GuideChannelId"].asString();
 
-    return true;
+  return true;
 }

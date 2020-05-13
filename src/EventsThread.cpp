@@ -6,14 +6,14 @@
  *  See LICENSE.md for more information.
  */
 
-#include "argustvrpc.h"
 #include "EventsThread.h"
+
+#include "argustvrpc.h"
 #include "pvrclient-argustv.h"
 
 #include <kodi/General.h>
 
-CEventsThread::CEventsThread(cPVRClientArgusTV& instance) :
-  m_instance(instance)
+CEventsThread::CEventsThread(cPVRClientArgusTV& instance) : m_instance(instance)
 {
   kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: constructor");
 }
@@ -45,7 +45,7 @@ void CEventsThread::Connect()
   }
 }
 
-void *CEventsThread::Process()
+void* CEventsThread::Process()
 {
   kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: thread started");
   while (!IsStopped() && m_subscribed)
@@ -64,17 +64,19 @@ void *CEventsThread::Process()
       {
         // Process service events
         Json::Value events = response["Events"];
-        if (events.size() > 0u) HandleEvents(events);
+        if (events.size() > 0u)
+          HandleEvents(events);
       }
     }
     // The new P8PLATFORM:: thread library has a problem with stopping a thread that is doing a long sleep
     for (int i = 0; i < 100; i++)
     {
-      if (Sleep(100)) break;
+      if (Sleep(100))
+        break;
     }
   }
   kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: thread stopped");
-  return NULL;
+  return nullptr;
 }
 
 void CEventsThread::HandleEvents(Json::Value events)

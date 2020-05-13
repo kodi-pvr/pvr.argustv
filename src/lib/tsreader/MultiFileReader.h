@@ -26,55 +26,56 @@
 #pragma once
 
 #include "FileReader.h"
-#include <vector>
+
 #include <string>
+#include <vector>
 
 namespace ArgusTV
 {
-  class MultiFileReaderFile
-  {
-  public:
-      std::string filename;
-      int64_t startPosition;
-      int64_t length;
-      long filePositionId;
-  };
+class MultiFileReaderFile
+{
+public:
+  std::string filename;
+  int64_t startPosition;
+  int64_t length;
+  long filePositionId;
+};
 
-  class MultiFileReader : public FileReader
-  {
-  public:
-      MultiFileReader() = default;
-      ~MultiFileReader() override = default;
+class MultiFileReader : public FileReader
+{
+public:
+  MultiFileReader() = default;
+  ~MultiFileReader() override = default;
 
-      std::string GetFileName() const override;
-      long SetFileName(const std::string& fileName) override;
-      long OpenFile() override;
-      long CloseFile() override;
-      long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes) override;
-      bool IsFileInvalid() override;
+  std::string GetFileName() const override;
+  long SetFileName(const std::string& fileName) override;
+  long OpenFile() override;
+  long CloseFile() override;
+  long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long* dwReadBytes) override;
+  bool IsFileInvalid() override;
 
-      int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod) override;
-      int64_t GetFilePointer() override;
-      int64_t GetFileSize() override;
-      void OnZap(void) override;
+  int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod) override;
+  int64_t GetFilePointer() override;
+  int64_t GetFileSize() override;
+  void OnZap(void) override;
 
-  protected:
-      long RefreshTSBufferFile();
-      long GetFileLength(const std::string& filename, int64_t &length);
+protected:
+  long RefreshTSBufferFile();
+  long GetFileLength(const std::string& filename, int64_t& length);
 
-      FileReader m_TSBufferFile;
-      int64_t m_startPosition = 0;
-      int64_t m_endPosition = 0;
-      int64_t m_currentReadPosition = 0;
-      long m_filesAdded = 0;
-      long m_filesRemoved = 0;
-      int64_t m_lastZapPosition = 0;
+  FileReader m_TSBufferFile;
+  int64_t m_startPosition = 0;
+  int64_t m_endPosition = 0;
+  int64_t m_currentReadPosition = 0;
+  long m_filesAdded = 0;
+  long m_filesRemoved = 0;
+  int64_t m_lastZapPosition = 0;
 
-      std::vector<MultiFileReaderFile *> m_tsFiles;
+  std::vector<MultiFileReaderFile*> m_tsFiles;
 
-      FileReader m_TSFile;
-      long     m_TSFileId = 0;
-      bool     m_bDelay = false;
-      bool     m_bDebugOutput = false;
-  };
-}
+  FileReader m_TSFile;
+  long m_TSFileId = 0;
+  bool m_bDelay = false;
+  bool m_bDebugOutput = false;
+};
+} // namespace ArgusTV
