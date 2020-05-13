@@ -1,21 +1,12 @@
-#pragma once
 /*
- *      Copyright (C) 2010-2012 Marcel Groothuis, Fred Hoogduin
+ *  Copyright (C) 2020 Team Kodi (https://kodi.tv)
+ *  Copyright (C) 2010-2012 Marcel Groothuis, Fred Hoogduin
  *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
- *
- *  This Program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ *  SPDX-License-Identifier: GPL-2.0-or-later
+ *  See LICENSE.md for more information.
  */
+
+#pragma once
 
 #include "p8-platform/threads/mutex.h"
 
@@ -108,7 +99,7 @@ public:
   int ArgusTVRPC(const std::string& command, const std::string& arguments, std::string& json_response);
 
   /**
-   * \brief Send a REST command to ARGUS and return the JSON response 
+   * \brief Send a REST command to ARGUS and return the JSON response
    * \param command       The command string url (starting from "ArgusTV/")
    * \param json_response Reference to a Json::Value used to store the parsed Json value
    * \return 0 on ok, -1 on a failure
@@ -142,7 +133,7 @@ public:
   int GetDisplayVersion(Json::Value& response);
 
   /**
-   * \brief GetPluginServices Get all configured plugin services. {activeOnly} = Set to true to only receive active plugins. 
+   * \brief GetPluginServices Get all configured plugin services. {activeOnly} = Set to true to only receive active plugins.
    * \brief Returns an array containing zero or more plugin services.
    * \param activeonly  set to true to only receive active plugins
    * \param response Reference to a std::string used to store the json response string
@@ -368,13 +359,13 @@ public:
 
   /*
    * \brief Convert a XBMC Lifetime value to the ARGUS keepUntilMode setting
-   * \param lifetime the XBMC lifetime value (in days) 
+   * \param lifetime the XBMC lifetime value (in days)
    */
   int lifetimeToKeepUntilMode(int lifetime);
 
   /*
    * \brief Convert a XBMC Lifetime value to the ARGUS keepUntilValue setting
-   * \param lifetime the XBMC lifetime value (in days) 
+   * \param lifetime the XBMC lifetime value (in days)
    */
   int lifetimeToKeepUntilValue(int lifetime);
 
