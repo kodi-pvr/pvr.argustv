@@ -1,3 +1,7 @@
+v3.5.6
+- Fixed: Set correct is realtime flag for recordings
+- Fix GetTempPath call for window
+
 v3.5.5
 - Update build system version and cleanup
 - Fix package check for JsonCpp
