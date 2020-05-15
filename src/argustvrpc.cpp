@@ -204,14 +204,8 @@ namespace ArgusTV
   std::string GetChannelLogo(const std::string& channelGUID)
   {
 #if defined(TARGET_WINDOWS)
-#if defined(TARGET_WINDOWS_STORE)
-    wchar_t wpath[MAX_PATH];
-    GetTempPath(MAX_PATH, wpath);
-    std::string tmppath = p8::windows::FromW(wpath);
-#else
     char tmppath[MAX_PATH];
-    GetTempPath(MAX_PATH, tmppath);
-#endif
+    GetTempPathA(MAX_PATH, tmppath);
 #elif defined(TARGET_LINUX) || defined(TARGET_DARWIN) || defined(TARGET_FREEBSD)
     std::string tmppath = "/tmp/";
 #else
