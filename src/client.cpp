@@ -52,6 +52,7 @@ std::string             g_szUserPath   = "";
 std::string             g_szClientPath = "";
 CHelper_libXBMC_addon  *XBMC           = NULL;
 CHelper_libXBMC_pvr    *PVR            = NULL;
+bool                   m_bRecordingPlayback = false;
 
 extern "C" {
 
@@ -564,11 +565,18 @@ PVR_ERROR GetSignalStatus(int channelUid, PVR_SIGNAL_STATUS *signalStatus)
 
 bool OpenRecordedStream(const PVR_RECORDING &recording)
 {
-  return g_client->OpenRecordedStream(recording);
+  bool recordingOpenSuccess = g_client->OpenRecordedStream(recording);
+
+  if (recordingOpenSuccess)
+    m_bRecordingPlayback = true;
+
+  return recordingOpenSuccess;
 }
 
 void CloseRecordedStream(void)
 {
+  m_bRecordingPlayback = false;
+
   return g_client->CloseRecordedStream();
 }
 
@@ -579,7 +587,7 @@ int ReadRecordedStream(unsigned char *pBuffer, unsigned int iBufferSize)
 
 long long SeekRecordedStream(long long iPosition, int iWhence)
 {
-  return g_client->SeekRecordedStream(iPosition, iWhence); 
+  return g_client->SeekRecordedStream(iPosition, iWhence);
 }
 
 long long LengthRecordedStream(void)
@@ -614,6 +622,11 @@ bool CanSeekStream(void)
   return false;
 }
 
+bool IsRealTimeStream()
+{ 
+  return !m_bRecordingPlayback; 
+}
+
 /** UNUSED API FUNCTIONS */
 DemuxPacket* DemuxRead(void) { return NULL; }
 void DemuxAbort(void) {}
@@ -623,7 +636,6 @@ void FillBuffer(bool mode) {}
 PVR_ERROR GetRecordingEdl(const PVR_RECORDING&, PVR_EDL_ENTRY[], int*) { return PVR_ERROR_NOT_IMPLEMENTED; };
 bool SeekTime(double,bool,double*) { return false; }
 void SetSpeed(int) {};
-bool IsRealTimeStream() { return true; }
 PVR_ERROR UndeleteRecording(const PVR_RECORDING& recording) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR DeleteAllRecordingsFromTrash() { return PVR_ERROR_NOT_IMPLEMENTED;}
 PVR_ERROR SetEPGTimeFrame(int) { return PVR_ERROR_NOT_IMPLEMENTED; }

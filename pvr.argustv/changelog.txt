@@ -1,3 +1,6 @@
+v4.1.7
+- Fixed: Set correct is realtime flag for recordings
+
 v4.1.6
 - Update PVR API 6.5.0
 
