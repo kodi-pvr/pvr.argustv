@@ -64,7 +64,7 @@ extern "C" {
 // Called after loading of the dll, all steps to become Client functional
 // must be performed here.
 //-----------------------------------------------------------------------------
-ADDON_STATUS ADDON_Create(void* hdl, void* props)
+ADDON_STATUS ADDON_Create(void* hdl, const char* globalApiVersion, void* props)
 {
   if (!hdl || !props)
     return ADDON_STATUS_UNKNOWN;
