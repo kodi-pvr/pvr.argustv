@@ -28,32 +28,27 @@
  *************************************************************************/
 
 #include "TSReader.h"
-#include "client.h" //for XBMC->Log
 #include "MultiFileReader.h"
 #include "utils.h"
 #include "p8-platform/os.h"
 #include "p8-platform/util/util.h"
 
-using namespace ADDON;
+#include <kodi/General.h>
 
 namespace ArgusTV
 {
-  CTsReader::CTsReader() :
-    m_fileReader(NULL),
-    m_bLiveTv(false),
-    m_bRecording(false),
-    m_bTimeShifting(false)
+  CTsReader::CTsReader()
   {
 #if defined(TARGET_WINDOWS)
     liDelta.QuadPart = liCount.QuadPart = 0;
 #endif
   }
 
-  long CTsReader::Open(const char* pszFileName)
+  long CTsReader::Open(const std::string& fileName)
   {
-    XBMC->Log(LOG_DEBUG, "CTsReader::Open(%s)", pszFileName);
+    kodi::Log(ADDON_LOG_DEBUG, "CTsReader::Open(%s)", fileName.c_str());
 
-    m_fileName = pszFileName;
+    m_fileName = fileName;
     char url[MAX_PATH];
     strncpy(url, m_fileName.c_str(), MAX_PATH - 1);
     url[MAX_PATH - 1] = '\0'; // make sure that we always have a 0-terminated string
@@ -79,12 +74,12 @@ namespace ArgusTV
     //open file
     if (m_fileReader->SetFileName(m_fileName.c_str()) != S_OK)
     {
-      XBMC->Log(LOG_ERROR, "CTsReader::SetFileName failed.");
+      kodi::Log(ADDON_LOG_ERROR, "CTsReader::SetFileName failed.");
       return S_FALSE;
     }
     if (m_fileReader->OpenFile() != S_OK)
     {
-      XBMC->Log(LOG_ERROR, "CTsReader::OpenFile failed.");
+      kodi::Log(ADDON_LOG_ERROR, "CTsReader::OpenFile failed.");
       return S_FALSE;
     }
     m_fileReader->SetFilePointer(0LL, FILE_BEGIN);
@@ -104,10 +99,10 @@ namespace ArgusTV
 #if defined(TARGET_WINDOWS)
       // Save the performance counter frequency for later use.
       if (!QueryPerformanceFrequency(&liFrequency))
-        XBMC->Log(LOG_ERROR, "QPF() failed with error %d\n", GetLastError());
+        kodi::Log(ADDON_LOG_ERROR, "QPF() failed with error %d\n", GetLastError());
 
       if (!QueryPerformanceCounter(&liCurrent))
-        XBMC->Log(LOG_ERROR, "QPC() failed with error %d\n", GetLastError());
+        kodi::Log(ADDON_LOG_ERROR, "QPC() failed with error %d\n", GetLastError());
       liLast = liCurrent;
 #endif
 
@@ -115,7 +110,7 @@ namespace ArgusTV
 
 #if defined(TARGET_WINDOWS)
       if (!QueryPerformanceCounter(&liCurrent))
-        XBMC->Log(LOG_ERROR, "QPC() failed with error %d\n", GetLastError());
+        kodi::Log(ADDON_LOG_ERROR, "QPC() failed with error %d\n", GetLastError());
 
       // Convert difference in performance counter values to nanoseconds.
       liDelta.QuadPart += (((liCurrent.QuadPart - liLast.QuadPart) * 1000000) / liFrequency.QuadPart);

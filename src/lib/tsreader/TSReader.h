@@ -28,7 +28,6 @@
  * - Code refactoring for cross platform usage
  *************************************************************************/
 
-#include "client.h"
 #include "FileReader.h"
 
 namespace ArgusTV
@@ -37,8 +36,8 @@ namespace ArgusTV
   {
   public:
     CTsReader();
-    ~CTsReader(void) {};
-    long Open(const char* pszFileName);
+    ~CTsReader(void) = default;
+    long Open(const std::string& fileName);
     long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
     void Close();
     int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
@@ -47,15 +46,15 @@ namespace ArgusTV
     void OnZap(void);
 #if defined(TARGET_WINDOWS)
     long long sigmaTime();
-    long long  sigmaCount();
+    long long sigmaCount();
 #endif
 
   private:
-    bool            m_bTimeShifting;
-    bool            m_bRecording;
-    bool            m_bLiveTv;
+    bool            m_bTimeShifting = false;
+    bool            m_bRecording = false;
+    bool            m_bLiveTv = false;
     std::string     m_fileName;
-    FileReader*     m_fileReader;
+    FileReader*     m_fileReader = nullptr;
 #if defined(TARGET_WINDOWS)
     LARGE_INTEGER   liDelta;
     LARGE_INTEGER   liCount;

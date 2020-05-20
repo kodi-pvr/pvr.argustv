@@ -34,18 +34,19 @@
  */
 
 #include "p8-platform/os.h"
+#include <kodi/Filesystem.h>
 
 namespace ArgusTV
 {
   class FileReader
   {
   public:
-      FileReader();
-      virtual ~FileReader();
+      FileReader() = default;
+      virtual ~FileReader() = default;
 
       // Open and write to the file
-      virtual long GetFileName(char* *lpszFileName);
-      virtual long SetFileName(const char* pszFileName);
+      virtual std::string GetFileName() const;
+      virtual long SetFileName(const std::string& fileName);
       virtual long OpenFile();
       virtual long CloseFile();
       virtual long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
@@ -59,11 +60,11 @@ namespace ArgusTV
       void SetDebugOutput(bool bDebugOutput);
 
   protected:
-      void*    m_hFile;               // Handle to file for streaming
-      char*    m_pFileName;           // The filename where we stream
-      int64_t  m_fileSize;
-      int64_t  m_fileStartPos;
+      kodi::vfs::CFile m_file;        // Handle to file for streaming
+      std::string m_fileName;         // The filename where we stream
+      int64_t  m_fileSize = 0;
+      int64_t  m_fileStartPos = 0;
 
-      bool     m_bDebugOutput;
+      bool     m_bDebugOutput = false;
   };
 }

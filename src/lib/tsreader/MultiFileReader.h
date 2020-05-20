@@ -51,38 +51,38 @@ namespace ArgusTV
   class MultiFileReader : public FileReader
   {
   public:
-      MultiFileReader();
-      virtual ~MultiFileReader();
+      MultiFileReader() = default;
+      ~MultiFileReader() override = default;
 
-      virtual long GetFileName(char* *lpszFileName);
-      virtual long SetFileName(const char* pszFileName);
-      virtual long OpenFile();
-      virtual long CloseFile();
-      virtual long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
-      virtual bool IsFileInvalid();
+      std::string GetFileName() const override;
+      long SetFileName(const std::string& fileName) override;
+      long OpenFile() override;
+      long CloseFile() override;
+      long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes) override;
+      bool IsFileInvalid() override;
 
-      virtual int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
-      virtual int64_t GetFilePointer();
-      virtual int64_t GetFileSize();
-      virtual void OnZap(void);
+      int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod) override;
+      int64_t GetFilePointer() override;
+      int64_t GetFileSize() override;
+      void OnZap(void) override;
 
   protected:
       long RefreshTSBufferFile();
-      long GetFileLength(const char* pFilename, int64_t &length);
+      long GetFileLength(const std::string& filename, int64_t &length);
 
       FileReader m_TSBufferFile;
-      int64_t m_startPosition;
-      int64_t m_endPosition;
-      int64_t m_currentReadPosition;
-      long m_filesAdded;
-      long m_filesRemoved;
-      int64_t m_lastZapPosition;
+      int64_t m_startPosition = 0;
+      int64_t m_endPosition = 0;
+      int64_t m_currentReadPosition = 0;
+      long m_filesAdded = 0;
+      long m_filesRemoved = 0;
+      int64_t m_lastZapPosition = 0;
 
       std::vector<MultiFileReaderFile *> m_tsFiles;
 
       FileReader m_TSFile;
-      long     m_TSFileId;
-      bool     m_bDelay;
-      bool     m_bDebugOutput;
+      long     m_TSFileId = 0;
+      bool     m_bDelay = false;
+      bool     m_bDebugOutput = false;
   };
 }

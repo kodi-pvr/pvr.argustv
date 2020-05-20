@@ -33,7 +33,6 @@
  */
 
 #include "MultiFileReader.h"
-#include "client.h" //for XBMC->Log
 #include <string>
 #include "utils.h"
 #include <algorithm>
@@ -49,7 +48,9 @@
 #endif
 #endif
 
-using namespace ADDON;
+#include <kodi/Filesystem.h>
+#include <kodi/General.h>
+
 using namespace P8PLATFORM;
 
 //Maximum time in msec to wait for the buffer file to become available - Needed for DVB radio (this sometimes takes some time)
@@ -58,36 +59,15 @@ using namespace P8PLATFORM;
 namespace ArgusTV
 {
 
-  MultiFileReader::MultiFileReader() :
-    m_TSBufferFile(),
-    m_TSFile()
-  {
-    m_startPosition = 0;
-    m_endPosition = 0;
-    m_currentReadPosition = 0;
-    m_lastZapPosition = 0;
-    m_filesAdded = 0;
-    m_filesRemoved = 0;
-    m_TSFileId = 0;
-    m_bDelay = 0;
-    m_bDebugOutput = false;
-  }
-
-  MultiFileReader::~MultiFileReader()
-  {
-    //CloseFile called by ~FileReader
-  }
-
-
-  long MultiFileReader::GetFileName(char* *lpszFileName)
+  std::string MultiFileReader::GetFileName() const
   {
     //  CheckPointer(lpszFileName,E_POINTER);
-    return m_TSBufferFile.GetFileName(lpszFileName);
+    return m_TSBufferFile.GetFileName();
   }
 
-  long MultiFileReader::SetFileName(const char* pszFileName)
+  long MultiFileReader::SetFileName(const std::string& fileName)
   {
-    return m_TSBufferFile.SetFileName(pszFileName);
+    return m_TSBufferFile.SetFileName(fileName);
   }
 
   //
@@ -95,29 +75,28 @@ namespace ArgusTV
   //
   long MultiFileReader::OpenFile()
   {
-    char * bufferfilename;
-    m_TSBufferFile.GetFileName(&bufferfilename);
+    std::string bufferfilename = m_TSBufferFile.GetFileName();
 
-    struct __stat64 stat;
-    if (XBMC->StatFile(bufferfilename, &stat) != 0)
+    kodi::vfs::FileStatus stat;
+    if (!kodi::vfs::StatFile(bufferfilename, stat))
     {
-      XBMC->Log(LOG_ERROR, "MultiFileReader: can not get stat from buffer file %s.", bufferfilename);
+      kodi::Log(ADDON_LOG_ERROR, "MultiFileReader: can not get stat from buffer file %s.", bufferfilename.c_str());
       return S_FALSE;
     }
 
-    int64_t fileLength = stat.st_size;
-    XBMC->Log(LOG_DEBUG, "MultiFileReader: buffer file %s, stat.st_size %ld.", bufferfilename, fileLength);
+    int64_t fileLength = stat.GetSize();
+    kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: buffer file %s, stat.size %ld.", bufferfilename.c_str(), fileLength);
 
     int retryCount = 0;
     if (fileLength == 0) do
     {
       retryCount++;
-      XBMC->Log(LOG_DEBUG, "MultiFileReader: buffer file has zero length, closing, waiting 500 ms and re-opening. Try %d.", retryCount);
+      kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: buffer file has zero length, closing, waiting 500 ms and re-opening. Try %d.", retryCount);
       usleep(500000);
-      XBMC->StatFile(bufferfilename, &stat);
-      fileLength = stat.st_size;
+      kodi::vfs::StatFile(bufferfilename, stat);
+      fileLength = stat.GetSize();
     } while (fileLength == 0 && retryCount < 20);
-    XBMC->Log(LOG_DEBUG, "MultiFileReader: buffer file %s, after %d retries stat.st_size returns %ld.", bufferfilename, retryCount, fileLength);
+    kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: buffer file %s, after %d retries stat.size returns %ld.", bufferfilename.c_str(), retryCount, fileLength);
 
     long hr = m_TSBufferFile.OpenFile();
 
@@ -131,8 +110,8 @@ namespace ArgusTV
         usleep(100000);
         if (timeout.TimeLeft() == 0)
         {
-          XBMC->Log(LOG_ERROR, "MultiFileReader: timed out while waiting for buffer file to become available");
-          XBMC->QueueNotification(QUEUE_ERROR, "Time out while waiting for buffer file");
+          kodi::Log(ADDON_LOG_ERROR, "MultiFileReader: timed out while waiting for buffer file to become available");
+          kodi::QueueNotification(QUEUE_ERROR, "", "Time out while waiting for buffer file");
           return S_FALSE;
         }
       } while (RefreshTSBufferFile() == S_FALSE);
@@ -186,7 +165,7 @@ namespace ArgusTV
       m_currentReadPosition = m_startPosition;
 
     if (m_currentReadPosition > m_endPosition) {
-      XBMC->Log(LOG_ERROR, "Seeking beyond the end position: %I64d > %I64d", m_currentReadPosition, m_endPosition);
+      kodi::Log(ADDON_LOG_ERROR, "Seeking beyond the end position: %I64d > %I64d", m_currentReadPosition, m_endPosition);
       m_currentReadPosition = m_endPosition;
     }
 
@@ -212,7 +191,7 @@ namespace ArgusTV
 
     if (m_currentReadPosition < m_startPosition)
     {
-      XBMC->Log(LOG_DEBUG, "%s: current position adjusted from %%I64dd to %%I64dd.", __FUNCTION__, m_currentReadPosition, m_startPosition);
+      kodi::Log(ADDON_LOG_DEBUG, "%s: current position adjusted from %%I64dd to %%I64dd.", __FUNCTION__, m_currentReadPosition, m_startPosition);
       m_currentReadPosition = m_startPosition;
     }
 
@@ -226,13 +205,13 @@ namespace ArgusTV
         break;
     };
 
-    // XBMC->Log(LOG_DEBUG, "%s: reading %ld bytes. File %s, start %d, current %d, end %d.", __FUNCTION__, lDataLength, file->filename.c_str(), m_startPosition, m_currentPosition, m_endPosition);
+    // kodi::Log(ADDON_LOG_DEBUG, "%s: reading %ld bytes. File %s, start %d, current %d, end %d.", __FUNCTION__, lDataLength, file->filename.c_str(), m_startPosition, m_currentPosition, m_endPosition);
 
 
     if (!file)
     {
-      XBMC->Log(LOG_ERROR, "MultiFileReader::no file");
-      XBMC->QueueNotification(QUEUE_ERROR, "No buffer file");
+      kodi::Log(ADDON_LOG_ERROR, "MultiFileReader::no file");
+      kodi::QueueNotification(QUEUE_ERROR, "", "No buffer file");
       return S_FALSE;
     }
     if (m_currentReadPosition < (file->startPosition + file->length))
@@ -247,7 +226,7 @@ namespace ArgusTV
 
         if (m_bDebugOutput)
         {
-          XBMC->Log(LOG_DEBUG, "MultiFileReader::Read() Current File Changed to %s\n", file->filename.c_str());
+          kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader::Read() Current File Changed to %s\n", file->filename.c_str());
         }
       }
 
@@ -260,7 +239,7 @@ namespace ArgusTV
         posSeeked = m_TSFile.GetFilePointer();
         if (posSeeked != seekPosition)
         {
-          XBMC->Log(LOG_ERROR, "SEEK FAILED");
+          kodi::Log(ADDON_LOG_ERROR, "SEEK FAILED");
         }
       }
 
@@ -269,18 +248,18 @@ namespace ArgusTV
       int64_t bytesToRead = file->length - seekPosition;
       if ((int64_t)lDataLength > bytesToRead)
       {
-        // XBMC->Log(LOG_DEBUG, "%s: datalength %lu bytesToRead %lli.", __FUNCTION__, lDataLength, bytesToRead);
+        // kodi::Log(ADDON_LOG_DEBUG, "%s: datalength %lu bytesToRead %lli.", __FUNCTION__, lDataLength, bytesToRead);
         hr = m_TSFile.Read(pbData, (unsigned long)bytesToRead, &bytesRead);
         if (FAILED(hr))
         {
-          XBMC->Log(LOG_ERROR, "READ FAILED1");
+          kodi::Log(ADDON_LOG_ERROR, "READ FAILED1");
         }
         m_currentReadPosition += bytesToRead;
 
         hr = this->Read(pbData + bytesToRead, lDataLength - (unsigned long)bytesToRead, dwReadBytes);
         if (FAILED(hr))
         {
-          XBMC->Log(LOG_ERROR, "READ FAILED2");
+          kodi::Log(ADDON_LOG_ERROR, "READ FAILED2");
         }
         *dwReadBytes += bytesRead;
       }
@@ -289,7 +268,7 @@ namespace ArgusTV
         hr = m_TSFile.Read(pbData, lDataLength, dwReadBytes);
         if (FAILED(hr))
         {
-          XBMC->Log(LOG_ERROR, "READ FAILED3");
+          kodi::Log(ADDON_LOG_ERROR, "READ FAILED3");
         }
         m_currentReadPosition += lDataLength;
       }
@@ -300,7 +279,7 @@ namespace ArgusTV
       *dwReadBytes = 0;
     }
 
-    // XBMC->Log(LOG_DEBUG, "%s: read %lu bytes. start %lli, current %lli, end %lli.", __FUNCTION__, *dwReadBytes, m_startPosition, m_currentPosition, m_endPosition);
+    // kodi::Log(ADDON_LOG_DEBUG, "%s: read %lu bytes. start %lli, current %lli, end %lli.", __FUNCTION__, *dwReadBytes, m_startPosition, m_currentPosition, m_endPosition);
     return S_OK;
   }
 
@@ -337,7 +316,7 @@ namespace ArgusTV
       {
         if (m_bDebugOutput)
         {
-          XBMC->Log(LOG_DEBUG, "MultiFileReader::RefreshTSBufferFile() TSBufferFile too short");
+          kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader::RefreshTSBufferFile() TSBufferFile too short");
         }
         return S_FALSE;
       }
@@ -398,8 +377,8 @@ namespace ArgusTV
       {
         Error |= 0x80;
 
-        XBMC->Log(LOG_ERROR, "MultiFileReader has error 0x%x in Loop %d. Try to clear SMB Cache.", Error, 10 - Loop);
-        XBMC->Log(LOG_DEBUG, "%s: filesAdded %d, filesAdded2 %d, filesRemoved %d, filesRemoved2 %d.", __FUNCTION__, filesAdded, filesAdded2, filesRemoved, filesRemoved2);
+        kodi::Log(ADDON_LOG_ERROR, "MultiFileReader has error 0x%x in Loop %d. Try to clear SMB Cache.", Error, 10 - Loop);
+        kodi::Log(ADDON_LOG_DEBUG, "%s: filesAdded %d, filesAdded2 %d, filesRemoved %d, filesRemoved2 %d.", __FUNCTION__, filesAdded, filesAdded2, filesRemoved, filesRemoved2);
 
         // try to clear local / remote SMB file cache. This should happen when we close the filehandle
         m_TSBufferFile.CloseFile();
@@ -415,11 +394,11 @@ namespace ArgusTV
 
     if (Loop < 8)
     {
-      XBMC->Log(LOG_DEBUG, "MultiFileReader has waited %d times for TSbuffer integrity.", 10 - Loop);
+      kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader has waited %d times for TSbuffer integrity.", 10 - Loop);
 
       if (Error)
       {
-        XBMC->Log(LOG_ERROR, "MultiFileReader has failed for TSbuffer integrity. Error : %x", Error);
+        kodi::Log(ADDON_LOG_ERROR, "MultiFileReader has failed for TSbuffer integrity. Error : %x", Error);
         return E_FAIL;
       }
     }
@@ -433,7 +412,7 @@ namespace ArgusTV
 
       if (m_bDebugOutput)
       {
-        XBMC->Log(LOG_DEBUG, "MultiFileReader: Files Added %i, Removed %i\n", filesToAdd, filesToRemove);
+        kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: Files Added %i, Removed %i\n", filesToAdd, filesToRemove);
       }
 
       // Removed files that aren't present anymore.
@@ -443,7 +422,7 @@ namespace ArgusTV
 
         if (m_bDebugOutput)
         {
-          XBMC->Log(LOG_DEBUG, "MultiFileReader: Removing file %s\n", file->filename.c_str());
+          kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: Removing file %s\n", file->filename.c_str());
         }
 
         delete file;
@@ -469,13 +448,11 @@ namespace ArgusTV
       }
 
       // Get the real path of the buffer file
-      char* filename;
       std::string sFilename;
       std::string path;
       size_t pos = std::string::npos;
 
-      m_TSBufferFile.GetFileName(&filename);
-      sFilename = filename;
+      sFilename = m_TSBufferFile.GetFileName();
       pos = sFilename.find_last_of('/');
       path = sFilename.substr(0, pos + 1);
       //name3 = filename1.substr(pos+1);
@@ -486,7 +463,7 @@ namespace ArgusTV
       Wchar_t* pwCurrFile = pBuffer;    //Get a pointer to the first wchar filename string in pBuffer
       long length = WcsLen(pwCurrFile);
 
-      //XBMC->Log(LOG_DEBUG, "%s: WcsLen(%d), sizeof(wchar_t) == %d.", __FUNCTION__, length, sizeof(wchar_t));
+      //kodi::Log(ADDON_LOG_DEBUG, "%s: WcsLen(%d), sizeof(wchar_t) == %d.", __FUNCTION__, length, sizeof(wchar_t));
 
       while (length > 0)
       {
@@ -498,11 +475,11 @@ namespace ArgusTV
         //unsigned char* pb = (unsigned char*) wide2normal;
         //for (unsigned long i = 0; i < rc; i++)
         //{
-        //  XBMC->Log(LOG_DEBUG, "%s: pBuffer byte[%d] == %x.", __FUNCTION__, i, pb[i]);
+        //  kodi::Log(ADDON_LOG_DEBUG, "%s: pBuffer byte[%d] == %x.", __FUNCTION__, i, pb[i]);
         //}
 
         std::string sCurrFile = wide2normal;
-        //XBMC->Log(LOG_DEBUG, "%s: filename %s (%s).", __FUNCTION__, wide2normal, sCurrFile.c_str());
+        //kodi::Log(ADDON_LOG_DEBUG, "%s: filename %s (%s).", __FUNCTION__, wide2normal, sCurrFile.c_str());
         delete[] wide2normal;
 
         // Modify filename path here to include the real (local) path
@@ -543,7 +520,7 @@ namespace ArgusTV
         }
         else
         {
-          XBMC->Log(LOG_DEBUG, "MultiFileReader: Missing files!!\n");
+          kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: Missing files!!\n");
         }
       }
 
@@ -554,7 +531,7 @@ namespace ArgusTV
         if (m_bDebugOutput)
         {
           int nextStPos = (int)nextStartPosition;
-          XBMC->Log(LOG_DEBUG, "MultiFileReader: Adding file %s (%i)\n", pFilename.c_str(), nextStPos);
+          kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: Adding file %s (%i)\n", pFilename.c_str(), nextStPos);
         }
 
         file = new MultiFileReaderFile();
@@ -564,7 +541,7 @@ namespace ArgusTV
         fileID++;
         file->filePositionId = fileID;
 
-        GetFileLength(file->filename.c_str(), file->length);
+        GetFileLength(file->filename, file->length);
 
         m_tsFiles.push_back(file);
 
@@ -600,7 +577,7 @@ namespace ArgusTV
         int64_t stPos = m_startPosition;
         int64_t endPos = m_endPosition;
         int64_t curPos = m_currentReadPosition;
-        XBMC->Log(LOG_DEBUG, "StartPosition %lli, EndPosition %lli, CurrentPosition %lli\n", stPos, endPos, curPos);
+        kodi::Log(ADDON_LOG_DEBUG, "StartPosition %lli, EndPosition %lli, CurrentPosition %lli\n", stPos, endPos, curPos);
       }
     }
     else
@@ -612,17 +589,17 @@ namespace ArgusTV
     return S_OK;
   }
 
-  long MultiFileReader::GetFileLength(const char* pFilename, int64_t &length)
+  long MultiFileReader::GetFileLength(const std::string& filename, int64_t &length)
   {
     length = 0;
-    struct __stat64 stat;
-    if (XBMC->StatFile(pFilename, &stat) != 0)
+    kodi::vfs::FileStatus stat;
+    if (!kodi::vfs::StatFile(filename, stat))
     {
-      XBMC->Log(LOG_ERROR, "MultiFileReader::GetFileLength: can not get stat from file %s.", pFilename);
+      kodi::Log(ADDON_LOG_ERROR, "MultiFileReader::GetFileLength: can not get stat from file %s.", filename.c_str());
       return S_FALSE;
     }
 
-    length = stat.st_size;
+    length = stat.GetSize();
     return S_OK;
   }
 
