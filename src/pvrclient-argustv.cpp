@@ -25,8 +25,6 @@
 #include <p8-platform/util/timeutils.h>
 #include <p8-platform/util/util.h>
 
-using namespace std;
-
 using namespace P8PLATFORM;
 using namespace ArgusTV;
 
@@ -160,7 +158,7 @@ bool cPVRClientArgusTV::Connect()
 
 void cPVRClientArgusTV::Disconnect()
 {
-  string result;
+  std::string result;
 
   kodi::Log(ADDON_LOG_INFO, "Disconnect");
 
@@ -1220,7 +1218,7 @@ cChannel* cPVRClientArgusTV::FetchChannel(std::vector<cChannel*> m_Channels,
                                           bool LogError)
 {
   // Search for this channel in our local channel list to find the original ChannelID back:
-  vector<cChannel*>::iterator it;
+  std::vector<cChannel*>::iterator it;
 
   for (it = m_Channels.begin(); it < m_Channels.end(); it++)
   {
@@ -1239,7 +1237,7 @@ cChannel* cPVRClientArgusTV::FetchChannel(std::vector<cChannel*> m_Channels,
 void cPVRClientArgusTV::FreeChannels(std::vector<cChannel*> m_Channels)
 {
   // Search for this channel in our local channel list to find the original ChannelID back:
-  vector<cChannel*>::iterator it;
+  std::vector<cChannel*>::iterator it;
 
   for (it = m_Channels.begin(); it < m_Channels.end(); it++)
   {
@@ -1456,7 +1454,7 @@ int64_t cPVRClientArgusTV::LengthLiveStream()
 
 void cPVRClientArgusTV::CloseLiveStream()
 {
-  string result;
+  std::string result;
   kodi::Log(ADDON_LOG_INFO, "CloseLiveStream");
 
   if (m_keepalive->IsRunning())
