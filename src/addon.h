@@ -1,6 +1,7 @@
 #pragma once
 /*
- *      Copyright (C) 2014 Fred Hoogduin
+ *      Copyright (C) 2005-2010 Team XBMC
+ *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,24 +20,25 @@
  *
  */
 
-#include "p8-platform/threads/threads.h"
+#include "settings.h"
+
+#include <kodi/AddonBase.h>
+#include <unordered_map>
 
 class cPVRClientArgusTV;
 
-class CEventsThread : public P8PLATFORM::CThread
+class ATTRIBUTE_HIDDEN CArgusTVAddon : public kodi::addon::CAddonBase
 {
 public:
-  CEventsThread(cPVRClientArgusTV& instance);
-  ~CEventsThread(void);
-  void Connect(void);
+  CArgusTVAddon() = default;
+
+  ADDON_STATUS CreateInstance(int instanceType, const std::string& instanceID, KODI_HANDLE instance, const std::string& version, KODI_HANDLE& addonInstance) override;
+  void DestroyInstance(int instanceType, const std::string& instanceID, KODI_HANDLE addonInstance) override;
+
+  ADDON_STATUS SetSetting(const std::string& settingName, const kodi::CSettingValue& settingValue) override;
+  const CSettings& GetSettings() const { return m_settings; }
 
 private:
-  virtual void *Process(void);
-
-  void HandleEvents(Json::Value events);
-
-  bool m_subscribed = false;
-  std::string m_monitorId;
-  cPVRClientArgusTV& m_instance;
+  CSettings m_settings;
+  std::unordered_map<std::string, cPVRClientArgusTV*> m_usedInstances;
 };
-

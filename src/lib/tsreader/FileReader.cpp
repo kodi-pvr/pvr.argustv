@@ -125,7 +125,7 @@ namespace ArgusTV
   } // CloseFile
 
 
-  inline bool FileReader::IsFileInvalid()
+  bool FileReader::IsFileInvalid()
   {
     return !m_file.IsOpen();
   }

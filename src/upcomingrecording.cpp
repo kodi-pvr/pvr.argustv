@@ -25,26 +25,6 @@
 #include "argustvrpc.h"
 #include "upcomingrecording.h"
 
-cUpcomingRecording::cUpcomingRecording(void) :
-  date(0),
-  starttime(0),
-  stoptime(0),
-  prerecordseconds(0),
-  postrecordseconds(0),
-  iscancelled(false),
-  isallocated(true),
-  isinconflict(true),
-  id(0),
-  ichannelid(0)
-{
-  channeldisplayname = "";
-  channelid = "";
-  title = "";
-}
-
-cUpcomingRecording::~cUpcomingRecording(void)
-{
-}
 bool cUpcomingRecording::Parse(const Json::Value& data)
 {
   int offset;
@@ -56,9 +36,9 @@ bool cUpcomingRecording::Parse(const Json::Value& data)
 
   id = programobject["Id"].asInt(); 
   t = programobject["StartTime"].asString();
-  starttime = ArgusTV::WCFDateToTimeT(t, offset);
+  starttime = CArgusTV::WCFDateToTimeT(t, offset);
   t = programobject["StopTime"].asString();
-  stoptime = ArgusTV::WCFDateToTimeT(t, offset);
+  stoptime = CArgusTV::WCFDateToTimeT(t, offset);
   prerecordseconds = programobject["PreRecordSeconds"].asInt();
   postrecordseconds = programobject["PostRecordSeconds"].asInt();
   title = programobject["Title"].asString();

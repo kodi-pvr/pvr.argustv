@@ -18,12 +18,17 @@
 
 #include "p8-platform/threads/threads.h"
 
+class cPVRClientArgusTV;
+
 class CKeepAliveThread : public P8PLATFORM::CThread
 {
 public:
-  CKeepAliveThread();
+  CKeepAliveThread(cPVRClientArgusTV& instance);
   virtual ~CKeepAliveThread(void);
+
 private:
   virtual void *Process(void);
+
+  cPVRClientArgusTV& m_instance;
 };
 

@@ -24,26 +24,6 @@
 #include <string.h>
 #include "recordinggroup.h"
 
-cRecordingGroup::cRecordingGroup(void)
-{
-  category = "";
-  channeldisplayname = "";
-  channelid = "";
-  channeltype = ArgusTV::Television;
-  isrecording = false;
-  latestprogramstarttime = 0;
-  programtitle = "";
-  recordinggroupmode = ArgusTV::GroupByProgramTitle;
-  recordingscount = 0;
-  scheduleid = "";
-  schedulename = "";
-  schedulepriority = ArgusTV::Normal;
-}
-
-cRecordingGroup::~cRecordingGroup(void)
-{
-}
-
 bool cRecordingGroup::Parse(const Json::Value& data)
 {
     //Json::printValueTree(data);
@@ -51,18 +31,18 @@ bool cRecordingGroup::Parse(const Json::Value& data)
   category = data["Category"].asString();
   channeldisplayname = data["ChannelDisplayName"].asString();
   channelid = data["ChannelId"].asString();
-  channeltype = (ArgusTV::ChannelType) data["ChannelType"].asInt();
+  channeltype = (CArgusTV::ChannelType) data["ChannelType"].asInt();
   isrecording = data["IsRecording"].asBool();
   int offset;
   std::string lpst = data["LatestProgramStartTime"].asString();
-  latestprogramstarttime = ArgusTV::WCFDateToTimeT(lpst, offset);
+  latestprogramstarttime = CArgusTV::WCFDateToTimeT(lpst, offset);
   latestprogramstarttime += ((offset/100)*3600);
   programtitle = data["ProgramTitle"].asString();
-  recordinggroupmode = (ArgusTV::RecordingGroupMode) data["RecordingGroupMode"].asInt();
+  recordinggroupmode = (CArgusTV::RecordingGroupMode) data["RecordingGroupMode"].asInt();
   recordingscount = data["RecordingsCount"].asInt();
   scheduleid = data["ScheduleId"].asString();
   schedulename = data["ScheduleName"].asString();
-  schedulepriority = (ArgusTV::SchedulePriority) data["SchedulePriority"].asInt();
+  schedulepriority = (CArgusTV::SchedulePriority) data["SchedulePriority"].asInt();
 
   return true;
 }

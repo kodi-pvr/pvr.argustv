@@ -16,28 +16,14 @@
  *
  */
 
-#include <vector>
+#include <kodi/General.h>
 #include <stdio.h>
-
-using namespace std;
+#include <vector>
 
 #include "epg.h"
 #include "utils.h"
-#include "client.h"
+#include "addon.h"
 #include "pvrclient-argustv.h"
-
-using namespace ADDON;
-
-cEpg::cEpg() :
-  m_starttime(0),
-  m_endtime(0),
-  m_utcdiff(0)
-{
-}
-
-cEpg::~cEpg()
-{
-}
 
 void cEpg::Reset()
 {
@@ -90,17 +76,17 @@ bool cEpg::Parse(const Json::Value& data)
     std::string starttime = data["StartTime"].asString();
     std::string endtime = data["StopTime"].asString();
 
-    m_starttime = ArgusTV::WCFDateToTimeT(starttime, offset);
-    m_endtime = ArgusTV::WCFDateToTimeT(endtime, offset);
+    m_starttime = CArgusTV::WCFDateToTimeT(starttime, offset);
+    m_endtime = CArgusTV::WCFDateToTimeT(endtime, offset);
 
-    //XBMC->Log(LOG_DEBUG, "Program: %s,%s Start: %s", m_title.c_str(), m_subtitle.c_str(), ctime(&m_starttime));
-    //XBMC->Log(LOG_DEBUG, "End: %s", ctime(&m_endtime));
+    //kodi::Log(ADDON_LOG_DEBUG, "Program: %s,%s Start: %s", m_title.c_str(), m_subtitle.c_str(), ctime(&m_starttime));
+    //kodi::Log(ADDON_LOG_DEBUG, "End: %s", ctime(&m_endtime));
 
     return true;
   }
   catch(std::exception &e)
   {
-    XBMC->Log(LOG_ERROR, "Exception '%s' during parse EPG json data.", e.what());
+    kodi::Log(ADDON_LOG_ERROR, "Exception '%s' during parse EPG json data.", e.what());
   }
 
   return false;

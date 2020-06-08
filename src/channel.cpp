@@ -23,26 +23,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-cChannel::cChannel()
-{
-  name = "";
-  guid = "";
-  type = ArgusTV::Television;
-  lcn = 0;
-  id = 0;
-  guidechannelid = "";
-}
-
-cChannel::~cChannel()
-{
-}
-
 bool cChannel::Parse(const Json::Value& data)
 {
     //Json::printValueTree(data);
 
     name = data["DisplayName"].asString();
-    type = (ArgusTV::ChannelType) data["ChannelType"].asInt();
+    type = (CArgusTV::ChannelType) data["ChannelType"].asInt();
     lcn = data["LogicalChannelNumber"].asInt();
 	id = data["Id"].asInt();
     guid = data["ChannelId"].asString();

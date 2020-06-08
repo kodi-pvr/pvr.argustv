@@ -18,58 +18,12 @@
 *
 */
 
-#include <vector>
+#include "recording.h"
 #include "utils.h"
+
 #include <stdlib.h>
 #include <string.h>
-#include "recording.h"
-#include "client.h"
-
-cRecording::cRecording(void)
-{
-  actors = "";
-  category = "";
-  channeldisplayname = "";
-  channelid = "";
-  channeltype = ArgusTV::Television;
-  description = "";
-  director = "";
-  episodenumber = 0;
-  episodenumberdisplay = "";
-  episodenumbertotal = 0;
-  episodepart = 0;
-  episodeparttotal = 0;
-  isfullywatched = false;
-  ispartofseries = false;
-  ispartialrecording = false;
-  ispremiere = false;
-  isrepeat = false;
-  keepuntilmode = ArgusTV::UntilSpaceIsNeeded;
-  keepuntilvalue = 0;
-  lastwatchedposition = 0;
-  fullywatchedcount = 0;
-  lastwatchedtime = 0;
-  programstarttime = 0;
-  programstoptime = 0;
-  rating = "";
-  recordingfileformatid = "";
-  recordingfilename = "";
-  recordingid = "";
-  recordingstarttime = 0;
-  recordingstoptime = 0;
-  scheduleid = "";
-  schedulename = "";
-  schedulepriority = ArgusTV::Normal;
-  seriesnumber = 0;
-  starrating = 0.0;
-  subtitle = "";
-  title = "";
-  id = 0;
-}
-
-cRecording::~cRecording(void)
-{
-}
+#include <vector>
 
 bool cRecording::Parse(const Json::Value& data)
 {
@@ -80,7 +34,7 @@ bool cRecording::Parse(const Json::Value& data)
   category = data["Category"].asString();
   channeldisplayname = data["ChannelDisplayName"].asString();
   channelid = data["ChannelId"].asString();
-  channeltype = (ArgusTV::ChannelType) data["ChannelType"].asInt();
+  channeltype = (CArgusTV::ChannelType) data["ChannelType"].asInt();
   description = data["Description"].asString();
   director = data["Director"].asString();
   episodenumber = data["EpisodeNumber"].asInt();
@@ -93,28 +47,28 @@ bool cRecording::Parse(const Json::Value& data)
   ispartialrecording = data["IsPartialRecording"].asBool();
   ispremiere = data["IsPremiere"].asBool();
   isrepeat = data["IsRepeat"].asBool();
-  keepuntilmode = (ArgusTV::KeepUntilMode) data["KeepUntilMode"].asInt();
+  keepuntilmode = (CArgusTV::KeepUntilMode) data["KeepUntilMode"].asInt();
   keepuntilvalue = data["KeepUntilValue"].asInt();
   lastwatchedposition = data["LastWatchedPosition"].asInt();
   fullywatchedcount = data ["FullyWatchedCount"].asInt();
   t = data["LastWatchedTime"].asString();
-  lastwatchedtime = ArgusTV::WCFDateToTimeT(t, offset);
+  lastwatchedtime = CArgusTV::WCFDateToTimeT(t, offset);
   t = data["ProgramStartTime"].asString();
-  programstarttime = ArgusTV::WCFDateToTimeT(t, offset);
+  programstarttime = CArgusTV::WCFDateToTimeT(t, offset);
   t = data["ProgramStopTime"].asString();
-  programstoptime = ArgusTV::WCFDateToTimeT(t, offset);
+  programstoptime = CArgusTV::WCFDateToTimeT(t, offset);
   rating = data["Rating"].asString();
   recordingfileformatid = data["RecordingFileFormatId"].asString();
   t = data["RecordingFileName"].asString();
   recordingfilename = ToCIFS(t);
   recordingid = data["RecordingId"].asString();
   t = data["RecordingStartTime"].asString();
-  recordingstarttime = ArgusTV::WCFDateToTimeT(t, offset);
+  recordingstarttime = CArgusTV::WCFDateToTimeT(t, offset);
   t = data["RecordingStopTime"].asString();
-  recordingstoptime = ArgusTV::WCFDateToTimeT(t, offset);
+  recordingstoptime = CArgusTV::WCFDateToTimeT(t, offset);
   scheduleid = data["ScheduleId"].asString();
   schedulename = data["ScheduleName"].asString();
-  schedulepriority = (ArgusTV::SchedulePriority) data["SchedulePriority"].asInt();
+  schedulepriority = (CArgusTV::SchedulePriority) data["SchedulePriority"].asInt();
   seriesnumber = data["SeriesNumber"].asInt();
   starrating = data["StarRating"].asDouble();
   subtitle = data["SubTitle"].asString();

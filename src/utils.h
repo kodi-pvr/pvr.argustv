@@ -23,6 +23,8 @@
 // don't use the UNUSED macro from StdString.h as it will generate "error: statement has no effect [-Werror=unused-value]"
 #define NOTUSED(x) ((void) x)
 
+class CArgusTVAddon;
+
 namespace Json
 {
   /**
@@ -42,5 +44,5 @@ namespace BASE64
 std::string ToCIFS(std::string& UNCName);
 std::string ToUNC(std::string& CIFSName);
 std::string ToUNC(const char* CIFSName);
-bool InsertUser(std::string& UNCName);
+bool InsertUser(const CArgusTVAddon& base, std::string& UNCName);
 

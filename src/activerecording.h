@@ -19,20 +19,20 @@
  *
  */
 
-#include "kodi/libXBMC_pvr.h"
-#include <string>
 #include <json/json.h>
+#include <string>
 
 class cActiveRecording
 {
-private:
-  std::string upcomingprogramid;
 public:
-  cActiveRecording(void);
-  virtual ~cActiveRecording(void);
+  cActiveRecording(void) = default;
+  virtual ~cActiveRecording(void) = default;
 
   bool Parse(const Json::Value& data);
 
   const std::string& UpcomingProgramId(void) const { return upcomingprogramid; }
+
+private:
+  std::string upcomingprogramid;
 };
 

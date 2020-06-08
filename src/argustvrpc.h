@@ -17,9 +17,11 @@
  *
  */
 
-#include <string>
-#include <json/json.h>
+#include "p8-platform/threads/mutex.h"
+
 #include <cstdlib>
+#include <json/json.h>
+#include <string>
 
 #define ATV_2_2_0 (60)
 #define ATV_REST_MINIMUM_API_VERSION ATV_2_2_0
@@ -29,8 +31,9 @@
 #define E_FAILED -1
 #define E_EMPTYRESPONSE -2
 
-namespace ArgusTV
+class CArgusTV
 {
+public:
   enum ChannelType {
     Television = 0,
     Radio = 1
@@ -94,7 +97,7 @@ namespace ArgusTV
   /**
    * \brief Do some internal housekeeping at the start
    */
-  void Initialize(void);
+  void Initialize(const std::string& baseURL);
 
   /**
    * \brief Send a REST command to ARGUS and return the JSON response string
@@ -375,6 +378,16 @@ namespace ArgusTV
    */
   int lifetimeToKeepUntilValue(int lifetime);
 
-  time_t WCFDateToTimeT(const std::string& wcfdate, int& offset);
-  std::string TimeTToWCFDate(const time_t thetime);
-} //namespace ArgusTV
+  static time_t WCFDateToTimeT(const std::string& wcfdate, int& offset);
+  static std::string TimeTToWCFDate(const time_t thetime);
+
+private:
+  int RequestChannelGroups(enum ChannelType channelType, Json::Value& response);
+  int GetLiveStreams();
+
+  //Remember the last LiveStream object to be able to stop the stream again
+  Json::Value m_currentLivestream;
+
+  std::string m_baseURL;
+  P8PLATFORM::CMutex m_communicationMutex;
+}; // class ArgusTV

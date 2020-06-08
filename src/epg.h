@@ -19,40 +19,34 @@
  *
  */
 
-#ifndef __EPG_H
-#define __EPG_H
-
-#include <string>
-#include "kodi/AddonBase.h"
-#include "kodi/libXBMC_addon.h"
-#include "kodi/libXBMC_pvr.h"
+#include <kodi/AddonBase.h>
 #include <json/json.h>
+#include <string>
 
 class cEpg
 {
-private:
-  std::string m_guideprogramid;
-  std::string m_title;
-  std::string m_subtitle;
-  std::string m_description;
-  std::string m_genre;
-  time_t m_starttime;
-  time_t m_endtime;
-  time_t m_utcdiff;
-
 public:
-  cEpg();
-  virtual ~cEpg();
+  cEpg() = default;
+  virtual ~cEpg() = default;
+
   void Reset();
 
   bool Parse(const Json::Value& data);
   const std::string& UniqueId(void) const { return m_guideprogramid; }
   time_t StartTime(void) const { return m_starttime; }
   time_t EndTime(void) const { return m_endtime; }
-  const char *Title(void) const { return m_title.c_str(); }
-  const char *Subtitle(void) const { return m_subtitle.c_str(); }
-  const char *Description(void) const { return m_description.c_str(); }
-  const char *Genre(void) const { return m_genre.c_str(); }
-};
+  const std::string& Title(void) const { return m_title; }
+  const std::string& Subtitle(void) const { return m_subtitle; }
+  const std::string& Description(void) const { return m_description; }
+  const std::string& Genre(void) const { return m_genre; }
 
-#endif //__EPG_H
+private:
+  std::string m_guideprogramid;
+  std::string m_title;
+  std::string m_subtitle;
+  std::string m_description;
+  std::string m_genre;
+  time_t m_starttime = 0;
+  time_t m_endtime = 0;
+  time_t m_utcdiff = 0;
+};

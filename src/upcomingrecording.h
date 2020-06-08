@@ -19,34 +19,14 @@
  *
  */
 
-#include "kodi/libXBMC_pvr.h"
 #include <string>
 #include <json/json.h>
 
 class cUpcomingRecording
 {
-private:
-  std::string channeldisplayname;
-  std::string channelid;
-  time_t date;
-  time_t starttime;
-  time_t stoptime;
-  int prerecordseconds;
-  int postrecordseconds;
-  std::string title;
-  bool iscancelled;
-  std::string upcomingprogramid;
-  std::string guideprogramid;
-  std::string scheduleid;
-  bool isallocated;
-  bool isinconflict;
-  int id;
-  int ichannelid;
-
-
 public:
-  cUpcomingRecording(void);
-  virtual ~cUpcomingRecording(void);
+  cUpcomingRecording(void) = default;
+  virtual ~cUpcomingRecording(void) = default;
 
   bool Parse(const Json::Value& data);
 
@@ -65,4 +45,22 @@ public:
   const std::string& ScheduleId(void) const { return scheduleid; }
   bool IsAllocated(void) const { return isallocated; }
   bool IsInConflict(void) const { return isinconflict; }
+
+private:
+  std::string channeldisplayname;
+  std::string channelid;
+  time_t date = 0;
+  time_t starttime = 0;
+  time_t stoptime = 0;
+  int prerecordseconds = 0;
+  int postrecordseconds = 0;
+  std::string title;
+  bool iscancelled = false;
+  std::string upcomingprogramid;
+  std::string guideprogramid;
+  std::string scheduleid;
+  bool isallocated = true;
+  bool isinconflict = true;
+  int id = 0;
+  int ichannelid = 0;
 };

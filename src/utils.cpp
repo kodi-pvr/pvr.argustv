@@ -20,12 +20,12 @@
 #endif
 
 #include "utils.h"
-#include "p8-platform/os.h"
-#include "client.h" //For XBMC->Log
-#include <string>
-#include <algorithm> // sort
+#include "addon.h"
 
-using namespace ADDON;
+#include "p8-platform/os.h"
+#include <algorithm> // sort
+#include <string>
+#include <kodi/General.h>
 
 namespace Json
 {
@@ -34,26 +34,26 @@ namespace Json
     switch ( value.type() )
     {
     case Json::nullValue:
-      XBMC->Log(LOG_DEBUG, "%s=null\n", path.c_str() );
+      kodi::Log(ADDON_LOG_DEBUG, "%s=null\n", path.c_str() );
       break;
     case Json::intValue:
-      XBMC->Log(LOG_DEBUG, "%s=%d\n", path.c_str(), value.asInt() );
+      kodi::Log(ADDON_LOG_DEBUG, "%s=%d\n", path.c_str(), value.asInt() );
       break;
     case Json::uintValue:
-      XBMC->Log(LOG_DEBUG, "%s=%u\n", path.c_str(), value.asUInt() );
+      kodi::Log(ADDON_LOG_DEBUG, "%s=%u\n", path.c_str(), value.asUInt() );
       break;
     case Json::realValue:
-      XBMC->Log(LOG_DEBUG, "%s=%.16g\n", path.c_str(), value.asDouble() );
+      kodi::Log(ADDON_LOG_DEBUG, "%s=%.16g\n", path.c_str(), value.asDouble() );
       break;
     case Json::stringValue:
-      XBMC->Log(LOG_DEBUG, "%s=\"%s\"\n", path.c_str(), value.asString().c_str() );
+      kodi::Log(ADDON_LOG_DEBUG, "%s=\"%s\"\n", path.c_str(), value.asString().c_str() );
       break;
     case Json::booleanValue:
-      XBMC->Log(LOG_DEBUG, "%s=%s\n", path.c_str(), value.asBool() ? "true" : "false" );
+      kodi::Log(ADDON_LOG_DEBUG, "%s=%s\n", path.c_str(), value.asBool() ? "true" : "false" );
       break;
     case Json::arrayValue:
       {
-        XBMC->Log(LOG_DEBUG, "%s=[]\n", path.c_str() );
+        kodi::Log(ADDON_LOG_DEBUG, "%s=[]\n", path.c_str() );
         int size = value.size();
         for ( int index =0; index < size; ++index )
         {
@@ -65,7 +65,7 @@ namespace Json
       break;
     case Json::objectValue:
       {
-        XBMC->Log(LOG_DEBUG, "%s={}\n", path.c_str() );
+        kodi::Log(ADDON_LOG_DEBUG, "%s={}\n", path.c_str() );
         Json::Value::Members members( value.getMemberNames() );
         std::sort( members.begin(), members.end() );
         std::string suffix = *(path.end()-1) == '.' ? "" : ".";
@@ -144,22 +144,22 @@ std::string ToCIFS(std::string& UNCName)
   return CIFSname;
 }
 
-bool InsertUser(std::string& UNCName)
+bool InsertUser(const CArgusTVAddon& base, std::string& UNCName)
 {
-  if (g_szUser.empty())
+  if (base.GetSettings().User().empty())
     return false;
 
   if (UNCName.find("smb://") == 0)
   {
-    std::string SMBPrefix = "smb://" + g_szUser;
+    std::string SMBPrefix = "smb://" + base.GetSettings().User();
 
-    if (!g_szPass.empty())
-     SMBPrefix.append(":" + g_szPass);
+    if (!base.GetSettings().Pass().empty())
+     SMBPrefix.append(":" + base.GetSettings().Pass());
 
     SMBPrefix.append("@");
 
     UNCName.replace(0, std::string("smb://").length(), SMBPrefix);
-    XBMC->Log(LOG_DEBUG, "Account Info added to SMB url");
+    kodi::Log(ADDON_LOG_DEBUG, "Account Info added to SMB url");
     return true;
   }
   return false;

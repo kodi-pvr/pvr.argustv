@@ -18,54 +18,53 @@
  *
  */
 
-
-#include "client.h" //for XBMC->Log
 #include "argustvrpc.h"
 #include "EventsThread.h"
+#include "pvrclient-argustv.h"
 
-using namespace ADDON;
+#include <kodi/General.h>
 
-CEventsThread::CEventsThread(void) :
-  m_subscribed(false)
+CEventsThread::CEventsThread(cPVRClientArgusTV& instance) :
+  m_instance(instance)
 {
-  XBMC->Log(LOG_DEBUG, "CEventsThread:: constructor");
+  kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: constructor");
 }
 
 
 CEventsThread::~CEventsThread(void)
 {
-  XBMC->Log(LOG_DEBUG, "CEventsThread:: destructor");
+  kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: destructor");
   // v17 Krypton. When exiting Kodi with this addon still subscribed,
-  // network services are already unavailable. ArgusTV::UnsubscribeServiceEvents won't succeed
+  // network services are already unavailable. CArgusTV::UnsubscribeServiceEvents won't succeed
 }
 
 void CEventsThread::Connect()
 {
-  XBMC->Log(LOG_DEBUG, "CEventsThread::Connect");
+  kodi::Log(ADDON_LOG_DEBUG, "CEventsThread::Connect");
   // Subscribe to service events
   Json::Value response;
-  int retval = ArgusTV::SubscribeServiceEvents(ArgusTV::AllEvents, response);
+  int retval = m_instance.GetRPC().SubscribeServiceEvents(CArgusTV::AllEvents, response);
   if (retval >= 0)
   {
     m_monitorId = response.asString();
     m_subscribed = true;
-    XBMC->Log(LOG_DEBUG, "CEventsThread:: monitorId = %s", m_monitorId.c_str());
+    kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: monitorId = %s", m_monitorId.c_str());
   }
   else
   {
     m_subscribed = false;
-    XBMC->Log(LOG_INFO, "CEventsThread:: subscribe to events failed");
+    kodi::Log(ADDON_LOG_INFO, "CEventsThread:: subscribe to events failed");
   }
 }
 
 void *CEventsThread::Process()
 {
-  XBMC->Log(LOG_DEBUG, "CEventsThread:: thread started");
+  kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: thread started");
   while (!IsStopped() && m_subscribed)
   {
     // Get service events
     Json::Value response;
-    int retval = ArgusTV::GetServiceEvents(m_monitorId, response);
+    int retval = m_instance.GetRPC().GetServiceEvents(m_monitorId, response);
     if (retval >= 0)
     {
       if (response["Expired"].asBool())
@@ -86,13 +85,13 @@ void *CEventsThread::Process()
       if (Sleep(100)) break;
     }
   }
-  XBMC->Log(LOG_DEBUG, "CEventsThread:: thread stopped");
+  kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: thread stopped");
   return NULL;
 }
 
 void CEventsThread::HandleEvents(Json::Value events)
 {
-  XBMC->Log(LOG_DEBUG, "CEventsThread::HandleEvents");
+  kodi::Log(ADDON_LOG_DEBUG, "CEventsThread::HandleEvents");
   int size = events.size();
   bool mustUpdateTimers = false;
   bool mustUpdateRecordings = false;
@@ -101,27 +100,27 @@ void CEventsThread::HandleEvents(Json::Value events)
   {
     Json::Value event = events[i];
     std::string eventName = event["Name"].asString();
-    XBMC->Log(LOG_DEBUG, "CEventsThread:: ARGUS TV reports event %s", eventName.c_str());
+    kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: ARGUS TV reports event %s", eventName.c_str());
     if (eventName == "UpcomingRecordingsChanged")
     {
-      XBMC->Log(LOG_DEBUG, "Timers changed");
+      kodi::Log(ADDON_LOG_DEBUG, "Timers changed");
       mustUpdateTimers = true;
     }
     else if (eventName == "RecordingStarted" || eventName == "RecordingEnded")
     {
-      XBMC->Log(LOG_DEBUG, "Recordings changed");
+      kodi::Log(ADDON_LOG_DEBUG, "Recordings changed");
       mustUpdateRecordings = true;
     }
   }
   // Handle aggregated events
   if (mustUpdateTimers)
   {
-    XBMC->Log(LOG_DEBUG, "CEventsThread:: Timers update triggered");
-    PVR->TriggerTimerUpdate();
+    kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: Timers update triggered");
+    m_instance.TriggerTimerUpdate();
   }
   if (mustUpdateRecordings)
   {
-    XBMC->Log(LOG_DEBUG, "CEventsThread:: Recordings update triggered");
-    PVR->TriggerRecordingUpdate();
+    kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: Recordings update triggered");
+    m_instance.TriggerRecordingUpdate();
   }
 }

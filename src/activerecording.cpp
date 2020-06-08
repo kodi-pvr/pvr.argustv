@@ -18,21 +18,12 @@
  *
  */
 
-#include <vector>
+#include "activerecording.h"
 #include "utils.h"
+
 #include <stdlib.h>
 #include <string.h>
-#include "activerecording.h"
-
-
-cActiveRecording::cActiveRecording(void)
-{
-}
-
-
-cActiveRecording::~cActiveRecording(void)
-{
-}
+#include <vector>
 
 // This is a minimalistic parser, parsing only the fields that
 // are currently used by the implementation

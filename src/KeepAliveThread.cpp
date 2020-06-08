@@ -18,37 +18,38 @@
  *
  */
 
-#include "p8-platform/os.h"
-#include "client.h" //for XBMC->Log
-#include "utils.h"
-#include "argustvrpc.h"
 #include "KeepAliveThread.h"
 
-using namespace ADDON;
+#include "argustvrpc.h"
+#include "pvrclient-argustv.h"
+#include "utils.h"
 
-CKeepAliveThread::CKeepAliveThread()
+#include "p8-platform/os.h"
+#include <kodi/General.h>
+
+CKeepAliveThread::CKeepAliveThread(cPVRClientArgusTV& instance) : m_instance(instance)
 {
-  XBMC->Log(LOG_DEBUG, "CKeepAliveThread:: constructor");
+  kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: constructor");
 }
 
 CKeepAliveThread::~CKeepAliveThread()
 {
-  XBMC->Log(LOG_DEBUG, "CKeepAliveThread:: destructor");
+  kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: destructor");
 }
 
 void *CKeepAliveThread::Process()
 {
-  XBMC->Log(LOG_DEBUG, "CKeepAliveThread:: thread started");
+  kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: thread started");
   while (!IsStopped())
   {
-    int retval = ArgusTV::KeepLiveStreamAlive();
-    XBMC->Log(LOG_DEBUG, "CKeepAliveThread:: KeepLiveStreamAlive returned %i", (int) retval);
+    int retval = m_instance.GetRPC().KeepLiveStreamAlive();
+    kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: KeepLiveStreamAlive returned %i", (int) retval);
     // The new P8PLATFORM:: thread library has a problem with stopping a thread that is doing a long sleep
     for (int i = 0; i < 100; i++)
     {
       if (Sleep(100)) break;
     }
   }
-  XBMC->Log(LOG_DEBUG, "CKeepAliveThread:: thread stopped");
+  kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: thread stopped");
   return NULL;
 }

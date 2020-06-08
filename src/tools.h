@@ -22,7 +22,6 @@
 #ifndef __TOOLS_H
 #define __TOOLS_H
 
-#include "client.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <stddef.h>

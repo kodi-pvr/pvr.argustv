@@ -19,30 +19,31 @@
  *
  */
 
-#include "kodi/libXBMC_pvr.h"
-#include <string>
-#include <json/json.h>
 #include "argustvrpc.h"
+
+#include <json/json.h>
+#include <string>
 
 class cChannel
 {
+public:
+  cChannel() = default;
+  virtual ~cChannel() = default;
+
+  bool Parse(const Json::Value& data);
+  const std::string& Name(void) const { return name; }
+  const std::string& Guid(void) const { return guid; }
+  int LCN(void) const { return lcn; }
+  CArgusTV::ChannelType Type(void) const { return type; }
+  int ID(void) const { return id; }
+  const std::string& GuideChannelID(void) const { return guidechannelid; };
+
 private:
   std::string name;
   std::string guid;
   std::string guidechannelid;
-  ArgusTV::ChannelType type;
-  int lcn;
-  int id;
-
-public:
-  cChannel();
-  virtual ~cChannel();
-
-  bool Parse(const Json::Value& data);
-  const char *Name(void) const { return name.c_str(); }
-  const std::string& Guid(void) const { return guid; }
-  int LCN(void) const { return lcn; }
-  ArgusTV::ChannelType Type(void) const { return type; }
-  int ID(void) const { return id; }
-  const std::string& GuideChannelID(void) const { return guidechannelid; };
+  CArgusTV::ChannelType type = CArgusTV::Television;
+  int lcn = 0;
+  int id = 0;
 };
+

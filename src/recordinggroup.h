@@ -19,43 +19,44 @@
  *
  */
 
-#include "kodi/libXBMC_pvr.h"
-#include <string>
-#include <json/json.h>
 #include "argustvrpc.h"
+
+#include <json/json.h>
+#include <string>
 
 class cRecordingGroup
 {
+public:
+  cRecordingGroup(void) = default;
+  virtual ~cRecordingGroup(void) = default;
+
+  bool Parse(const Json::Value& data);
+
+  const std::string& Category(void) const { return category; }
+  const std::string& ChannelDisplayName(void) const { return channeldisplayname; }
+  const std::string& ChannelID(void) const { return channelid; }
+  CArgusTV::ChannelType ChannelType(void) const { return channeltype; }
+  bool IsRecording(void) const { return isrecording; }
+  time_t LatestProgramStartTime(void) const { return latestprogramstarttime; }
+  const std::string& ProgramTitle(void) const { return programtitle; }
+  CArgusTV::RecordingGroupMode RecordingGroupMode(void) const { return recordinggroupmode; }
+  int RecordingsCount(void) const { return recordingscount; }
+  const std::string& ScheduleId(void) const { return scheduleid; }
+  const std::string& ScheduleName(void) const { return schedulename; }
+  CArgusTV::SchedulePriority SchedulePriority(void) const { return schedulepriority; }
+
 private:
   std::string category;
   std::string channeldisplayname;
   std::string channelid;
-  ArgusTV::ChannelType channeltype;
-  bool isrecording;
-  time_t latestprogramstarttime;
+  CArgusTV::ChannelType channeltype = CArgusTV::Television;
+  bool isrecording = false;
+  time_t latestprogramstarttime = 0;
   std::string programtitle;
-  ArgusTV::RecordingGroupMode recordinggroupmode;
-  int recordingscount;
+  CArgusTV::RecordingGroupMode recordinggroupmode = CArgusTV::GroupByProgramTitle;
+  int recordingscount = 0;
   std::string scheduleid;
   std::string schedulename;
-  ArgusTV::SchedulePriority schedulepriority;
+  CArgusTV::SchedulePriority schedulepriority = CArgusTV::Normal;
 
-public:
-  cRecordingGroup(void);
-  virtual ~cRecordingGroup(void);
-
-  bool Parse(const Json::Value& data);
-
-  const char *Category(void) const { return category.c_str(); }
-  const char *ChannelDisplayName(void) const { return channeldisplayname.c_str(); }
-  const char *ChannelID(void) const { return channelid.c_str(); }
-  ArgusTV::ChannelType ChannelType(void) const { return channeltype; }
-  bool IsRecording(void) const { return isrecording; }
-  time_t LatestProgramStartTime(void) const { return latestprogramstarttime; }
-  const std::string& ProgramTitle(void) const { return programtitle; }
-  ArgusTV::RecordingGroupMode RecordingGroupMode(void) const { return recordinggroupmode; }
-  int RecordingsCount(void) const { return recordingscount; }
-  const char *ScheduleId(void) const { return scheduleid.c_str(); }
-  const char *ScheduleName(void) const { return schedulename.c_str(); }
-  ArgusTV::SchedulePriority SchedulePriority(void) const { return schedulepriority; }
 };

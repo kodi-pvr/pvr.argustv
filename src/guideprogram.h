@@ -19,50 +19,25 @@
  *
  */
 
-#include "kodi/libXBMC_pvr.h"
-#include <string>
-#include <json/json.h>
 #include "argustvrpc.h"
+
+#include <json/json.h>
+#include <string>
 
 class cGuideProgram
 {
-private:
-  std::string actors;
-  std::string category;
-  std::string description;
-  std::string directors;
-  int episodenumber;
-  std::string episodenumberdisplay;
-  int episodenumbertotal;
-  int episodepart;
-  int episodeparttotal;
-  std::string guidechannelid;
-  std::string guideprogramid;
-  bool ischanged;
-  bool isdeleted;
-  bool ispremiere;
-  bool isrepeat;
-  time_t lastmodifiedtime;
-  std::string rating;
-  int seriesnumber;
-  double starrating;
-  time_t starttime;
-  time_t stoptime;
-  std::string subtitle;
-  std::string title;
-  ArgusTV::VideoAspectRatio videoaspect;
 public:
-  cGuideProgram(void);
-  virtual ~cGuideProgram(void);
+  cGuideProgram(void) = default;
+  virtual ~cGuideProgram(void) = default;
 
   bool Parse(const Json::Value& data);
 
-  const char *Actors(void) const { return actors.c_str(); }
-  const char *Category(void) const { return category.c_str(); }
-  const char *Description(void) const { return description.c_str(); }
-  const char *Directors(void) const { return directors.c_str(); }
+  const std::string& Actors(void) const { return actors; }
+  const std::string& Category(void) const { return category; }
+  const std::string& Description(void) const { return description; }
+  const std::string& Directors(void) const { return directors; }
   int EpisodeNumber(void) const { return episodenumber; }
-  const char *EpisodeNumberDisplay(void) const { return episodenumberdisplay.c_str(); }
+  const std::string& EpisodeNumberDisplay(void) const { return episodenumberdisplay; }
   int EpisodeNumberTotal(void) const { return episodenumbertotal; }
   int EpisodePart(void) const { return episodepart; }
   int EpisodePartTotal(void) const { return episodeparttotal; }
@@ -72,12 +47,38 @@ public:
   bool IsDeleted(void) const { return isdeleted; }
   bool IsPremiere(void) const { return ispremiere; }
   bool IsRepeat(void) const { return isrepeat; }
-  const char *Rating(void) const { return rating.c_str(); }
+  const std::string& Rating(void) const { return rating; }
   int SeriesNumber(void) const { return seriesnumber; }
   double StarRating(void) const { return starrating; }
   time_t StartTime(void) const { return starttime; }
   time_t StopTime(void) const { return stoptime; }
-  const char *SubTitle(void) const { return subtitle.c_str(); }
-  const char *Title(void) const { return title.c_str(); }
-  ArgusTV::VideoAspectRatio VideoAspect(void) const { return videoaspect; }
+  const std::string& SubTitle(void) const { return subtitle; }
+  const std::string& Title(void) const { return title; }
+  CArgusTV::VideoAspectRatio VideoAspect(void) const { return videoaspect; }
+
+private:
+  std::string actors;
+  std::string category;
+  std::string description;
+  std::string directors;
+  int episodenumber = 0;
+  std::string episodenumberdisplay;
+  int episodenumbertotal = 0;
+  int episodepart = 0;
+  int episodeparttotal = 0;
+  std::string guidechannelid;
+  std::string guideprogramid;
+  bool ischanged = false;
+  bool isdeleted = false;
+  bool ispremiere = false;
+  bool isrepeat = false;
+  time_t lastmodifiedtime = 0;
+  std::string rating;
+  int seriesnumber = 0;
+  double starrating = 0.0;
+  time_t starttime = 0;
+  time_t stoptime = 0;
+  std::string subtitle;
+  std::string title;
+  CArgusTV::VideoAspectRatio videoaspect = CArgusTV::Unknown;
 };

@@ -18,8 +18,7 @@
  *
  */
 
-#include "client.h"
-//#include "timers.h"
+#include "addon.h"
 #include "channel.h"
 #include "activerecording.h"
 #include "upcomingrecording.h"
@@ -34,10 +33,10 @@
 
 #include "lib/tsreader/TSReader.h"
 
+#include <kodi/General.h>
 #include <map>
 
 using namespace std;
-using namespace ADDON;
 
 using namespace P8PLATFORM;
 using namespace ArgusTV;
@@ -49,24 +48,10 @@ using namespace ArgusTV;
 /************************************************************/
 /** Class interface */
 
-cPVRClientArgusTV::cPVRClientArgusTV()
+cPVRClientArgusTV::cPVRClientArgusTV(const CArgusTVAddon& base, KODI_HANDLE instance, const std::string& kodiVersion)
+  : kodi::addon::CInstancePVRClient(instance, kodiVersion),
+    m_base(base)
 {
-  m_bConnected             = false;
-  //m_bStop                  = true;
-  m_bTimeShiftStarted      = false;
-  m_BackendUTCoffset       = 0;
-  m_BackendTime            = 0;
-  m_tsreader               = NULL;
-  m_epg_id_offset          = 0;
-  m_iCurrentChannel        = -1;
-  m_keepalive              = new CKeepAliveThread();
-  m_eventmonitor           = new CEventsThread();
-  m_iBackendVersion        = 0;
-  m_signalqualityInterval  = 0;
-  m_TVChannels.clear();
-  m_RadioChannels.clear();
-  // due to lack of static constructors, we initialize manually
-  ArgusTV::Initialize();
 #if defined(ATV_DUMPTS)
   strncpy(ofn, "/tmp/atv.XXXXXX", sizeof(ofn));
   ofd = -1;
@@ -75,7 +60,7 @@ cPVRClientArgusTV::cPVRClientArgusTV()
 
 cPVRClientArgusTV::~cPVRClientArgusTV()
 {
-  XBMC->Log(LOG_DEBUG, "->~cPVRClientArgusTV()");
+  kodi::Log(ADDON_LOG_DEBUG, "->~cPVRClientArgusTV()");
   // Check if we are still reading a TV/Radio stream and close it here
   if (m_bTimeShiftStarted)
   {
@@ -88,16 +73,36 @@ cPVRClientArgusTV::~cPVRClientArgusTV()
   FreeChannels(m_RadioChannels);
 }
 
+PVR_ERROR cPVRClientArgusTV::GetCapabilities(kodi::addon::PVRCapabilities& capabilities)
+{
+  kodi::Log(ADDON_LOG_DEBUG, "->GetCapabilities()");
+
+  capabilities.SetSupportsEPG(true);
+  capabilities.SetSupportsRecordings(true);
+  capabilities.SetSupportsRecordingsUndelete(false);
+  capabilities.SetSupportsTimers(true);
+  capabilities.SetSupportsTV(true);
+  capabilities.SetSupportsRadio(m_base.GetSettings().RadioEnabled());
+  capabilities.SetSupportsChannelGroups(true);
+  capabilities.SetHandlesInputStream(true);
+  capabilities.SetHandlesDemuxing(false);
+  capabilities.SetSupportsChannelScan(false);
+  capabilities.SetSupportsLastPlayedPosition(true);
+  capabilities.SetSupportsRecordingPlayCount(true);
+  capabilities.SetSupportsRecordingsRename(true);
+  capabilities.SetSupportsRecordingsLifetimeChange(false);
+  capabilities.SetSupportsDescrambleInfo(false);
+
+  return PVR_ERROR_NO_ERROR;
+}
 
 bool cPVRClientArgusTV::Connect()
 {
-  string result;
-  char buffer[256];
+  m_baseURL = m_base.GetSettings().BaseURL();
 
-  snprintf(buffer, 256, "http://%s:%i/", g_szHostname.c_str(), g_iPort);
-  g_szBaseURL = buffer;
+  kodi::Log(ADDON_LOG_INFO, "Connect() - Connecting to %s", m_baseURL.c_str());
 
-  XBMC->Log(LOG_INFO, "Connect() - Connecting to %s", g_szBaseURL.c_str());
+  m_rpc.Initialize(m_baseURL);
 
   int backendversion = ATV_REST_MAXIMUM_API_VERSION;
   int rc = -2;
@@ -106,29 +111,29 @@ bool cPVRClientArgusTV::Connect()
   while (rc != 0)
   {
     attemps++;
-    rc = ArgusTV::Ping(backendversion);
+    rc = m_rpc.Ping(backendversion);
     if (rc == 1)
     {
       backendversion = ATV_REST_MINIMUM_API_VERSION;
-      rc = ArgusTV::Ping(backendversion);
+      rc = m_rpc.Ping(backendversion);
     }
     m_iBackendVersion = backendversion;
 
     switch (rc)
     {
       case 0:
-        XBMC->Log(LOG_INFO, "Ping Ok. The client and server are compatible, API version %d.\n", m_iBackendVersion);
+        kodi::Log(ADDON_LOG_INFO, "Ping Ok. The client and server are compatible, API version %d.", m_iBackendVersion);
         break;
       case -1:
-        XBMC->Log(LOG_INFO, "Ping Ok. The ARGUS TV server is too new for this version of the add-on.\n");
-        XBMC->QueueNotification(QUEUE_ERROR, "The ARGUS TV server is too new for this version of the add-on");
+        kodi::Log(ADDON_LOG_INFO, "Ping Ok. The ARGUS TV server is too new for this version of the add-on.");
+        kodi::QueueNotification(QUEUE_ERROR, "", "The ARGUS TV server is too new for this version of the add-on");
         return false;
       case 1:
-        XBMC->Log(LOG_INFO, "Ping Ok. The ARGUS TV server is too old for this version of the add-on.\n");
-        XBMC->QueueNotification(QUEUE_ERROR, "The ARGUS TV server is too old for this version of the add-on");
+        kodi::Log(ADDON_LOG_INFO, "Ping Ok. The ARGUS TV server is too old for this version of the add-on.");
+        kodi::QueueNotification(QUEUE_ERROR, "", "The ARGUS TV server is too old for this version of the add-on");
         return false;
       default:
-         XBMC->Log(LOG_ERROR, "Ping failed... No connection to Argus TV.\n");
+         kodi::Log(ADDON_LOG_ERROR, "Ping failed... No connection to Argus TV.");
          usleep(1000000);
          if (attemps > 3)
          {
@@ -141,16 +146,16 @@ bool cPVRClientArgusTV::Connect()
   // TODO: this is temporarily disabled until the caching of smb:// directories is resolved
 //  if (ShareErrorsFound())
 //  {
-//    XBMC->QueueNotification(QUEUE_ERROR, "Share errors: see xbmc.log");
+//    kodi::QueueNotification(QUEUE_ERROR, "", "Share errors: see xbmc.log");
 //  }
 
   // Start service events monitor
   m_eventmonitor->Connect();
-  if (!m_eventmonitor->IsRunning()) 
+  if (!m_eventmonitor->IsRunning())
   {
-    if(!m_eventmonitor->CreateThread()) 
+    if(!m_eventmonitor->CreateThread())
     {
-      XBMC->Log(LOG_ERROR, "Start service monitor thread failed.");
+      kodi::Log(ADDON_LOG_ERROR, "Start service monitor thread failed.");
     }
   }
   m_bConnected = true;
@@ -161,14 +166,14 @@ void cPVRClientArgusTV::Disconnect()
 {
   string result;
 
-  XBMC->Log(LOG_INFO, "Disconnect");
+  kodi::Log(ADDON_LOG_INFO, "Disconnect");
 
   // Stop service events monitor
-  if (m_eventmonitor->IsRunning()) 
+  if (m_eventmonitor->IsRunning())
   {
     if (!m_eventmonitor->StopThread())
     {
-      XBMC->Log(LOG_ERROR, "Stop service monitor thread failed.");
+      kodi::Log(ADDON_LOG_ERROR, "Stop service monitor thread failed.");
     }
   }
 
@@ -184,24 +189,24 @@ bool cPVRClientArgusTV::ShareErrorsFound(void)
 {
   bool bShareErrors = false;
   Json::Value activeplugins;
-  int rc = ArgusTV::GetPluginServices(false, activeplugins);
+  int rc = m_rpc.GetPluginServices(false, activeplugins);
   if (rc < 0)
   {
-    XBMC->Log(LOG_ERROR, "Unable to get the ARGUS TV plugin services to check share accessiblity.");
+    kodi::Log(ADDON_LOG_ERROR, "Unable to get the ARGUS TV plugin services to check share accessiblity.");
     return false;
   }
- 
+
   // parse plugins list
   int size = activeplugins.size();
   for ( int index =0; index < size; ++index )
   {
     std::string tunerName = activeplugins[index]["Name"].asString();
-    XBMC->Log(LOG_DEBUG, "Checking tuner \"%s\" for accessibility.", tunerName.c_str());
+    kodi::Log(ADDON_LOG_DEBUG, "Checking tuner \"%s\" for accessibility.", tunerName.c_str());
     Json::Value accesibleshares;
-    rc = ArgusTV::AreRecordingSharesAccessible(activeplugins[index], accesibleshares);
+    rc = m_rpc.AreRecordingSharesAccessible(activeplugins[index], accesibleshares);
     if (rc < 0)
     {
-      XBMC->Log(LOG_ERROR, "Unable to get the share status for tuner \"%s\".", tunerName.c_str());
+      kodi::Log(ADDON_LOG_ERROR, "Unable to get the share status for tuner \"%s\".", tunerName.c_str());
       continue;
     }
     int numberofshares = accesibleshares.size();
@@ -214,25 +219,26 @@ bool cPVRClientArgusTV::ShareErrorsFound(void)
       bool isAccessibleByAddon = false;
       std::string accessMsg = "";
       std::string CIFSname = ToCIFS(sharename);
-      isAccessibleByAddon = XBMC->CanOpenDirectory(CIFSname.c_str());
+      std::vector<kodi::vfs::CDirEntry> items;
+      isAccessibleByAddon = kodi::vfs::GetDirectory(CIFSname, "", items);
       // write analysis results to the log
       if (isAccessibleByATV)
       {
-        XBMC->Log(LOG_DEBUG, "  Share \"%s\" is accessible to the ARGUS TV server.", sharename.c_str());
+        kodi::Log(ADDON_LOG_DEBUG, "  Share \"%s\" is accessible to the ARGUS TV server.", sharename.c_str());
       }
       else
       {
         bShareErrors = true;
-        XBMC->Log(LOG_ERROR, "  Share \"%s\" is NOT accessible to the ARGUS TV server.", sharename.c_str());
+        kodi::Log(ADDON_LOG_ERROR, "  Share \"%s\" is NOT accessible to the ARGUS TV server.", sharename.c_str());
       }
       if (isAccessibleByAddon)
       {
-        XBMC->Log(LOG_DEBUG, "  Share \"%s\" is readable from this client add-on.", sharename.c_str());
+        kodi::Log(ADDON_LOG_DEBUG, "  Share \"%s\" is readable from this client add-on.", sharename.c_str());
       }
       else
       {
         bShareErrors = true;
-        XBMC->Log(LOG_ERROR, "  Share \"%s\" is NOT readable from this client add-on (\"%s\").", sharename.c_str(), accessMsg.c_str());
+        kodi::Log(ADDON_LOG_ERROR, "  Share \"%s\" is NOT readable from this client add-on (\"%s\").", sharename.c_str(), accessMsg.c_str());
       }
     }
   }
@@ -243,85 +249,70 @@ bool cPVRClientArgusTV::ShareErrorsFound(void)
 /** General handling */
 
 // Used among others for the server name string in the "Recordings" view
-const char* cPVRClientArgusTV::GetBackendName(void)
+PVR_ERROR cPVRClientArgusTV::GetBackendName(std::string& name)
 {
-  XBMC->Log(LOG_DEBUG, "->GetBackendName()");
+  kodi::Log(ADDON_LOG_DEBUG, "->GetBackendName()");
 
-  if(m_BackendName.length() == 0)
-  {
-    m_BackendName = "ARGUS TV (";
-    m_BackendName += g_szHostname.c_str();
-    m_BackendName += ")";
-  }
-
-  return m_BackendName.c_str();
+  name = "ARGUS TV (" + m_base.GetSettings().Hostname() + ")";
+  return PVR_ERROR_NO_ERROR;
 }
 
-const char* cPVRClientArgusTV::GetBackendVersion(void)
+PVR_ERROR cPVRClientArgusTV::GetBackendVersion(std::string& version)
 {
-  XBMC->Log(LOG_DEBUG, "->GetBackendVersion");
-  m_sBackendVersion = "unknown";
+  kodi::Log(ADDON_LOG_DEBUG, "->GetBackendVersion");
   Json::Value response;
-  int retval;
 
-  retval = ArgusTV::GetDisplayVersion(response);
+  int retval = m_rpc.GetDisplayVersion(response);
+  if (retval == E_FAILED)
+    return PVR_ERROR_FAILED;
 
-  if (retval != E_FAILED)
-  {
-    m_sBackendVersion = response.asString();
-    XBMC->Log(LOG_DEBUG, "GetDisplayVersion: \"%s\".", m_sBackendVersion.c_str());
-  }
+  version = response.asString();
+  kodi::Log(ADDON_LOG_DEBUG, "GetDisplayVersion: \"%s\".", version.c_str());
 
-  return m_sBackendVersion.c_str();
+  return PVR_ERROR_NO_ERROR;
 }
 
-const char* cPVRClientArgusTV::GetConnectionString(void)
+PVR_ERROR cPVRClientArgusTV::GetConnectionString(std::string& connection)
 {
-  XBMC->Log(LOG_DEBUG, "->GetConnectionString()");
+  kodi::Log(ADDON_LOG_DEBUG, "->GetConnectionString()");
 
-  return g_szBaseURL.c_str();
+  connection = m_baseURL;
+
+  return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientArgusTV::GetDriveSpace(long long *iTotal, long long *iUsed)
+PVR_ERROR cPVRClientArgusTV::GetDriveSpace(uint64_t& total, uint64_t& used)
 {
-  XBMC->Log(LOG_DEBUG, "->GetDriveSpace");
-  *iTotal = *iUsed = 0;
+  kodi::Log(ADDON_LOG_DEBUG, "->GetDriveSpace");
+  total = used = 0;
   Json::Value response;
-  int retval;
 
-  retval = ArgusTV::GetRecordingDisksInfo(response);
-
+  int retval = m_rpc.GetRecordingDisksInfo(response);
   if (retval != E_FAILED)
   {
     double _totalSize = response["TotalSizeBytes"].asDouble()/1024;
     double _freeSize = response["FreeSpaceBytes"].asDouble()/1024;
-    *iTotal = (long long) _totalSize;
-    *iUsed = (long long) (_totalSize - _freeSize);
-    XBMC->Log(LOG_DEBUG, "GetDriveSpace, %lld used kiloBytes of %lld total kiloBytes.", *iUsed, *iTotal);
+    total = (int64_t) _totalSize;
+    used = (int64_t) (_totalSize - _freeSize);
+    kodi::Log(ADDON_LOG_DEBUG, "GetDriveSpace, %lld used kiloBytes of %lld total kiloBytes.", used, total);
   }
 
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientArgusTV::GetBackendTime(time_t *localTime, int *gmtOffset)
-{
-  NOTUSED(localTime); NOTUSED(gmtOffset);
-  return PVR_ERROR_SERVER_ERROR;
-}
-
 /************************************************************/
 /** EPG handling */
 
-PVR_ERROR cPVRClientArgusTV::GetEpg(ADDON_HANDLE handle, int iChannelUid, time_t iStart, time_t iEnd)
+PVR_ERROR cPVRClientArgusTV::GetEPGForChannel(int channelUid, time_t start, time_t end, kodi::addon::PVREPGTagsResultSet& results)
 {
-  XBMC->Log(LOG_DEBUG, "->RequestEPGForChannel(%i)", iChannelUid);
+  kodi::Log(ADDON_LOG_DEBUG, "->GetEPGForChannel(%i)", channelUid);
 
-  cChannel* atvchannel = FetchChannel(iChannelUid);
-  XBMC->Log(LOG_DEBUG, "ARGUS TV channel %p)", atvchannel);
+  cChannel* atvchannel = FetchChannel(channelUid);
+  kodi::Log(ADDON_LOG_DEBUG, "ARGUS TV channel %p)", atvchannel);
 
-  struct tm* convert = localtime(&iStart);
+  struct tm* convert = localtime(&start);
   struct tm tm_start = *convert;
-  convert = localtime(&iEnd);
+  convert = localtime(&end);
   struct tm tm_end = *convert;
 
   if(atvchannel)
@@ -329,67 +320,65 @@ PVR_ERROR cPVRClientArgusTV::GetEpg(ADDON_HANDLE handle, int iChannelUid, time_t
     Json::Value response;
     int retval;
 
-    XBMC->Log(LOG_DEBUG, "Getting EPG Data for ARGUS TV channel %s)", atvchannel->GuideChannelID().c_str());
-    retval = ArgusTV::GetEPGData(atvchannel->GuideChannelID(), tm_start, tm_end, response);
+    kodi::Log(ADDON_LOG_DEBUG, "Getting EPG Data for ARGUS TV channel %s)", atvchannel->GuideChannelID().c_str());
+    retval = m_rpc.GetEPGData(atvchannel->GuideChannelID(), tm_start, tm_end, response);
 
     if (retval != E_FAILED)
     {
-      XBMC->Log(LOG_DEBUG, "GetEPGData returned %i, response.type == %i, response.size == %i.", retval, response.type(), response.size());
+      kodi::Log(ADDON_LOG_DEBUG, "GetEPGData returned %i, response.type == %i, response.size == %i.", retval, response.type(), response.size());
       if( response.type() == Json::arrayValue)
       {
         int size = response.size();
-        EPG_TAG broadcast;
-        cEpg epg;
-
-        memset(&broadcast, 0, sizeof(EPG_TAG));
+        kodi::addon::PVREPGTag broadcast;
+        cEpg internalEpg;
 
         // parse channel list
-        for ( int index =0; index < size; ++index )
+        for ( int index = 0; index < size; ++index )
         {
-          if (epg.Parse(response[index]))
+          if (internalEpg.Parse(response[index]))
           {
             m_epg_id_offset++;
-            broadcast.iUniqueBroadcastId  = m_epg_id_offset;
-            broadcast.strTitle            = epg.Title();
-            broadcast.iUniqueChannelId    = iChannelUid;
-            broadcast.startTime           = epg.StartTime();
-            broadcast.endTime             = epg.EndTime();
-            broadcast.strPlotOutline      = epg.Subtitle();
-            broadcast.strPlot             = epg.Description();
-            broadcast.strIconPath         = "";
-            broadcast.iGenreType          = EPG_GENRE_USE_STRING;
-            broadcast.iGenreSubType       = 0;
-            broadcast.strGenreDescription = epg.Genre();
-            broadcast.strFirstAired       = "";
-            broadcast.iParentalRating     = 0;
-            broadcast.iStarRating         = 0;
-            broadcast.iSeriesNumber       = EPG_TAG_INVALID_SERIES_EPISODE;
-            broadcast.iEpisodeNumber      = EPG_TAG_INVALID_SERIES_EPISODE;
-            broadcast.iEpisodePartNumber  = EPG_TAG_INVALID_SERIES_EPISODE;
-            broadcast.strEpisodeName      = "";
-            broadcast.strOriginalTitle    = "";
-            broadcast.strCast             = "";
-            broadcast.strDirector         = "";
-            broadcast.strWriter           = "";
-            broadcast.iYear               = 0;
-            broadcast.strIMDBNumber       = "";
-            broadcast.iFlags              = EPG_TAG_FLAG_UNDEFINED;
+            broadcast.SetUniqueBroadcastId(m_epg_id_offset);
+            broadcast.SetTitle(internalEpg.Title());
+            broadcast.SetUniqueChannelId(channelUid);
+            broadcast.SetStartTime(internalEpg.StartTime());
+            broadcast.SetEndTime(internalEpg.EndTime());
+            broadcast.SetPlotOutline(internalEpg.Subtitle());
+            broadcast.SetPlot(internalEpg.Description());
+            broadcast.SetIconPath("");
+            broadcast.SetGenreType(EPG_GENRE_USE_STRING);
+            broadcast.SetGenreSubType(0);
+            broadcast.SetGenreDescription(internalEpg.Genre());
+            broadcast.SetFirstAired("");
+            broadcast.SetParentalRating(0);
+            broadcast.SetStarRating(0);
+            broadcast.SetSeriesNumber(EPG_TAG_INVALID_SERIES_EPISODE);
+            broadcast.SetEpisodeNumber(EPG_TAG_INVALID_SERIES_EPISODE);
+            broadcast.SetEpisodePartNumber(EPG_TAG_INVALID_SERIES_EPISODE);
+            broadcast.SetEpisodeName("");
+            broadcast.SetOriginalTitle("");
+            broadcast.SetCast("");
+            broadcast.SetDirector("");
+            broadcast.SetWriter("");
+            broadcast.SetYear(0);
+            broadcast.SetIMDBNumber("");
+            broadcast.SetFlags(EPG_TAG_FLAG_UNDEFINED);
 
-            PVR->TransferEpgEntry(handle, &broadcast);
+            results.Add(broadcast);
           }
-          epg.Reset();
+          internalEpg.Reset();
         }
       }
     }
     else
     {
-      XBMC->Log(LOG_ERROR, "GetEPGData failed for channel id:%i", iChannelUid);
+      kodi::Log(ADDON_LOG_ERROR, "GetEPGData failed for channel id:%i", channelUid);
     }
   }
   else
   {
-    XBMC->Log(LOG_ERROR, "Channel (%i) did not return a channel class.", iChannelUid);
-    XBMC->QueueNotification(QUEUE_ERROR, "Can't map XBMC Channel to ARGUS");
+    kodi::Log(ADDON_LOG_ERROR, "Channel (%i) did not return a channel class.", channelUid);
+    kodi::QueueNotification(QUEUE_ERROR, "", "Can't map XBMC Channel to ARGUS");
   }
 
   return PVR_ERROR_NO_ERROR;
@@ -398,56 +387,57 @@ PVR_ERROR cPVRClientArgusTV::GetEpg(ADDON_HANDLE handle, int iChannelUid, time_t
 /************************************************************/
 /** Channel handling */
 
-int cPVRClientArgusTV::GetNumChannels()
+PVR_ERROR cPVRClientArgusTV::GetChannelsAmount(int& amount)
 {
   // Not directly possible in ARGUS TV
   Json::Value response;
 
-  XBMC->Log(LOG_DEBUG, "GetNumChannels()");
+  kodi::Log(ADDON_LOG_DEBUG, "GetChannelsAmount()");
 
   // pick up the channellist for TV
-  int retval = ArgusTV::GetChannelList(ArgusTV::Television, response);
-  if (retval < 0) 
+  int retval = m_rpc.GetChannelList(CArgusTV::Television, response);
+  if (retval < 0)
   {
-    return 0;
+    return PVR_ERROR_FAILED;
   }
 
-  int numberofchannels = response.size();
+  amount = response.size();
 
   // When radio is enabled, add the number of radio channels
-  if (g_bRadioEnabled)
+  if (m_base.GetSettings().RadioEnabled())
   {
-    retval = ArgusTV::GetChannelList(ArgusTV::Radio, response);
+    retval = m_rpc.GetChannelList(CArgusTV::Radio, response);
     if (retval >= 0)
     {
-      numberofchannels += response.size();
+      amount += response.size();
     }
   }
 
-  return numberofchannels;
+  return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientArgusTV::GetChannels(ADDON_HANDLE handle, bool bRadio)
+PVR_ERROR cPVRClientArgusTV::GetChannels(bool radio,  kodi::addon::PVRChannelsResultSet& results)
 {
   CLockObject lock(m_ChannelCacheMutex);
   Json::Value response;
   int retval = -1;
 
-  if (bRadio && !g_bRadioEnabled) return PVR_ERROR_NO_ERROR;
+  if (radio && !m_base.GetSettings().RadioEnabled())
+    return PVR_ERROR_NO_ERROR;
 
-  XBMC->Log(LOG_DEBUG, "%s(%s)", __FUNCTION__, bRadio ? "radio" : "television");
-  if (!bRadio)
+  kodi::Log(ADDON_LOG_DEBUG, "%s(%s)", __FUNCTION__, radio ? "radio" : "television");
+  if (!radio)
   {
-    retval = ArgusTV::GetChannelList(ArgusTV::Television, response);
+    retval = m_rpc.GetChannelList(CArgusTV::Television, response);
   }
   else
   {
-    retval = ArgusTV::GetChannelList(ArgusTV::Radio, response);
+    retval = m_rpc.GetChannelList(CArgusTV::Radio, response);
   }
 
   if(retval >= 0)
   {
-    if (bRadio)
+    if (radio)
     {
       FreeChannels(m_RadioChannels);
       m_RadioChannels.clear();
@@ -466,31 +456,29 @@ PVR_ERROR cPVRClientArgusTV::GetChannels(ADDON_HANDLE handle, bool bRadio)
       cChannel* channel = new cChannel;
       if( channel->Parse(response[index]) )
       {
-        PVR_CHANNEL tag;
-        memset(&tag, 0 , sizeof(tag));
-        tag.iUniqueId =  channel->ID();
-        PVR_STRCPY(tag.strChannelName, channel->Name());
-        std::string logopath = ArgusTV::GetChannelLogo(channel->Guid()).c_str();
-        PVR_STRCPY(tag.strIconPath, logopath.c_str());
-        tag.iEncryptionSystem = (unsigned int) -1; //How to fetch this from ARGUS TV??
-        tag.bIsRadio = (channel->Type() == ArgusTV::Radio ? true : false);
-        tag.bIsHidden = false;
-        PVR_STRCPY(tag.strInputFormat, "video/mp2t");
-        tag.iChannelNumber = channel->LCN();
+        kodi::addon::PVRChannel tag;
+        tag.SetUniqueId(channel->ID());
+        tag.SetChannelName(channel->Name());
+        tag.SetIconPath(m_rpc.GetChannelLogo(channel->Guid()));
+        tag.SetEncryptionSystem((unsigned int) -1); //How to fetch this from ARGUS TV??
+        tag.SetIsRadio(channel->Type() == CArgusTV::Radio ? true : false);
+        tag.SetIsHidden(false);
+        tag.SetMimeType("video/mp2t");
+        tag.SetChannelNumber(channel->LCN());
 
-        if (!tag.bIsRadio)
+        if (!tag.GetIsRadio())
         {
           m_TVChannels.push_back(channel);
-          XBMC->Log(LOG_DEBUG, "Found TV channel: %s, Unique id: %d, ARGUS LCN: %d, ARGUS Id: %d, ARGUS GUID: %s\n",  
-            channel->Name(), tag.iUniqueId, tag.iChannelNumber, channel->ID(), channel->Guid().c_str());  
+          kodi::Log(ADDON_LOG_DEBUG, "Found TV channel: %s, Unique id: %d, ARGUS LCN: %d, ARGUS Id: %d, ARGUS GUID: %s\n",
+            channel->Name().c_str(), tag.GetUniqueId(), tag.GetChannelNumber(), channel->ID(), channel->Guid().c_str());
         }
         else
         {
           m_RadioChannels.push_back(channel);
-          XBMC->Log(LOG_DEBUG, "Found Radio channel: %s, Unique id: %d, ARGUS LCN: %d, ARGUS Id: %d, ARGUS GUID: %s\n",  
-            channel->Name(), tag.iUniqueId, tag.iChannelNumber, channel->ID(), channel->Guid().c_str());  
+          kodi::Log(ADDON_LOG_DEBUG, "Found Radio channel: %s, Unique id: %d, ARGUS LCN: %d, ARGUS Id: %d, ARGUS GUID: %s\n",
+            channel->Name().c_str(), tag.GetUniqueId(), tag.GetChannelNumber(), channel->ID(), channel->Guid().c_str());
         }
-        PVR->TransferChannelEntry(handle, &tag);
+        results.Add(tag);
       }
     }
 
@@ -498,7 +486,7 @@ PVR_ERROR cPVRClientArgusTV::GetChannels(ADDON_HANDLE handle, bool bRadio)
   }
   else
   {
-    XBMC->Log(LOG_DEBUG, "RequestChannelList failed. Return value: %i\n", retval);
+    kodi::Log(ADDON_LOG_DEBUG, "RequestChannelList failed. Return value: %i\n", retval);
   }
 
   return PVR_ERROR_SERVER_ERROR;
@@ -507,29 +495,31 @@ PVR_ERROR cPVRClientArgusTV::GetChannels(ADDON_HANDLE handle, bool bRadio)
 /************************************************************/
 /** Channel group handling **/
 
-int cPVRClientArgusTV::GetChannelGroupsAmount(void)
+PVR_ERROR cPVRClientArgusTV::GetChannelGroupsAmount(int& amount)
 {
   Json::Value response;
-  int num = 0;
-  if (ArgusTV::RequestTVChannelGroups(response) >= 0) num += response.size();
-  if (ArgusTV::RequestRadioChannelGroups(response) >= 0) num += response.size();
-  return num;
+  amount = 0;
+  if (m_rpc.RequestTVChannelGroups(response) >= 0)
+    amount += response.size();
+  if (m_rpc.RequestRadioChannelGroups(response) >= 0)
+    amount += response.size();
+  return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientArgusTV::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
+PVR_ERROR cPVRClientArgusTV::GetChannelGroups(bool radio,  kodi::addon::PVRChannelGroupsResultSet& results)
 {
   Json::Value response;
   int retval;
 
-  if (bRadio && !g_bRadioEnabled) return PVR_ERROR_NO_ERROR;
+  if (radio && !m_base.GetSettings().RadioEnabled()) return PVR_ERROR_NO_ERROR;
 
-  if (!bRadio)
+  if (!radio)
   {
-    retval = ArgusTV::RequestTVChannelGroups(response);
+    retval = m_rpc.RequestTVChannelGroups(response);
   }
   else
   {
-    retval = ArgusTV::RequestRadioChannelGroups(response);
+    retval = m_rpc.RequestRadioChannelGroups(response);
   }
   if (retval >= 0)
   {
@@ -541,22 +531,21 @@ PVR_ERROR cPVRClientArgusTV::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
       std::string name = response[index]["GroupName"].asString();
       std::string guid = response[index]["ChannelGroupId"].asString();
       int id = response[index]["Id"].asInt();
-      if (!bRadio)
+      if (!radio)
       {
-        XBMC->Log(LOG_DEBUG, "Found TV channel group %s, ARGUS Id: %d, ARGUS GUID: %s\n", name.c_str(), id, guid.c_str());
+        kodi::Log(ADDON_LOG_DEBUG, "Found TV channel group %s, ARGUS Id: %d, ARGUS GUID: %s\n", name.c_str(), id, guid.c_str());
       }
       else
       {
-        XBMC->Log(LOG_DEBUG, "Found Radio channel group %s, ARGUS Id: %d, ARGUS GUID: %s\n", name.c_str(), id, guid.c_str());
+        kodi::Log(ADDON_LOG_DEBUG, "Found Radio channel group %s, ARGUS Id: %d, ARGUS GUID: %s\n", name.c_str(), id, guid.c_str());
       }
-      PVR_CHANNEL_GROUP tag;
-      memset(&tag, 0 , sizeof(PVR_CHANNEL_GROUP));
+      kodi::addon::PVRChannelGroup tag;
 
-      tag.bIsRadio     = bRadio;
-      tag.iPosition    = 0; // default ordering of the groups
-      PVR_STRCPY(tag.strGroupName, name.c_str());
+      tag.SetIsRadio(radio);
+      tag.SetPosition(0); // default ordering of the groups
+      tag.SetGroupName(name);
 
-      PVR->TransferChannelGroup(handle, &tag);
+      results.Add(tag);
     }
     return PVR_ERROR_NO_ERROR;
   }
@@ -566,23 +555,23 @@ PVR_ERROR cPVRClientArgusTV::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
   }
 }
 
-PVR_ERROR cPVRClientArgusTV::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group)
+PVR_ERROR cPVRClientArgusTV::GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& group, kodi::addon::PVRChannelGroupMembersResultSet& results)
 {
   Json::Value response;
   int retval;
 
   // Step 1, find the GUID for this channelgroup
-  if (!group.bIsRadio)
+  if (!group.GetIsRadio())
   {
-    retval = ArgusTV::RequestTVChannelGroups(response);
+    retval = m_rpc.RequestTVChannelGroups(response);
   }
   else
   {
-    retval = ArgusTV::RequestRadioChannelGroups(response);
+    retval = m_rpc.RequestRadioChannelGroups(response);
   }
   if (retval < 0)
   {
-    XBMC->Log(LOG_ERROR, "Could not get Channelgroups from server.");
+    kodi::Log(ADDON_LOG_ERROR, "Could not get Channelgroups from server.");
     return PVR_ERROR_SERVER_ERROR;
   }
 
@@ -593,19 +582,19 @@ PVR_ERROR cPVRClientArgusTV::GetChannelGroupMembers(ADDON_HANDLE handle, const P
   {
     name = response[index]["GroupName"].asString();
     guid = response[index]["ChannelGroupId"].asString();
-    if (name == group.strGroupName) break;
+    if (name == group.GetGroupName()) break;
   }
-  if (name != group.strGroupName)
+  if (name != group.GetGroupName())
   {
-    XBMC->Log(LOG_ERROR, "Channelgroup %s was not found while trying to retrieve the channelgroup members.", group.strGroupName);
+    kodi::Log(ADDON_LOG_ERROR, "Channelgroup %s was not found while trying to retrieve the channelgroup members.", group.GetGroupName().c_str());
     return PVR_ERROR_SERVER_ERROR;
   }
 
   // Step 2 use the guid to retrieve the list of member channels
-  retval = ArgusTV::RequestChannelGroupMembers(guid, response);
+  retval = m_rpc.RequestChannelGroupMembers(guid, response);
   if (retval < 0)
   {
-    XBMC->Log(LOG_ERROR, "Could not get members for Channelgroup \"%s\" (%s) from server.", name.c_str(), guid.c_str());
+    kodi::Log(ADDON_LOG_ERROR, "Could not get members for Channelgroup \"%s\" (%s) from server.", name.c_str(), guid.c_str());
     return PVR_ERROR_SERVER_ERROR;
   }
   size = response.size();
@@ -616,17 +605,16 @@ PVR_ERROR cPVRClientArgusTV::GetChannelGroupMembers(ADDON_HANDLE handle, const P
     int id = response[index]["Id"].asInt();
     int lcn = response[index]["LogicalChannelNumber"].asInt();
 
-    PVR_CHANNEL_GROUP_MEMBER tag;
-    memset(&tag,0 , sizeof(PVR_CHANNEL_GROUP_MEMBER));
+    kodi::addon::PVRChannelGroupMember tag;
 
-    PVR_STRCPY(tag.strGroupName, group.strGroupName);
-    tag.iChannelUniqueId = id;
-    tag.iChannelNumber   = lcn;
+    tag.SetGroupName(group.GetGroupName());
+    tag.SetChannelUniqueId(id);
+    tag.SetChannelNumber(lcn);
 
-    XBMC->Log(LOG_DEBUG, "%s - add channel %s (%d) to group '%s' ARGUS LCN: %d, ARGUS Id: %d",
-      __FUNCTION__, channelName.c_str(), tag.iChannelUniqueId, tag.strGroupName, tag.iChannelNumber, id);
+    kodi::Log(ADDON_LOG_DEBUG, "%s - add channel %s (%d) to group '%s' ARGUS LCN: %d, ARGUS Id: %d",
+      __FUNCTION__, channelName.c_str(), tag.GetChannelUniqueId(), tag.GetGroupName().c_str(), tag.GetChannelNumber(), id);
 
-    PVR->TransferChannelGroupMember(handle, &tag);
+    results.Add(tag);
   }
   return PVR_ERROR_NO_ERROR;
 }
@@ -634,14 +622,14 @@ PVR_ERROR cPVRClientArgusTV::GetChannelGroupMembers(ADDON_HANDLE handle, const P
 /************************************************************/
 /** Record handling **/
 
-int cPVRClientArgusTV::GetNumRecordings(void)
+PVR_ERROR cPVRClientArgusTV::GetRecordingsAmount(bool deleted, int& amount)
 {
   Json::Value response;
   int retval = -1;
-  int iNumRecordings = 0;
+  amount = 0;
 
-  XBMC->Log(LOG_DEBUG, "GetNumRecordings()");
-  retval = ArgusTV::GetRecordingGroupByTitle(response);
+  kodi::Log(ADDON_LOG_DEBUG, "GetNumRecordings()");
+  retval = m_rpc.GetRecordingGroupByTitle(response);
   if (retval >= 0)
   {
     int size = response.size();
@@ -652,14 +640,17 @@ int cPVRClientArgusTV::GetNumRecordings(void)
       cRecordingGroup recordinggroup;
       if (recordinggroup.Parse(response[index]))
       {
-        iNumRecordings += recordinggroup.RecordingsCount();
+        amount += recordinggroup.RecordingsCount();
       }
     }
+
+    return PVR_ERROR_NO_ERROR;
   }
-  return iNumRecordings;
+
+  return PVR_ERROR_SERVER_ERROR;
 }
 
-PVR_ERROR cPVRClientArgusTV::GetRecordings(ADDON_HANDLE handle)
+PVR_ERROR cPVRClientArgusTV::GetRecordings(bool deleted, kodi::addon::PVRRecordingsResultSet& results)
 {
   Json::Value recordinggroupresponse;
   int retval = -1;
@@ -667,11 +658,11 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(ADDON_HANDLE handle)
 
   m_RecordingsMap.clear();
 
-  XBMC->Log(LOG_DEBUG, "RequestRecordingsList()");
+  kodi::Log(ADDON_LOG_DEBUG, "RequestRecordingsList()");
   int64_t t = GetTimeMs();
-  retval = ArgusTV::GetRecordingGroupByTitle(recordinggroupresponse);
+  retval = m_rpc.GetRecordingGroupByTitle(recordinggroupresponse);
   if(retval >= 0)
-  {           
+  {
     // process list of recording groups
     int size = recordinggroupresponse.size();
     for ( int recordinggroupindex = 0; recordinggroupindex < size; ++recordinggroupindex )
@@ -680,7 +671,7 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(ADDON_HANDLE handle)
       if (recordinggroup.Parse(recordinggroupresponse[recordinggroupindex]))
       {
         Json::Value recordingsbytitleresponse;
-        retval = ArgusTV::GetFullRecordingsForTitle(recordinggroup.ProgramTitle(), recordingsbytitleresponse);
+        retval = m_rpc.GetFullRecordingsForTitle(recordinggroup.ProgramTitle(), recordingsbytitleresponse);
         if (retval >= 0)
         {
           // process list of recording details for this group
@@ -691,42 +682,42 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(ADDON_HANDLE handle)
 
             if (recording.Parse(recordingsbytitleresponse[recordingindex]))
             {
-              PVR_RECORDING tag;
-              memset(&tag, 0 , sizeof(tag));
-              tag.iSeriesNumber = PVR_RECORDING_INVALID_SERIES_EPISODE;
-              tag.iEpisodeNumber = PVR_RECORDING_INVALID_SERIES_EPISODE;
+              kodi::addon::PVRRecording tag;
 
-              PVR_STRCPY(tag.strRecordingId, recording.RecordingId());
-              PVR_STRCPY(tag.strChannelName, recording.ChannelDisplayName());
-              tag.iLifetime      = MAXLIFETIME; //TODO: recording.Lifetime();
-              tag.iPriority      = recording.SchedulePriority();
-              tag.recordingTime  = recording.RecordingStartTime();
-              tag.iDuration      = recording.RecordingStopTime() - recording.RecordingStartTime();
-              PVR_STRCPY(tag.strPlot, recording.Description());
-              tag.iPlayCount     = recording.FullyWatchedCount();
-              tag.iLastPlayedPosition = recording.LastWatchedPosition();
-              if (nrOfRecordings > 1 || g_bUseFolder)
+              tag.SetSeriesNumber(PVR_RECORDING_INVALID_SERIES_EPISODE);
+              tag.SetEpisodeNumber(PVR_RECORDING_INVALID_SERIES_EPISODE);
+
+              tag.SetRecordingId(recording.RecordingId());
+              tag.SetChannelName(recording.ChannelDisplayName());
+              tag.SetLifetime(MAXLIFETIME); //TODO: recording.Lifetime());
+              tag.SetPriority(recording.SchedulePriority());
+              tag.SetRecordingTime(recording.RecordingStartTime());
+              tag.SetDuration(recording.RecordingStopTime() - recording.RecordingStartTime());
+              tag.SetPlot(recording.Description());
+              tag.SetPlayCount(recording.FullyWatchedCount());
+              tag.SetLastPlayedPosition(recording.LastWatchedPosition());
+              if (nrOfRecordings > 1 || m_base.GetSettings().UseFolder())
               {
                 recording.Transform(true);
-                PVR_STRCPY(tag.strDirectory, recordinggroup.ProgramTitle().c_str()); //used in XBMC as directory structure below "Server X - hostname"
+                tag.SetDirectory(recordinggroup.ProgramTitle()); //used in Kodi as directory structure below "Server X - hostname"
               }
               else
               {
                 recording.Transform(false);
-                PVR_STRCLR(tag.strDirectory);
+                tag.SetDirectory("");
               }
-              PVR_STRCPY(tag.strTitle, recording.Title());
-              PVR_STRCPY(tag.strPlotOutline, recording.SubTitle());
+              tag.SetTitle(recording.Title());
+              tag.SetPlotOutline(recording.SubTitle());
 
-              m_RecordingsMap[tag.strRecordingId] = recording.RecordingFileName();
+              m_RecordingsMap[tag.GetRecordingId()] = recording.RecordingFileName();
 
               /* TODO: PVR API 5.0.0: Implement this */
-              tag.iChannelUid = PVR_CHANNEL_INVALID_UID;
+              tag.SetChannelUid(PVR_CHANNEL_INVALID_UID);
 
               /* TODO: PVR API 5.1.0: Implement this */
-              tag.channelType = PVR_RECORDING_CHANNEL_TYPE_UNKNOWN;
+              tag.SetChannelType(PVR_RECORDING_CHANNEL_TYPE_UNKNOWN);
 
-              PVR->TransferRecordingEntry(handle, &tag);
+              results.Add(tag);
               iNumRecordings++;
             }
           }
@@ -735,109 +726,110 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(ADDON_HANDLE handle)
     }
   }
   t = GetTimeMs() - t;
-  XBMC->Log(LOG_INFO, "Retrieving %d recordings took %d milliseconds.", iNumRecordings, t);
+  kodi::Log(ADDON_LOG_INFO, "Retrieving %d recordings took %d milliseconds.", iNumRecordings, t);
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientArgusTV::DeleteRecording(const PVR_RECORDING &recinfo)
+PVR_ERROR cPVRClientArgusTV::DeleteRecording(const kodi::addon::PVRRecording& recinfo)
 {
   PVR_ERROR rc = PVR_ERROR_FAILED;
   std::string UNCname;
 
-  if (!FindRecEntryUNC(recinfo.strRecordingId, UNCname))
+  if (!FindRecEntryUNC(recinfo.GetRecordingId(), UNCname))
     return PVR_ERROR_FAILED;
 
-  XBMC->Log(LOG_DEBUG, "->DeleteRecording(%s)", UNCname.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "->DeleteRecording(%s)", UNCname.c_str());
 
-  XBMC->Log(LOG_DEBUG, "->DeleteRecording(%s == \"%s\")", recinfo.strRecordingId, UNCname.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "->DeleteRecording(%s == \"%s\")", recinfo.GetRecordingId().c_str(), UNCname.c_str());
   // JSONify the stream_url
   Json::Value recordingname (UNCname);
   Json::StreamWriterBuilder wbuilder;
   std::string jsonval = Json::writeString(wbuilder, recordingname);
 
-  if (ArgusTV::DeleteRecording(jsonval) >= 0)
+  if (m_rpc.DeleteRecording(jsonval) >= 0)
   {
     // Trigger XBMC to update it's list
-    PVR->TriggerRecordingUpdate();
+    kodi::addon::CInstancePVRClient::TriggerRecordingUpdate();
     rc =  PVR_ERROR_NO_ERROR;
   }
 
   return rc;
 }
 
-PVR_ERROR cPVRClientArgusTV::RenameRecording(const PVR_RECORDING &recinfo)
+PVR_ERROR cPVRClientArgusTV::RenameRecording(const kodi::addon::PVRRecording& recinfo)
 {
   NOTUSED(recinfo);
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientArgusTV::SetRecordingLastPlayedPosition(const PVR_RECORDING &recinfo, int lastplayedposition)
+PVR_ERROR cPVRClientArgusTV::SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recinfo, int lastplayedposition)
 {
   std::string recordingfilename;
 
-  if (!FindRecEntryUNC(recinfo.strRecordingId, recordingfilename))
+  if (!FindRecEntryUNC(recinfo.GetRecordingId(), recordingfilename))
     return PVR_ERROR_FAILED;
 
-  XBMC->Log(LOG_DEBUG, "->SetRecordingLastPlayedPosition(index=%s [%s], %d)", recinfo.strRecordingId, recordingfilename.c_str(), lastplayedposition);
+  kodi::Log(ADDON_LOG_DEBUG, "->SetRecordingLastPlayedPosition(index=%s [%s], %d)",
+                recinfo.GetRecordingId().c_str(), recordingfilename.c_str(), lastplayedposition);
 
   // JSONify the stream_url
   Json::Value recordingname (recordingfilename);
   Json::StreamWriterBuilder wbuilder;
   std::string jsonval = Json::writeString(wbuilder, recordingname);
-  int retval = ArgusTV::SetRecordingLastWatchedPosition(jsonval, lastplayedposition);
+  int retval = m_rpc.SetRecordingLastWatchedPosition(jsonval, lastplayedposition);
   if (retval < 0)
   {
-    XBMC->Log(LOG_INFO, "Failed to set recording last watched position (%d)", retval);
+    kodi::Log(ADDON_LOG_INFO, "Failed to set recording last watched position (%d)", retval);
     return PVR_ERROR_SERVER_ERROR;
   }
 
   return PVR_ERROR_NO_ERROR;
 }
 
-int cPVRClientArgusTV::GetRecordingLastPlayedPosition(const PVR_RECORDING &recinfo)
+PVR_ERROR cPVRClientArgusTV::GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recinfo, int& position)
 {
   std::string recordingfilename;
 
-  if (!FindRecEntryUNC(recinfo.strRecordingId, recordingfilename))
-    return 0;
+  if (!FindRecEntryUNC(recinfo.GetRecordingId(), recordingfilename))
+    return PVR_ERROR_SERVER_ERROR;
 
-  XBMC->Log(LOG_DEBUG, "->GetRecordingLastPlayedPosition(index=%s [%s])", recinfo.strRecordingId, recordingfilename.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "->GetRecordingLastPlayedPosition(index=%s [%s])", recinfo.GetRecordingId().c_str(), recordingfilename.c_str());
 
   // JSONify the stream_url
   Json::Value response;
   Json::Value recordingname (recordingfilename);
   Json::StreamWriterBuilder wbuilder;
   std::string jsonval = Json::writeString(wbuilder, recordingname);
-  int retval = ArgusTV::GetRecordingLastWatchedPosition(jsonval, response);
+  int retval = m_rpc.GetRecordingLastWatchedPosition(jsonval, response);
   if (retval < 0)
   {
-    XBMC->Log(LOG_INFO, "Failed to get recording last watched position (%d)", retval);
-    return 0;
+    kodi::Log(ADDON_LOG_INFO, "Failed to get recording last watched position (%d)", retval);
+    return PVR_ERROR_SERVER_ERROR;
   }
 
-  retval = response.asInt();
-  XBMC->Log(LOG_DEBUG, "GetRecordingLastPlayedPosition(index=%s [%s]) returns %d.\n", recinfo.strRecordingId, recordingfilename.c_str(), retval);
+  position = response.asInt();
+  kodi::Log(ADDON_LOG_DEBUG, "GetRecordingLastPlayedPosition(index=%s [%s]) returns %d.\n", recinfo.GetRecordingId().c_str(), recordingfilename.c_str(), retval);
 
-  return retval;
+  return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientArgusTV::SetRecordingPlayCount(const PVR_RECORDING &recinfo, int playcount)
+PVR_ERROR cPVRClientArgusTV::SetRecordingPlayCount(const kodi::addon::PVRRecording& recinfo, int playcount)
 {
   std::string recordingfilename;
 
-  if (!FindRecEntryUNC(recinfo.strRecordingId, recordingfilename))
+  if (!FindRecEntryUNC(recinfo.GetRecordingId(), recordingfilename))
     return PVR_ERROR_FAILED;
 
-  XBMC->Log(LOG_DEBUG, "->SetRecordingPlayCount(index=%s [%s], %d)", recinfo.strRecordingId, recordingfilename.c_str(), playcount);
+  kodi::Log(ADDON_LOG_DEBUG, "->SetRecordingPlayCount(index=%s [%s], %d)", recinfo.GetRecordingId().c_str(), recordingfilename.c_str(), playcount);
 
   // JSONify the stream_url
   Json::Value recordingname (recordingfilename);
   Json::StreamWriterBuilder wbuilder;
   std::string jsonval = Json::writeString(wbuilder, recordingname);
-  int retval = ArgusTV::SetRecordingFullyWatchedCount(jsonval, playcount);
+  int retval = m_rpc.SetRecordingFullyWatchedCount(jsonval, playcount);
   if (retval < 0)
   {
-    XBMC->Log(LOG_INFO, "Failed to set recording play count (%d)", retval);
+    kodi::Log(ADDON_LOG_INFO, "Failed to set recording play count (%d)", retval);
     return PVR_ERROR_SERVER_ERROR;
   }
 
@@ -848,48 +840,47 @@ PVR_ERROR cPVRClientArgusTV::SetRecordingPlayCount(const PVR_RECORDING &recinfo,
 /************************************************************/
 /** Timer handling */
 
-int cPVRClientArgusTV::GetNumTimers(void)
+PVR_ERROR cPVRClientArgusTV::GetTimersAmount(int& amount)
 {
   // Not directly possible in ARGUS TV
   Json::Value response;
 
-  XBMC->Log(LOG_DEBUG, "GetNumTimers()");
+  kodi::Log(ADDON_LOG_DEBUG, "GetNumTimers()");
   // pick up the schedulelist for TV
-  int retval = ArgusTV::GetUpcomingRecordings(response);
-  if (retval < 0) 
+  int retval = m_rpc.GetUpcomingRecordings(response);
+  if (retval < 0)
   {
-    return 0;
+    return PVR_ERROR_SERVER_ERROR;
   }
 
-  return response.size();
+  amount = response.size();
+  return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientArgusTV::GetTimers(ADDON_HANDLE handle)
+PVR_ERROR cPVRClientArgusTV::GetTimers(kodi::addon::PVRTimersResultSet& results)
 {
   Json::Value activeRecordingsResponse, upcomingRecordingsResponse;
   int         iNumberOfTimers = 0;
-  PVR_TIMER   tag;
   int         numberoftimers;
 
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __FUNCTION__);
 
   // retrieve the currently active recordings
-  int retval = ArgusTV::GetActiveRecordings(activeRecordingsResponse);
-  if (retval < 0) 
+  int retval = m_rpc.GetActiveRecordings(activeRecordingsResponse);
+  if (retval < 0)
   {
-    XBMC->Log(LOG_ERROR, "Unable to retrieve active recordings from server.");
+    kodi::Log(ADDON_LOG_ERROR, "Unable to retrieve active recordings from server.");
     return PVR_ERROR_SERVER_ERROR;
   }
 
   // pick up the upcoming recordings
-  retval = ArgusTV::GetUpcomingRecordings(upcomingRecordingsResponse);
-  if (retval < 0) 
+  retval = m_rpc.GetUpcomingRecordings(upcomingRecordingsResponse);
+  if (retval < 0)
   {
-    XBMC->Log(LOG_ERROR, "Unable to retrieve upcoming programs from server.");
+    kodi::Log(ADDON_LOG_ERROR, "Unable to retrieve upcoming programs from server.");
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  memset(&tag, 0 , sizeof(tag));
   numberoftimers = upcomingRecordingsResponse.size();
 
   for (int i = 0; i < numberoftimers; i++)
@@ -897,37 +888,39 @@ PVR_ERROR cPVRClientArgusTV::GetTimers(ADDON_HANDLE handle)
     cUpcomingRecording upcomingrecording;
     if (upcomingrecording.Parse(upcomingRecordingsResponse[i]))
     {
-      /* TODO: Implement own timer types to get support for the timer features introduced with PVR API 1.9.7 */
-      tag.iTimerType = PVR_TIMER_TYPE_NONE;
+      kodi::addon::PVRTimer tag;
 
-      tag.iClientIndex      = upcomingrecording.ID();
-      tag.iClientChannelUid = upcomingrecording.ChannelID();
-      tag.startTime         = upcomingrecording.StartTime();
-      tag.endTime           = upcomingrecording.StopTime();
+      /* TODO: Implement own timer types to get support for the timer features introduced with PVR API 1.9.7 */
+      tag.SetTimerType(PVR_TIMER_TYPE_NONE);
+
+      tag.SetClientIndex(upcomingrecording.ID());
+      tag.SetClientChannelUid(upcomingrecording.ChannelID());
+      tag.SetStartTime(upcomingrecording.StartTime());
+      tag.SetEndTime(upcomingrecording.StopTime());
 
       // build the XBMC PVR State
       if (upcomingrecording.IsCancelled())
       {
-        tag.state             = PVR_TIMER_STATE_CANCELLED;
+        tag.SetState(PVR_TIMER_STATE_CANCELLED);
       }
       else if (upcomingrecording.IsInConflict())
       {
         if (upcomingrecording.IsAllocated())
-          tag.state             = PVR_TIMER_STATE_CONFLICT_OK;
+          tag.SetState(PVR_TIMER_STATE_CONFLICT_OK);
         else
-          tag.state             = PVR_TIMER_STATE_CONFLICT_NOK;
+          tag.SetState(PVR_TIMER_STATE_CONFLICT_NOK);
       }
       else if (!upcomingrecording.IsAllocated())
       {
         //not allocated --> won't be recorded
-        tag.state             = PVR_TIMER_STATE_ERROR;
+        tag.SetState(PVR_TIMER_STATE_ERROR);
       }
       else
       {
-        tag.state             = PVR_TIMER_STATE_SCHEDULED;
+        tag.SetState(PVR_TIMER_STATE_SCHEDULED);
       }
 
-      if (tag.state == PVR_TIMER_STATE_SCHEDULED || tag.state == PVR_TIMER_STATE_CONFLICT_OK) //check if they are currently recording
+      if (tag.GetState() == PVR_TIMER_STATE_SCHEDULED || tag.GetState() == PVR_TIMER_STATE_CONFLICT_OK) //check if they are currently recording
       {
         if (activeRecordingsResponse.size() > 0)
         {
@@ -939,7 +932,7 @@ PVR_ERROR cPVRClientArgusTV::GetTimers(ADDON_HANDLE handle)
             {
               if (upcomingrecording.UpcomingProgramId() == activerecording.UpcomingProgramId())
               {
-                tag.state = PVR_TIMER_STATE_RECORDING;
+                tag.SetState(PVR_TIMER_STATE_RECORDING);
                 break;
               }
             }
@@ -947,22 +940,23 @@ PVR_ERROR cPVRClientArgusTV::GetTimers(ADDON_HANDLE handle)
         }
       }
 
-      PVR_STRCPY(tag.strTitle, upcomingrecording.Title().c_str());
-      tag.strDirectory[0]   = '\0';
-      tag.strSummary[0]     = '\0';
-      tag.iPriority         = 0;
-      tag.iLifetime         = 0;
-      tag.firstDay          = 0;
-      tag.iWeekdays         = 0;
-      tag.iEpgUid           = 0;
-      tag.iMarginStart      = upcomingrecording.PreRecordSeconds() / 60;
-      tag.iMarginEnd        = upcomingrecording.PostRecordSeconds() / 60;
-      tag.iGenreType        = 0;
-      tag.iGenreSubType     = 0;
+      tag.SetTitle(upcomingrecording.Title());
+      tag.SetDirectory("");
+      tag.SetSummary("");
+      tag.SetPriority(0);
+      tag.SetLifetime(0);
+      tag.SetFirstDay(0);
+      tag.SetWeekdays(0);
+      tag.SetEPGUid(0);
+      tag.SetMarginStart(upcomingrecording.PreRecordSeconds() / 60);
+      tag.SetMarginEnd(upcomingrecording.PostRecordSeconds() / 60);
+      tag.SetGenreType(0);
+      tag.SetGenreSubType(0);
 
-      PVR->TransferTimerEntry(handle, &tag);
-      XBMC->Log(LOG_DEBUG, "Found timer: %s, Unique id: %d, ARGUS ProgramId: %d, ARGUS ChannelId: %d\n",
-        tag.strTitle, tag.iClientIndex, upcomingrecording.ID(), upcomingrecording.ChannelID());
+      results.Add(tag);
+
+      kodi::Log(ADDON_LOG_DEBUG, "Found timer: %s, Unique id: %d, ARGUS ProgramId: %d, ARGUS ChannelId: %d\n",
+        tag.GetTitle().c_str(), tag.GetClientIndex(), upcomingrecording.ID(), upcomingrecording.ChannelID());
       iNumberOfTimers++;
     }
   }
@@ -970,37 +964,37 @@ PVR_ERROR cPVRClientArgusTV::GetTimers(ADDON_HANDLE handle)
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientArgusTV::AddTimer(const PVR_TIMER &timerinfo)
+PVR_ERROR cPVRClientArgusTV::AddTimer(const kodi::addon::PVRTimer& timerinfo)
 {
-  XBMC->Log(LOG_DEBUG, "AddTimer(title %s, start @ %d, end @ %d)", timerinfo.strTitle, timerinfo.startTime, timerinfo.endTime);
+  kodi::Log(ADDON_LOG_DEBUG, "AddTimer(title %s, start @ %d, end @ %d)", timerinfo.GetTitle().c_str(), timerinfo.GetStartTime(), timerinfo.GetEndTime());
 
   // re-synthesize the ARGUS TV channel GUID
-  cChannel* pChannel = FetchChannel(timerinfo.iClientChannelUid);
+  cChannel* pChannel = FetchChannel(timerinfo.GetClientChannelUid());
   if (pChannel == NULL)
   {
-    XBMC->Log(LOG_ERROR, "Unable to translate XBMC channel %d to ARGUS TV channel GUID, timer not added.",
-      timerinfo.iClientChannelUid);
-    XBMC->QueueNotification(QUEUE_ERROR, "Can't map XBMC Channel to ARGUS");
+    kodi::Log(ADDON_LOG_ERROR, "Unable to translate XBMC channel %d to ARGUS TV channel GUID, timer not added.",
+      timerinfo.GetClientChannelUid());
+    kodi::QueueNotification(QUEUE_ERROR, "", "Can't map XBMC Channel to ARGUS");
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  XBMC->Log(LOG_DEBUG, "%s: XBMC channel %d translated to ARGUS channel %s.", __FUNCTION__,
-    timerinfo.iClientChannelUid, pChannel->Guid().c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "%s: XBMC channel %d translated to ARGUS channel %s.", __FUNCTION__,
+    timerinfo.GetClientChannelUid(), pChannel->Guid().c_str());
 
   // Try to get original EPG data from ARGUS
-  time_t startTime = timerinfo.startTime;
+  time_t startTime = timerinfo.GetStartTime();
   struct tm* tm_start = localtime(&startTime);
-  time_t endTime = timerinfo.endTime;
+  time_t endTime = timerinfo.GetEndTime();
   struct tm* tm_end = localtime(&endTime);
 
   Json::Value epgResponse;
-  XBMC->Log(LOG_DEBUG, "%s: Getting EPG Data for ARGUS TV channel %s", __FUNCTION__, pChannel->GuideChannelID().c_str());
-  int retval = ArgusTV::GetEPGData(pChannel->GuideChannelID(), *tm_start, *tm_end, epgResponse);
+  kodi::Log(ADDON_LOG_DEBUG, "%s: Getting EPG Data for ARGUS TV channel %s", __FUNCTION__, pChannel->GuideChannelID().c_str());
+  int retval = m_rpc.GetEPGData(pChannel->GuideChannelID(), *tm_start, *tm_end, epgResponse);
 
-  std::string programTitle = timerinfo.strTitle;
+  std::string programTitle = timerinfo.GetTitle();
   if (retval >= 0)
   {
-    XBMC->Log(LOG_DEBUG, "%s: Getting EPG Data for ARGUS TV channel %s returned %d entries.", __FUNCTION__, pChannel->GuideChannelID().c_str(), epgResponse.size());
+    kodi::Log(ADDON_LOG_DEBUG, "%s: Getting EPG Data for ARGUS TV channel %s returned %d entries.", __FUNCTION__, pChannel->GuideChannelID().c_str(), epgResponse.size());
     if (epgResponse.size() > 0)
     {
       programTitle = epgResponse[0u]["Title"].asString();
@@ -1008,71 +1002,71 @@ PVR_ERROR cPVRClientArgusTV::AddTimer(const PVR_TIMER &timerinfo)
   }
   else
   {
-    XBMC->Log(LOG_DEBUG, "%s: Getting EPG Data for ARGUS TV channel %s failed.", __FUNCTION__, pChannel->GuideChannelID().c_str());
+    kodi::Log(ADDON_LOG_DEBUG, "%s: Getting EPG Data for ARGUS TV channel %s failed.", __FUNCTION__, pChannel->GuideChannelID().c_str());
   }
 
   Json::Value addScheduleResponse;
-  time_t starttime = timerinfo.startTime;
+  time_t starttime = timerinfo.GetStartTime();
   if (starttime == 0) starttime = time(NULL);
-  retval = ArgusTV::AddOneTimeSchedule(pChannel->Guid(), starttime, programTitle, timerinfo.iMarginStart * 60, timerinfo.iMarginEnd * 60, timerinfo.iLifetime, addScheduleResponse);
-  if (retval < 0) 
+  retval = m_rpc.AddOneTimeSchedule(pChannel->Guid(), starttime, programTitle, timerinfo.GetMarginStart() * 60, timerinfo.GetMarginEnd() * 60, timerinfo.GetLifetime(), addScheduleResponse);
+  if (retval < 0)
   {
     return PVR_ERROR_SERVER_ERROR;
   }
 
   std::string scheduleid = addScheduleResponse["ScheduleId"].asString();
 
-  XBMC->Log(LOG_DEBUG, "%s: ARGUS one-time schedule added with id %s.", __FUNCTION__,
+  kodi::Log(ADDON_LOG_DEBUG, "%s: ARGUS one-time schedule added with id %s.", __FUNCTION__,
     scheduleid.c_str());
 
 
   // Ok, we created a schedule, but did that lead to an upcoming recording?
   Json::Value upcomingProgramsResponse;
-  retval = ArgusTV::GetUpcomingProgramsForSchedule(addScheduleResponse, upcomingProgramsResponse);
+  retval = m_rpc.GetUpcomingProgramsForSchedule(addScheduleResponse, upcomingProgramsResponse);
 
   // We should have at least one upcoming program for this schedule, otherwise nothing will be recorded
   if (retval <= 0)
   {
-    XBMC->Log(LOG_INFO, "The new schedule does not lead to an upcoming program, removing schedule and adding a manual one.");
+    kodi::Log(ADDON_LOG_INFO, "The new schedule does not lead to an upcoming program, removing schedule and adding a manual one.");
     // remove the added (now stale) schedule, ignore failure (what are we to do anyway?)
-    ArgusTV::DeleteSchedule(scheduleid);
+    m_rpc.DeleteSchedule(scheduleid);
 
     // Okay, add a manual schedule (forced recording) but now we need to add pre- and post-recording ourselves
-    time_t manualStartTime = starttime - (timerinfo.iMarginStart * 60);
-    time_t manualEndTime = timerinfo.endTime + (timerinfo.iMarginEnd * 60);
-    retval = ArgusTV::AddManualSchedule(pChannel->Guid(), manualStartTime, manualEndTime - manualStartTime, timerinfo.strTitle, timerinfo.iMarginStart * 60, timerinfo.iMarginEnd * 60, timerinfo.iLifetime, addScheduleResponse);
+    time_t manualStartTime = starttime - (timerinfo.GetMarginStart() * 60);
+    time_t manualEndTime = timerinfo.GetEndTime() + (timerinfo.GetMarginEnd() * 60);
+    retval = m_rpc.AddManualSchedule(pChannel->Guid(), manualStartTime, manualEndTime - manualStartTime, timerinfo.GetTitle().c_str(), timerinfo.GetMarginStart() * 60, timerinfo.GetMarginEnd() * 60, timerinfo.GetLifetime(), addScheduleResponse);
     if (retval < 0)
     {
-      XBMC->Log(LOG_ERROR, "A manual schedule could not be added.");
+      kodi::Log(ADDON_LOG_ERROR, "A manual schedule could not be added.");
       return PVR_ERROR_SERVER_ERROR;
     }
   }
 
   // Trigger an update of the PVR timers
-  PVR->TriggerTimerUpdate();
+  kodi::addon::CInstancePVRClient::TriggerTimerUpdate();
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientArgusTV::DeleteTimer(const PVR_TIMER &timerinfo, bool force)
+PVR_ERROR cPVRClientArgusTV::DeleteTimer(const kodi::addon::PVRTimer& timerinfo, bool force)
 {
   NOTUSED(force);
   Json::Value upcomingProgramsResponse, activeRecordingsResponse;
 
-  XBMC->Log(LOG_DEBUG, "DeleteTimer()");
+  kodi::Log(ADDON_LOG_DEBUG, "DeleteTimer()");
 
   // retrieve the currently active recordings
-  int retval = ArgusTV::GetActiveRecordings(activeRecordingsResponse);
-  if (retval < 0) 
+  int retval = m_rpc.GetActiveRecordings(activeRecordingsResponse);
+  if (retval < 0)
   {
-    XBMC->Log(LOG_ERROR, "Unable to retrieve active recordings from server.");
+    kodi::Log(ADDON_LOG_ERROR, "Unable to retrieve active recordings from server.");
     return PVR_ERROR_SERVER_ERROR;
   }
 
   // pick up the upcoming recordings
-  retval = ArgusTV::GetUpcomingRecordings(upcomingProgramsResponse);
-  if (retval < 0) 
+  retval = m_rpc.GetUpcomingRecordings(upcomingProgramsResponse);
+  if (retval < 0)
   {
-    XBMC->Log(LOG_ERROR, "Unable to retrieve upcoming programs from server.");
+    kodi::Log(ADDON_LOG_ERROR, "Unable to retrieve upcoming programs from server.");
     return PVR_ERROR_SERVER_ERROR;
   }
 
@@ -1083,7 +1077,7 @@ PVR_ERROR cPVRClientArgusTV::DeleteTimer(const PVR_TIMER &timerinfo, bool force)
     cUpcomingRecording upcomingrecording;
     if (upcomingrecording.Parse(upcomingProgramsResponse[i]))
     {
-      if (upcomingrecording.ID() == (int) timerinfo.iClientIndex)
+      if (upcomingrecording.ID() == (int) timerinfo.GetClientIndex())
       {
         // Okay, we matched the timer to an upcoming program, but is it recording right now?
         if (activeRecordingsResponse.size() > 0)
@@ -1097,10 +1091,10 @@ PVR_ERROR cPVRClientArgusTV::DeleteTimer(const PVR_TIMER &timerinfo, bool force)
               if (upcomingrecording.UpcomingProgramId() == activerecording.UpcomingProgramId())
               {
                 // Abort this recording
-                retval = ArgusTV::AbortActiveRecording(activeRecordingsResponse[j]);
+                retval = m_rpc.AbortActiveRecording(activeRecordingsResponse[j]);
                 if (retval != 0)
                 {
-                  XBMC->Log(LOG_ERROR, "Unable to cancel the active recording of \"%s\" on the server. Will try to cancel the program.", upcomingrecording.Title().c_str());
+                  kodi::Log(ADDON_LOG_ERROR, "Unable to cancel the active recording of \"%s\" on the server. Will try to cancel the program.", upcomingrecording.Title().c_str());
                 }
                 break;
               }
@@ -1109,31 +1103,31 @@ PVR_ERROR cPVRClientArgusTV::DeleteTimer(const PVR_TIMER &timerinfo, bool force)
         }
 
         Json::Value scheduleResponse;
-        retval = ArgusTV::GetScheduleById(upcomingrecording.ScheduleId(), scheduleResponse);
+        retval = m_rpc.GetScheduleById(upcomingrecording.ScheduleId(), scheduleResponse);
         std::string schedulename = scheduleResponse["Name"].asString();
 
         if (scheduleResponse["IsOneTime"].asBool() == true)
         {
-          retval = ArgusTV::DeleteSchedule(upcomingrecording.ScheduleId());
+          retval = m_rpc.DeleteSchedule(upcomingrecording.ScheduleId());
           if (retval < 0)
           {
-            XBMC->Log(LOG_INFO, "Unable to delete schedule %s from server.", schedulename.c_str());
+            kodi::Log(ADDON_LOG_INFO, "Unable to delete schedule %s from server.", schedulename.c_str());
             return PVR_ERROR_SERVER_ERROR;
           }
         }
         else
         {
-          retval = ArgusTV::CancelUpcomingProgram(upcomingrecording.ScheduleId(), upcomingrecording.ChannelId(), 
+          retval = m_rpc.CancelUpcomingProgram(upcomingrecording.ScheduleId(), upcomingrecording.ChannelId(),
             upcomingrecording.StartTime(), upcomingrecording.GuideProgramId());
-          if (retval < 0) 
+          if (retval < 0)
           {
-            XBMC->Log(LOG_ERROR, "Unable to cancel upcoming program from server.");
+            kodi::Log(ADDON_LOG_ERROR, "Unable to cancel upcoming program from server.");
             return PVR_ERROR_SERVER_ERROR;
           }
         }
 
         // Trigger an update of the PVR timers
-        PVR->TriggerTimerUpdate();
+        kodi::addon::CInstancePVRClient::TriggerTimerUpdate();
         return PVR_ERROR_NO_ERROR;
       }
     }
@@ -1141,7 +1135,7 @@ PVR_ERROR cPVRClientArgusTV::DeleteTimer(const PVR_TIMER &timerinfo, bool force)
   return PVR_ERROR_SERVER_ERROR;
 }
 
-PVR_ERROR cPVRClientArgusTV::UpdateTimer(const PVR_TIMER &timerinfo)
+PVR_ERROR cPVRClientArgusTV::UpdateTimer(const kodi::addon::PVRTimer& timerinfo)
 {
   NOTUSED(timerinfo);
   return PVR_ERROR_NOT_IMPLEMENTED;
@@ -1156,7 +1150,7 @@ cChannel* cPVRClientArgusTV::FetchChannel(int channelid, bool LogError)
   cChannel* rc = FetchChannel(m_TVChannels, channelid, false);
   if (rc == NULL) rc = FetchChannel(m_RadioChannels, channelid, false);
 
-  if (LogError && rc == NULL) XBMC->Log(LOG_ERROR, "XBMC channel with id %d not found in the channel caches!.", channelid);
+  if (LogError && rc == NULL) kodi::Log(ADDON_LOG_ERROR, "XBMC channel with id %d not found in the channel caches!.", channelid);
   return rc;
 }
 
@@ -1173,7 +1167,7 @@ cChannel* cPVRClientArgusTV::FetchChannel(std::vector<cChannel*> m_Channels, int
     }
   }
 
-  if (LogError) XBMC->Log(LOG_ERROR, "XBMC channel with id %d not found in the channel cache!.", channelid);
+  if (LogError) kodi::Log(ADDON_LOG_ERROR, "XBMC channel with id %d not found in the channel cache!.", channelid);
   return NULL;
 }
 
@@ -1188,66 +1182,66 @@ void cPVRClientArgusTV::FreeChannels(std::vector<cChannel*> m_Channels)
   }
 }
 
-bool cPVRClientArgusTV::_OpenLiveStream(const PVR_CHANNEL &channelinfo)
+bool cPVRClientArgusTV::_OpenLiveStream(const kodi::addon::PVRChannel&channelinfo)
 {
-  XBMC->Log(LOG_DEBUG, "->_OpenLiveStream(%i)", channelinfo.iUniqueId);
+  kodi::Log(ADDON_LOG_DEBUG, "->_OpenLiveStream(%i)", channelinfo.GetUniqueId());
 
-  if (((int)channelinfo.iUniqueId) == m_iCurrentChannel)
+  if (((int)channelinfo.GetUniqueId()) == m_iCurrentChannel)
   {
-    XBMC->Log(LOG_INFO, "New channel uid equal to the already streaming channel. Skipping re-tune.");
+    kodi::Log(ADDON_LOG_INFO, "New channel uid equal to the already streaming channel. Skipping re-tune.");
     return true;
   }
 
   m_iCurrentChannel = -1; // make sure that it is not a valid channel nr in case it will fail lateron
 
-  cChannel* channel = FetchChannel(channelinfo.iUniqueId);
+  cChannel* channel = FetchChannel(channelinfo.GetUniqueId());
 
   if (channel)
   {
     std::string filename;
-    XBMC->Log(LOG_INFO, "Tune XBMC channel: %i", channelinfo.iUniqueId);
-    XBMC->Log(LOG_INFO, "Corresponding ARGUS TV channel: %s", channel->Guid().c_str());
+    kodi::Log(ADDON_LOG_INFO, "Tune XBMC channel: %i", channelinfo.GetUniqueId());
+    kodi::Log(ADDON_LOG_INFO, "Corresponding ARGUS TV channel: %s", channel->Guid().c_str());
 
-    int retval = ArgusTV::TuneLiveStream(channel->Guid(), channel->Type(), channel->Name(), filename);
-    if (retval == ArgusTV::NoReTunePossible)
+    int retval = m_rpc.TuneLiveStream(channel->Guid(), channel->Type(), channel->Name(), filename);
+    if (retval == m_rpc.NoReTunePossible)
     {
       // Ok, we can't re-tune with the current live stream still running
       // So stop it and re-try
       CloseLiveStream();
-      XBMC->Log(LOG_INFO, "Re-Tune XBMC channel: %i", channelinfo.iUniqueId);
-      retval = ArgusTV::TuneLiveStream(channel->Guid(), channel->Type(), channel->Name(), filename);
+      kodi::Log(ADDON_LOG_INFO, "Re-Tune XBMC channel: %i", channelinfo.GetUniqueId());
+      retval = m_rpc.TuneLiveStream(channel->Guid(), channel->Type(), channel->Name(), filename);
     }
 
     if (retval != E_SUCCESS)
     {
       switch (retval)
       {
-        case ArgusTV::NoFreeCardFound:
-          XBMC->Log(LOG_INFO, "No free tuner found.");
-          XBMC->QueueNotification(QUEUE_ERROR, "No free tuner found!");
+        case CArgusTV::NoFreeCardFound:
+          kodi::Log(ADDON_LOG_INFO, "No free tuner found.");
+          kodi::QueueNotification(QUEUE_ERROR, "", "No free tuner found!");
           return false;
-        case ArgusTV::IsScrambled:
-          XBMC->Log(LOG_INFO, "Scrambled channel.");
-          XBMC->QueueNotification(QUEUE_ERROR, "Scrambled channel!");
+        case CArgusTV::IsScrambled:
+          kodi::Log(ADDON_LOG_INFO, "Scrambled channel.");
+          kodi::QueueNotification(QUEUE_ERROR, "", "Scrambled channel!");
           return false;
-        case ArgusTV::ChannelTuneFailed:
-          XBMC->Log(LOG_INFO, "Tuning failed.");
-          XBMC->QueueNotification(QUEUE_ERROR, "Tuning failed!");
+        case CArgusTV::ChannelTuneFailed:
+          kodi::Log(ADDON_LOG_INFO, "Tuning failed.");
+          kodi::QueueNotification(QUEUE_ERROR, "", "Tuning failed!");
           return false;
         default:
-          XBMC->Log(LOG_ERROR, "Tuning failed, unknown error");
-          XBMC->QueueNotification(QUEUE_ERROR, "Unknown error!");
+          kodi::Log(ADDON_LOG_ERROR, "Tuning failed, unknown error");
+          kodi::QueueNotification(QUEUE_ERROR, "", "Unknown error!");
           return false;
       }
     }
 
     filename = ToCIFS(filename);
 
-    InsertUser(filename);
+    InsertUser(m_base, filename);
 
     if (retval != E_SUCCESS || filename.length() == 0)
     {
-      XBMC->Log(LOG_ERROR, "Could not start the timeshift for channel %i (%s)", channelinfo.iUniqueId, channel->Guid().c_str());
+      kodi::Log(ADDON_LOG_ERROR, "Could not start the timeshift for channel %i (%s)", channelinfo.GetUniqueId(), channel->Guid().c_str());
       CloseLiveStream();
       return false;
     }
@@ -1255,14 +1249,14 @@ bool cPVRClientArgusTV::_OpenLiveStream(const PVR_CHANNEL &channelinfo)
     // reset the signal quality poll interval after tuning
     m_signalqualityInterval = 0;
 
-    XBMC->Log(LOG_INFO, "Live stream file: %s", filename.c_str());
+    kodi::Log(ADDON_LOG_INFO, "Live stream file: %s", filename.c_str());
     m_bTimeShiftStarted = true;
-    m_iCurrentChannel = channelinfo.iUniqueId;
+    m_iCurrentChannel = channelinfo.GetUniqueId();
     if (!m_keepalive->IsRunning())
     {
       if (!m_keepalive->CreateThread())
       {
-        XBMC->Log(LOG_ERROR, "Start keepalive thread failed.");
+        kodi::Log(ADDON_LOG_ERROR, "Start keepalive thread failed.");
       }
     }
 
@@ -1271,49 +1265,49 @@ bool cPVRClientArgusTV::_OpenLiveStream(const PVR_CHANNEL &channelinfo)
     strncpy(ofn, "/tmp/atv.XXXXXX", sizeof(ofn));
     if ((ofd = mkostemp(ofn, O_CREAT|O_TRUNC)) == -1)
     {
-      XBMC->Log(LOG_ERROR, "couldn't open dumpfile %s (error %d: %s).", ofn, errno, strerror(errno));
+      kodi::Log(ADDON_LOG_ERROR, "couldn't open dumpfile %s (error %d: %s).", ofn, errno, strerror(errno));
     }
     else
     {
-      XBMC->Log(LOG_INFO, "opened dumpfile %s.", ofn);
+      kodi::Log(ADDON_LOG_INFO, "opened dumpfile %s.", ofn);
     }
 #endif
 
     if (m_tsreader != NULL)
     {
-      //XBMC->Log(LOG_DEBUG, "Re-using existing TsReader...");
+      //kodi::Log(ADDON_LOG_DEBUG, "Re-using existing TsReader...");
       //usleep(5000000);
       //m_tsreader->OnZap();
-      XBMC->Log(LOG_DEBUG, "Close existing and open new TsReader...");
+      kodi::Log(ADDON_LOG_DEBUG, "Close existing and open new TsReader...");
       m_tsreader->Close();
       SAFE_DELETE(m_tsreader);
     }
     // Open Timeshift buffer
     // TODO: rtsp support
     m_tsreader = new CTsReader();
-    XBMC->Log(LOG_DEBUG, "Open TsReader");
+    kodi::Log(ADDON_LOG_DEBUG, "Open TsReader");
     m_tsreader->Open(filename.c_str());
     m_tsreader->OnZap();
-    XBMC->Log(LOG_DEBUG, "Delaying %ld milliseconds.", (g_iTuneDelay));
-    usleep(1000 * g_iTuneDelay);
+    kodi::Log(ADDON_LOG_DEBUG, "Delaying %ld milliseconds.", m_base.GetSettings().TuneDelay());
+    usleep(1000 * m_base.GetSettings().TuneDelay());
     return true;
   }
   else
   {
-    XBMC->Log(LOG_ERROR, "Could not get ARGUS TV channel guid for channel %i.", channelinfo.iUniqueId);
-    XBMC->QueueNotification(QUEUE_ERROR, "XBMC Channel to GUID");
+    kodi::Log(ADDON_LOG_ERROR, "Could not get ARGUS TV channel guid for channel %i.", channelinfo.GetUniqueId());
+    kodi::QueueNotification(QUEUE_ERROR, "", "XBMC Channel to GUID");
   }
 
   CloseLiveStream();
   return false;
 }
 
-bool cPVRClientArgusTV::OpenLiveStream(const PVR_CHANNEL &channelinfo)
+bool cPVRClientArgusTV::OpenLiveStream(const kodi::addon::PVRChannel&channelinfo)
 {
   int64_t t = GetTimeMs();
   bool rc = _OpenLiveStream(channelinfo);
   t = GetTimeMs() - t;
-  XBMC->Log(LOG_INFO, "Opening live stream took %d milliseconds.", t);
+  kodi::Log(ADDON_LOG_INFO, "Opening live stream took %d milliseconds.", t);
   return rc;
 }
 
@@ -1324,7 +1318,7 @@ int cPVRClientArgusTV::ReadLiveStream(unsigned char* pBuffer, unsigned int iBuff
   static int read_timeouts  = 0;
   unsigned char* bufptr = pBuffer;
 
-  // XBMC->Log(LOG_DEBUG, "->ReadLiveStream(buf_size=%i)", iBufferSize);
+  // kodi::Log(ADDON_LOG_DEBUG, "->ReadLiveStream(buf_size=%i)", iBufferSize);
   if (!m_tsreader)
     return -1;
 
@@ -1337,7 +1331,7 @@ int cPVRClientArgusTV::ReadLiveStream(unsigned char* pBuffer, unsigned int iBuff
     {
       usleep(400000);
       read_timeouts++;
-      XBMC->Log(LOG_INFO, "ReadLiveStream requested %d but only read %d bytes.", iBufferSize, read_wanted);
+      kodi::Log(ADDON_LOG_INFO, "ReadLiveStream requested %d but only read %d bytes.", iBufferSize, read_wanted);
       return read_wanted;
     }
     read_done += read_wanted;
@@ -1346,7 +1340,7 @@ int cPVRClientArgusTV::ReadLiveStream(unsigned char* pBuffer, unsigned int iBuff
     {
       if (read_timeouts > 25)
       {
-        XBMC->Log(LOG_INFO, "No data in 1 second");
+        kodi::Log(ADDON_LOG_INFO, "No data in 1 second");
         read_timeouts = 0;
         return read_done;
       }
@@ -1358,18 +1352,18 @@ int cPVRClientArgusTV::ReadLiveStream(unsigned char* pBuffer, unsigned int iBuff
 #if defined(ATV_DUMPTS)
   if (write(ofd, pBuffer, read_done) < 0)
   {
-    XBMC->Log(LOG_ERROR, "couldn't write %d bytes to dumpfile %s (error %d: %s).", read_done, ofn, errno, strerror(errno));
+    kodi::Log(ADDON_LOG_ERROR, "couldn't write %d bytes to dumpfile %s (error %d: %s).", read_done, ofn, errno, strerror(errno));
   }
 #endif
-  // XBMC->Log(LOG_DEBUG, "ReadLiveStream(buf_size=%i), %d timeouts", iBufferSize, read_timeouts);
+  // kodi::Log(ADDON_LOG_DEBUG, "ReadLiveStream(buf_size=%i), %d timeouts", iBufferSize, read_timeouts);
   read_timeouts = 0;
   return read_done;
 }
 
-long long cPVRClientArgusTV::SeekLiveStream(long long pos, int whence)
+int64_t cPVRClientArgusTV::SeekLiveStream(int64_t pos, int whence)
 {
   static std::string zz[] = { "Begin", "Current", "End" };
-  XBMC->Log(LOG_DEBUG, "SeekLiveStream (%lld, %s).", pos, zz[whence].c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "SeekLiveStream (%lld, %s).", pos, zz[whence].c_str());
   if (!m_tsreader)
   {
     return -1;
@@ -1377,17 +1371,7 @@ long long cPVRClientArgusTV::SeekLiveStream(long long pos, int whence)
   return m_tsreader->SetFilePointer(pos, whence);
 }
 
-
-long long cPVRClientArgusTV::PositionLiveStream(void)
-{
-  if (!m_tsreader)
-  {
-    return -1;
-  }
-  return m_tsreader->GetFilePointer();
-}
-
-long long cPVRClientArgusTV::LengthLiveStream(void)
+int64_t cPVRClientArgusTV::LengthLiveStream()
 {
   if (!m_tsreader)
   {
@@ -1400,22 +1384,22 @@ long long cPVRClientArgusTV::LengthLiveStream(void)
 void cPVRClientArgusTV::CloseLiveStream()
 {
   string result;
-  XBMC->Log(LOG_INFO, "CloseLiveStream");
+  kodi::Log(ADDON_LOG_INFO, "CloseLiveStream");
 
   if (m_keepalive->IsRunning())
   {
     if (!m_keepalive->StopThread())
     {
-      XBMC->Log(LOG_ERROR, "Stop keepalive thread failed.");
+      kodi::Log(ADDON_LOG_ERROR, "Stop keepalive thread failed.");
     }
-  } 
+  }
 
 #if defined(ATV_DUMPTS)
   if (ofd != -1)
   {
     if (close(ofd) == -1)
     {
-      XBMC->Log(LOG_ERROR, "couldn't close dumpfile %s (error %d: %s).", ofn, errno, strerror(errno));
+      kodi::Log(ADDON_LOG_ERROR, "couldn't close dumpfile %s (error %d: %s).", ofn, errno, strerror(errno));
     }
     ofd = -1;
   }
@@ -1425,32 +1409,32 @@ void cPVRClientArgusTV::CloseLiveStream()
   {
     if (m_tsreader)
     {
-      XBMC->Log(LOG_DEBUG, "Close TsReader");
+      kodi::Log(ADDON_LOG_DEBUG, "Close TsReader");
       m_tsreader->Close();
 #if defined(TARGET_WINDOWS)
-      XBMC->Log(LOG_DEBUG, "ReadLiveStream: %I64d calls took %I64d nanoseconds.", m_tsreader->sigmaCount(), m_tsreader->sigmaTime());
+      kodi::Log(ADDON_LOG_DEBUG, "ReadLiveStream: %I64d calls took %I64d nanoseconds.", m_tsreader->sigmaCount(), m_tsreader->sigmaTime());
 #endif
       SAFE_DELETE(m_tsreader);
     }
-    ArgusTV::StopLiveStream();
+    m_rpc.StopLiveStream();
     m_bTimeShiftStarted = false;
     m_iCurrentChannel = -1;
   } else {
-    XBMC->Log(LOG_DEBUG, "CloseLiveStream: Nothing to do.");
+    kodi::Log(ADDON_LOG_DEBUG, "CloseLiveStream: Nothing to do.");
   }
 }
 
-PVR_ERROR cPVRClientArgusTV::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
+PVR_ERROR cPVRClientArgusTV::GetSignalStatus(int channelUid, kodi::addon::PVRSignalStatus& signalStatus)
 {
-  static PVR_SIGNAL_STATUS tag;
+  static kodi::addon::PVRSignalStatus tag;
 
   // Only do the REST call once out of N
   if (m_signalqualityInterval-- <= 0)
   {
     m_signalqualityInterval = SIGNALQUALITY_INTERVAL;
     Json::Value response;
-    ArgusTV::SignalQuality(response);
-    memset(&tag, 0, sizeof(tag));
+    m_rpc.SignalQuality(response);
+
     std::string cardtype = "";
     switch (response["CardType"].asInt())
     {
@@ -1476,17 +1460,14 @@ PVR_ERROR cPVRClientArgusTV::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
       cardtype = "Unknown card type";
       break;
     }
-    snprintf(tag.strAdapterName, 1024, "Provider %s, %s",
-      response["ProviderName"].asString().c_str(),
-      cardtype.c_str());
-    snprintf(tag.strAdapterStatus, 1024, "%s, %s",
-      response["Name"].asString().c_str(),
-      response["IsFreeToAir"].asBool() ? "free to air" : "encrypted");
-    tag.iSNR = (int) (response["SignalQuality"].asInt() * 655.35);
-    tag.iSignal = (int) (response["SignalStrength"].asInt() * 655.35);
+    tag.SetAdapterName("Provider" + response["ProviderName"].asString() + ", " + cardtype);
+    tag.SetAdapterStatus(response["Name"].asString() + ", " + (response["IsFreeToAir"].asBool() ? "free to air" : "encrypted"));
+    tag.SetSNR((int) (response["SignalQuality"].asInt() * 655.35));
+    tag.SetSignal((int) (response["SignalStrength"].asInt() * 655.35));
   }
 
   signalStatus = tag;
+
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -1510,25 +1491,25 @@ bool cPVRClientArgusTV::FindRecEntry(const std::string &recId, std::string &recE
     return false;
 
   recEntryURL = iter->second;
-  InsertUser(recEntryURL);
+  InsertUser(m_base, recEntryURL);
 
   return !recEntryURL.empty();
 }
 
 /************************************************************/
 /** Record stream handling */
-bool cPVRClientArgusTV::OpenRecordedStream(const PVR_RECORDING &recinfo)
+bool cPVRClientArgusTV::OpenRecordedStream(const kodi::addon::PVRRecording& recinfo)
 {
   std::string UNCname;
 
-  if (!FindRecEntry(recinfo.strRecordingId, UNCname))
+  if (!FindRecEntry(recinfo.GetRecordingId(), UNCname))
     return false;
 
-  XBMC->Log(LOG_DEBUG, "->OpenRecordedStream(%s)", UNCname.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "->OpenRecordedStream(%s)", UNCname.c_str());
 
   if (m_tsreader != NULL)
   {
-    XBMC->Log(LOG_DEBUG, "Close existing TsReader...");
+    kodi::Log(ADDON_LOG_DEBUG, "Close existing TsReader...");
     m_tsreader->Close();
     SAFE_DELETE(m_tsreader);
   }
@@ -1539,16 +1520,20 @@ bool cPVRClientArgusTV::OpenRecordedStream(const PVR_RECORDING &recinfo)
     return false;
   }
 
+  m_bRecordingPlayback = true;
+
   return true;
 }
 
-
 void cPVRClientArgusTV::CloseRecordedStream(void)
 {
-  XBMC->Log(LOG_DEBUG, "->CloseRecordedStream()");
+  kodi::Log(ADDON_LOG_DEBUG, "->CloseRecordedStream()");
+
+  m_bRecordingPlayback = false;
+
   if (m_tsreader)
   {
-    XBMC->Log(LOG_DEBUG, "Close TsReader");
+    kodi::Log(ADDON_LOG_DEBUG, "Close TsReader");
     m_tsreader->Close();
     SAFE_DELETE(m_tsreader);
   }
@@ -1558,19 +1543,19 @@ int cPVRClientArgusTV::ReadRecordedStream(unsigned char* pBuffer, unsigned int i
 {
   unsigned long read_done   = 0;
 
-  // XBMC->Log(LOG_DEBUG, "->ReadRecordedStream(buf_size=%i)", iBufferSize);
+  // kodi::Log(ADDON_LOG_DEBUG, "->ReadRecordedStream(buf_size=%i)", iBufferSize);
   if (!m_tsreader)
     return -1;
 
   long lRc = 0;
   if ((lRc = m_tsreader->Read(pBuffer, iBuffersize, &read_done)) > 0)
   {
-    XBMC->Log(LOG_INFO, "ReadRecordedStream requested %d but only read %d bytes.", iBuffersize, read_done);
+    kodi::Log(ADDON_LOG_INFO, "ReadRecordedStream requested %d but only read %d bytes.", iBuffersize, read_done);
   }
   return read_done;
 }
 
-long long cPVRClientArgusTV::SeekRecordedStream(long long iPosition, int iWhence)
+int64_t cPVRClientArgusTV::SeekRecordedStream(int64_t iPosition, int iWhence)
 {
   if (!m_tsreader)
   {
@@ -1583,16 +1568,7 @@ long long cPVRClientArgusTV::SeekRecordedStream(long long iPosition, int iWhence
   return m_tsreader->SetFilePointer(iPosition, iWhence);
 }
 
-long long cPVRClientArgusTV::PositionRecordedStream(void)
-{ 
-  if (!m_tsreader)
-  {
-    return -1;
-  }
-  return m_tsreader->GetFilePointer();
-}
-
-long long cPVRClientArgusTV::LengthRecordedStream(void)
+int64_t cPVRClientArgusTV::LengthRecordedStream(void)
 {
   if (!m_tsreader)
   {
@@ -1604,9 +1580,9 @@ long long cPVRClientArgusTV::LengthRecordedStream(void)
 /*
  * \brief Request the stream URL for live tv/live radio.
  */
-const char* cPVRClientArgusTV::GetLiveStreamURL(const PVR_CHANNEL &channelinfo)
+const char* cPVRClientArgusTV::GetLiveStreamURL(const kodi::addon::PVRChannel& channelinfo)
 {
-  XBMC->Log(LOG_DEBUG, "->GetLiveStreamURL(%i)", channelinfo.iUniqueId);
+  kodi::Log(ADDON_LOG_DEBUG, "->GetLiveStreamURL(%i)", channelinfo.GetUniqueId());
   bool rc = _OpenLiveStream(channelinfo);
   if (rc)
   {
@@ -1614,20 +1590,21 @@ const char* cPVRClientArgusTV::GetLiveStreamURL(const PVR_CHANNEL &channelinfo)
   }
   // sigh, the only reason to use a class member here is to have storage for the const char *
   // pointing to the std::string when this method returns (and locals would go out of scope)
-  m_PlaybackURL = ArgusTV::GetLiveStreamURL();
-  XBMC->Log(LOG_DEBUG, "<-GetLiveStreamURL returns URL(%s)", m_PlaybackURL.c_str());
+  m_PlaybackURL = m_rpc.GetLiveStreamURL();
+  kodi::Log(ADDON_LOG_DEBUG, "<-GetLiveStreamURL returns URL(%s)", m_PlaybackURL.c_str());
   return m_PlaybackURL.c_str();
 }
 
-void cPVRClientArgusTV::PauseStream(bool bPaused)
-{
-  NOTUSED(bPaused);
-  //TODO: add m_tsreader->Pause() her when adding RTSP streaming support
-}
-
-bool cPVRClientArgusTV::CanPauseAndSeek()
+bool cPVRClientArgusTV::CanSeekStream()
 {
   bool rc = (m_tsreader != NULL);
-  XBMC->Log(LOG_DEBUG, "<-CanPauseAndSeek returns %s", rc ? "true" : "false");
+  kodi::Log(ADDON_LOG_DEBUG, "<-CanSeekStream returns %s", rc ? "true" : "false");
+  return rc;
+}
+
+bool cPVRClientArgusTV::CanPauseStream()
+{
+  bool rc = (m_tsreader != NULL);
+  kodi::Log(ADDON_LOG_DEBUG, "<-CanPauseStream returns %s", rc ? "true" : "false");
   return rc;
 }

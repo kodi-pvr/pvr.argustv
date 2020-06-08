@@ -26,7 +26,8 @@
 #include "tools.h"
 #include "p8-platform/util/timeutils.h"
 
-using namespace ADDON;
+#include <kodi/General.h>
+
 using namespace P8PLATFORM;
 
 // --- cTimeMs ---------------------------------------------------------------
@@ -50,23 +51,23 @@ uint64_t cTimeMs::Now(void)
         // require a minimum resolution:
         if (tp.tv_sec == 0 && tp.tv_nsec <= MIN_RESOLUTION * 1000000) {
            if (clock_gettime(CLOCK_MONOTONIC, &tp) == 0) {
-              XBMC->Log(LOG_DEBUG, "cTimeMs: using monotonic clock (resolution is %ld ns)", Resolution);
+              kodi::Log(ADDON_LOG_DEBUG, "cTimeMs: using monotonic clock (resolution is %ld ns)", Resolution);
               monotonic = true;
               }
            else
-              XBMC->Log(LOG_ERROR, "cTimeMs: clock_gettime(CLOCK_MONOTONIC) failed");
+              kodi::Log(ADDON_LOG_ERROR, "cTimeMs: clock_gettime(CLOCK_MONOTONIC) failed");
            }
         else
-           XBMC->Log(LOG_DEBUG, "cTimeMs: not using monotonic clock - resolution is too bad (%ld s %ld ns)", tp.tv_sec, tp.tv_nsec);
+           kodi::Log(ADDON_LOG_DEBUG, "cTimeMs: not using monotonic clock - resolution is too bad (%ld s %ld ns)", tp.tv_sec, tp.tv_nsec);
         }
      else
-        XBMC->Log(LOG_ERROR, "cTimeMs: clock_getres(CLOCK_MONOTONIC) failed");
+        kodi::Log(ADDON_LOG_ERROR, "cTimeMs: clock_getres(CLOCK_MONOTONIC) failed");
      initialized = true;
      }
   if (monotonic) {
      if (clock_gettime(CLOCK_MONOTONIC, &tp) == 0)
         return (uint64_t(tp.tv_sec)) * 1000 + tp.tv_nsec / 1000000;
-     XBMC->Log(LOG_ERROR, "cTimeMs: clock_gettime(CLOCK_MONOTONIC) failed");
+     kodi::Log(ADDON_LOG_ERROR, "cTimeMs: clock_gettime(CLOCK_MONOTONIC) failed");
      monotonic = false;
      // fall back to gettimeofday()
      }
