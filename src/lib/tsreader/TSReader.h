@@ -1,21 +1,11 @@
-#pragma once
 /*
- *      Copyright (C) 2005-2012 Team XBMC
- *      http://www.xbmc.org
+ *  Copyright (C) 2005-2020 Team Kodi (https://kodi.tv)
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ *  SPDX-License-Identifier: GPL-2.0-or-later
+ *  See LICENSE.md for more information.
+ */
+
+/*
  *************************************************************************
  *  Parts of this file originate from Team MediaPortal's
  *  TsReader DirectShow filter
@@ -28,37 +18,38 @@
  * - Code refactoring for cross platform usage
  *************************************************************************/
 
-#include "client.h"
+#pragma once
+
 #include "FileReader.h"
 
 namespace ArgusTV
 {
-  class CTsReader
-  {
-  public:
-    CTsReader();
-    ~CTsReader(void) {};
-    long Open(const char* pszFileName);
-    long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
-    void Close();
-    int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
-    int64_t GetFileSize();
-    int64_t GetFilePointer();
-    void OnZap(void);
+class CTsReader
+{
+public:
+  CTsReader();
+  ~CTsReader(void) = default;
+  long Open(const std::string& fileName);
+  long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long* dwReadBytes);
+  void Close();
+  int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
+  int64_t GetFileSize();
+  int64_t GetFilePointer();
+  void OnZap(void);
 #if defined(TARGET_WINDOWS)
-    long long sigmaTime();
-    long long  sigmaCount();
+  long long sigmaTime();
+  long long sigmaCount();
 #endif
 
-  private:
-    bool            m_bTimeShifting;
-    bool            m_bRecording;
-    bool            m_bLiveTv;
-    std::string     m_fileName;
-    FileReader*     m_fileReader;
+private:
+  bool m_bTimeShifting = false;
+  bool m_bRecording = false;
+  bool m_bLiveTv = false;
+  std::string m_fileName;
+  FileReader* m_fileReader = nullptr;
 #if defined(TARGET_WINDOWS)
-    LARGE_INTEGER   liDelta;
-    LARGE_INTEGER   liCount;
+  LARGE_INTEGER liDelta;
+  LARGE_INTEGER liCount;
 #endif
-  };
-}
+};
+} // namespace ArgusTV

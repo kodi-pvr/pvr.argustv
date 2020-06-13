@@ -1,43 +1,20 @@
 /*
- *      Copyright (C) 2010 Marcel Groothuis
+ *  Copyright (C) 2020 Team Kodi (https://kodi.tv)
+ *  Copyright (C) 2010 Marcel Groothuis
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ *  SPDX-License-Identifier: GPL-2.0-or-later
+ *  See LICENSE.md for more information.
  */
 
-#include <vector>
-#include <stdio.h>
-
-using namespace std;
-
 #include "epg.h"
-#include "utils.h"
-#include "client.h"
+
+#include "addon.h"
 #include "pvrclient-argustv.h"
+#include "utils.h"
 
-using namespace ADDON;
-
-cEpg::cEpg() :
-  m_starttime(0),
-  m_endtime(0),
-  m_utcdiff(0)
-{
-}
-
-cEpg::~cEpg()
-{
-}
+#include <kodi/General.h>
+#include <stdio.h>
+#include <vector>
 
 void cEpg::Reset()
 {
@@ -47,8 +24,8 @@ void cEpg::Reset()
   m_description.clear();
   m_genre.clear();
 
-  m_starttime       = 0;
-  m_endtime         = 0;
+  m_starttime = 0;
+  m_endtime = 0;
 }
 
 bool cEpg::Parse(const Json::Value& data)
@@ -90,19 +67,18 @@ bool cEpg::Parse(const Json::Value& data)
     std::string starttime = data["StartTime"].asString();
     std::string endtime = data["StopTime"].asString();
 
-    m_starttime = ArgusTV::WCFDateToTimeT(starttime, offset);
-    m_endtime = ArgusTV::WCFDateToTimeT(endtime, offset);
+    m_starttime = CArgusTV::WCFDateToTimeT(starttime, offset);
+    m_endtime = CArgusTV::WCFDateToTimeT(endtime, offset);
 
-    //XBMC->Log(LOG_DEBUG, "Program: %s,%s Start: %s", m_title.c_str(), m_subtitle.c_str(), ctime(&m_starttime));
-    //XBMC->Log(LOG_DEBUG, "End: %s", ctime(&m_endtime));
+    //kodi::Log(ADDON_LOG_DEBUG, "Program: %s,%s Start: %s", m_title.c_str(), m_subtitle.c_str(), ctime(&m_starttime));
+    //kodi::Log(ADDON_LOG_DEBUG, "End: %s", ctime(&m_endtime));
 
     return true;
   }
-  catch(std::exception &e)
+  catch (std::exception& e)
   {
-    XBMC->Log(LOG_ERROR, "Exception '%s' during parse EPG json data.", e.what());
+    kodi::Log(ADDON_LOG_ERROR, "Exception '%s' during parse EPG json data.", e.what());
   }
 
   return false;
 }
-

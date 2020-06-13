@@ -1,64 +1,34 @@
 /*
- *      Copyright (C) 2011 Fred Hoogduin
+ *  Copyright (C) 2020 Team Kodi (https://kodi.tv)
+ *  Copyright (C) 2011 Fred Hoogduin
  *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
- *
- *  This Program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with XBMC; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
- *  http://www.gnu.org/copyleft/gpl.html
- *
+ *  SPDX-License-Identifier: GPL-2.0-or-later
+ *  See LICENSE.md for more information.
  */
 
-#include <vector>
-#include "utils.h"
-#include <stdlib.h>
-#include <string.h>
-#include "argustvrpc.h"
 #include "upcomingrecording.h"
 
-cUpcomingRecording::cUpcomingRecording(void) :
-  date(0),
-  starttime(0),
-  stoptime(0),
-  prerecordseconds(0),
-  postrecordseconds(0),
-  iscancelled(false),
-  isallocated(true),
-  isinconflict(true),
-  id(0),
-  ichannelid(0)
-{
-  channeldisplayname = "";
-  channelid = "";
-  title = "";
-}
+#include "argustvrpc.h"
+#include "utils.h"
 
-cUpcomingRecording::~cUpcomingRecording(void)
-{
-}
+#include <stdlib.h>
+#include <string.h>
+#include <vector>
+
 bool cUpcomingRecording::Parse(const Json::Value& data)
 {
   int offset;
   std::string t;
-  Json::Value channelobject,programobject;
+  Json::Value channelobject, programobject;
 
   programobject = data["Program"];
   date = 0;
 
-  id = programobject["Id"].asInt(); 
+  id = programobject["Id"].asInt();
   t = programobject["StartTime"].asString();
-  starttime = ArgusTV::WCFDateToTimeT(t, offset);
+  starttime = CArgusTV::WCFDateToTimeT(t, offset);
   t = programobject["StopTime"].asString();
-  stoptime = ArgusTV::WCFDateToTimeT(t, offset);
+  stoptime = CArgusTV::WCFDateToTimeT(t, offset);
   prerecordseconds = programobject["PreRecordSeconds"].asInt();
   postrecordseconds = programobject["PostRecordSeconds"].asInt();
   title = programobject["Title"].asString();
@@ -71,10 +41,10 @@ bool cUpcomingRecording::Parse(const Json::Value& data)
   channelobject = programobject["Channel"];
   channelid = channelobject["ChannelId"].asString();
   channeldisplayname = channelobject["DisplayName"].asString();
-  ichannelid = channelobject["Id"].asInt(); 
+  ichannelid = channelobject["Id"].asInt();
 
   if (data["CardChannelAllocation"].empty())
-    isallocated = false; 
+    isallocated = false;
 
   if (data["ConflictingPrograms"].empty())
     isinconflict = false;

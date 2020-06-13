@@ -1,52 +1,21 @@
-#pragma once
 /*
- *      Copyright (C) 2011 Fred Hoogduin
+ *  Copyright (C) 2020 Team Kodi (https://kodi.tv)
+ *  Copyright (C) 2011 Fred Hoogduin
  *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
- *
- *  This Program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with XBMC; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
- *  http://www.gnu.org/copyleft/gpl.html
- *
+ *  SPDX-License-Identifier: GPL-2.0-or-later
+ *  See LICENSE.md for more information.
  */
 
-#include "kodi/libXBMC_pvr.h"
-#include <string>
+#pragma once
+
 #include <json/json.h>
+#include <string>
 
 class cUpcomingRecording
 {
-private:
-  std::string channeldisplayname;
-  std::string channelid;
-  time_t date;
-  time_t starttime;
-  time_t stoptime;
-  int prerecordseconds;
-  int postrecordseconds;
-  std::string title;
-  bool iscancelled;
-  std::string upcomingprogramid;
-  std::string guideprogramid;
-  std::string scheduleid;
-  bool isallocated;
-  bool isinconflict;
-  int id;
-  int ichannelid;
-
-
 public:
-  cUpcomingRecording(void);
-  virtual ~cUpcomingRecording(void);
+  cUpcomingRecording(void) = default;
+  virtual ~cUpcomingRecording(void) = default;
 
   bool Parse(const Json::Value& data);
 
@@ -65,4 +34,22 @@ public:
   const std::string& ScheduleId(void) const { return scheduleid; }
   bool IsAllocated(void) const { return isallocated; }
   bool IsInConflict(void) const { return isinconflict; }
+
+private:
+  std::string channeldisplayname;
+  std::string channelid;
+  time_t date = 0;
+  time_t starttime = 0;
+  time_t stoptime = 0;
+  int prerecordseconds = 0;
+  int postrecordseconds = 0;
+  std::string title;
+  bool iscancelled = false;
+  std::string upcomingprogramid;
+  std::string guideprogramid;
+  std::string scheduleid;
+  bool isallocated = true;
+  bool isinconflict = true;
+  int id = 0;
+  int ichannelid = 0;
 };

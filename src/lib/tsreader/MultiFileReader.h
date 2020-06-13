@@ -1,21 +1,11 @@
-#pragma once
 /*
- *      Copyright (C) 2005-2012 Team XBMC
- *      http://www.xbmc.org
+ *  Copyright (C) 2005-2020 Team Kodi (https://kodi.tv)
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ *  SPDX-License-Identifier: GPL-2.0-or-later
+ *  See LICENSE.md for more information.
+ */
+
+/*
  *************************************************************************
  *  This file is a modified version from Team MediaPortal's
  *  TsReader DirectShow filter
@@ -33,56 +23,59 @@
  *  http://forums.dvbowners.com/
  */
 
+#pragma once
+
 #include "FileReader.h"
-#include <vector>
+
 #include <string>
+#include <vector>
 
 namespace ArgusTV
 {
-  class MultiFileReaderFile
-  {
-  public:
-      std::string filename;
-      int64_t startPosition;
-      int64_t length;
-      long filePositionId;
-  };
+class MultiFileReaderFile
+{
+public:
+  std::string filename;
+  int64_t startPosition;
+  int64_t length;
+  long filePositionId;
+};
 
-  class MultiFileReader : public FileReader
-  {
-  public:
-      MultiFileReader();
-      virtual ~MultiFileReader();
+class MultiFileReader : public FileReader
+{
+public:
+  MultiFileReader() = default;
+  ~MultiFileReader() override = default;
 
-      virtual long GetFileName(char* *lpszFileName);
-      virtual long SetFileName(const char* pszFileName);
-      virtual long OpenFile();
-      virtual long CloseFile();
-      virtual long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
-      virtual bool IsFileInvalid();
+  std::string GetFileName() const override;
+  long SetFileName(const std::string& fileName) override;
+  long OpenFile() override;
+  long CloseFile() override;
+  long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long* dwReadBytes) override;
+  bool IsFileInvalid() override;
 
-      virtual int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
-      virtual int64_t GetFilePointer();
-      virtual int64_t GetFileSize();
-      virtual void OnZap(void);
+  int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod) override;
+  int64_t GetFilePointer() override;
+  int64_t GetFileSize() override;
+  void OnZap(void) override;
 
-  protected:
-      long RefreshTSBufferFile();
-      long GetFileLength(const char* pFilename, int64_t &length);
+protected:
+  long RefreshTSBufferFile();
+  long GetFileLength(const std::string& filename, int64_t& length);
 
-      FileReader m_TSBufferFile;
-      int64_t m_startPosition;
-      int64_t m_endPosition;
-      int64_t m_currentReadPosition;
-      long m_filesAdded;
-      long m_filesRemoved;
-      int64_t m_lastZapPosition;
+  FileReader m_TSBufferFile;
+  int64_t m_startPosition = 0;
+  int64_t m_endPosition = 0;
+  int64_t m_currentReadPosition = 0;
+  long m_filesAdded = 0;
+  long m_filesRemoved = 0;
+  int64_t m_lastZapPosition = 0;
 
-      std::vector<MultiFileReaderFile *> m_tsFiles;
+  std::vector<MultiFileReaderFile*> m_tsFiles;
 
-      FileReader m_TSFile;
-      long     m_TSFileId;
-      bool     m_bDelay;
-      bool     m_bDebugOutput;
-  };
-}
+  FileReader m_TSFile;
+  long m_TSFileId = 0;
+  bool m_bDelay = false;
+  bool m_bDebugOutput = false;
+};
+} // namespace ArgusTV

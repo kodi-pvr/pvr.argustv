@@ -1,25 +1,17 @@
-#pragma once
 /*
- *      Copyright (C) 2010-2012 Marcel Groothuis, Fred Hoogduin
+ *  Copyright (C) 2020 Team Kodi (https://kodi.tv)
+ *  Copyright (C) 2010-2012 Marcel Groothuis, Fred Hoogduin
  *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
- *
- *  This Program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ *  SPDX-License-Identifier: GPL-2.0-or-later
+ *  See LICENSE.md for more information.
  */
 
-#include <string>
-#include <json/json.h>
+#pragma once
+
 #include <cstdlib>
+#include <json/json.h>
+#include <p8-platform/threads/mutex.h>
+#include <string>
 
 #define ATV_2_2_0 (60)
 #define ATV_REST_MINIMUM_API_VERSION ATV_2_2_0
@@ -29,14 +21,17 @@
 #define E_FAILED -1
 #define E_EMPTYRESPONSE -2
 
-namespace ArgusTV
+class CArgusTV
 {
-  enum ChannelType {
+public:
+  enum ChannelType
+  {
     Television = 0,
     Radio = 1
   };
 
-  enum RecordingGroupMode {
+  enum RecordingGroupMode
+  {
     GroupByProgramTitle = 0,
     GroupBySchedule = 1,
     GroupByCategory = 2,
@@ -44,7 +39,8 @@ namespace ArgusTV
     GroupByRecordingDay = 4
   };
 
-  enum SchedulePriority {
+  enum SchedulePriority
+  {
     VeryLow = 0,
     Low = 1,
     Normal = 2,
@@ -52,28 +48,31 @@ namespace ArgusTV
     VeryHigh = 4
   };
 
-  enum ScheduleType {
-    Recording = 82,   // 'R'
-    Suggestion = 83,  // 'S'
-    Alert = 45        // 'A'
+  enum ScheduleType
+  {
+    Recording = 82, // 'R'
+    Suggestion = 83, // 'S'
+    Alert = 45 // 'A'
   };
 
 
-
-  enum KeepUntilMode {
+  enum KeepUntilMode
+  {
     UntilSpaceIsNeeded = 0,
     Forever = 1,
     NumberOfDays = 2,
-    NumberOfEpisodes =3
+    NumberOfEpisodes = 3
   };
 
-  enum VideoAspectRatio {
+  enum VideoAspectRatio
+  {
     Unknown = 0,
     Standard = 1,
     Widescreen = 2
   };
 
-  enum LiveStreamResult {
+  enum LiveStreamResult
+  {
     Succeed = 0,
     NoFreeCardFound = 1,
     ChannelTuneFailed = 2,
@@ -83,7 +82,8 @@ namespace ArgusTV
     NotSupported = 99
   };
 
-  enum ServiceEventGroups {
+  enum ServiceEventGroups
+  {
     SystemEvents = 0x01,
     GuideEvents = 0x02,
     ScheduleEvents = 0x04,
@@ -94,7 +94,7 @@ namespace ArgusTV
   /**
    * \brief Do some internal housekeeping at the start
    */
-  void Initialize(void);
+  void Initialize(const std::string& baseURL);
 
   /**
    * \brief Send a REST command to ARGUS and return the JSON response string
@@ -102,15 +102,19 @@ namespace ArgusTV
    * \param json_response Reference to a std::string used to store the json response string
    * \return 0 on ok, -1 on a failure
    */
-  int ArgusTVRPC(const std::string& command, const std::string& arguments, std::string& json_response);
+  int ArgusTVRPC(const std::string& command,
+                 const std::string& arguments,
+                 std::string& json_response);
 
   /**
-   * \brief Send a REST command to ARGUS and return the JSON response 
+   * \brief Send a REST command to ARGUS and return the JSON response
    * \param command       The command string url (starting from "ArgusTV/")
    * \param json_response Reference to a Json::Value used to store the parsed Json value
    * \return 0 on ok, -1 on a failure
    */
-  int ArgusTVJSONRPC(const std::string& command, const std::string& arguments, Json::Value& json_response);
+  int ArgusTVJSONRPC(const std::string& command,
+                     const std::string& arguments,
+                     Json::Value& json_response);
 
   /**
    * \brief Send a REST command to ARGUS, write the response to a file and return the filename
@@ -119,7 +123,10 @@ namespace ArgusTV
    * \param htt_presponse Reference to a long used to store the HTTP response code
    * \return 0 on ok, -1 on a failure
    */
-  int ArgusTVRPCToFile(const std::string& command, const std::string& arguments, std::string& newfilename, long& http_response);
+  int ArgusTVRPCToFile(const std::string& command,
+                       const std::string& arguments,
+                       std::string& newfilename,
+                       long& http_response);
 
   /**
    * \brief Ping core service.
@@ -139,7 +146,7 @@ namespace ArgusTV
   int GetDisplayVersion(Json::Value& response);
 
   /**
-   * \brief GetPluginServices Get all configured plugin services. {activeOnly} = Set to true to only receive active plugins. 
+   * \brief GetPluginServices Get all configured plugin services. {activeOnly} = Set to true to only receive active plugins.
    * \brief Returns an array containing zero or more plugin services.
    * \param activeonly  set to true to only receive active plugins
    * \param response Reference to a std::string used to store the json response string
@@ -160,7 +167,10 @@ namespace ArgusTV
    * \param channel_id  The ArgusTV ChannelID of the channel
    * \param stream      Reference to a string that will point to the tsbuffer file/RTSP stream
    */
-  int TuneLiveStream(const std::string& channel_id, ChannelType channeltype, const std::string channelname, std::string& stream);
+  int TuneLiveStream(const std::string& channel_id,
+                     ChannelType channeltype,
+                     const std::string channelname,
+                     std::string& stream);
 
   /**
    * \brief Stops the last tuned live stream
@@ -194,7 +204,10 @@ namespace ArgusTV
    * \param epg_start        Start from this date
    * \param epg_stop         Until this date
    */
-  int GetEPGData(const std::string& guidechannel_id, struct tm epg_start, struct tm epg_end, Json::Value& response);
+  int GetEPGData(const std::string& guidechannel_id,
+                 struct tm epg_start,
+                 struct tm epg_end,
+                 Json::Value& response);
 
   /**
    * \brief Fetch the recording groups sorted by title
@@ -235,7 +248,8 @@ namespace ArgusTV
    * \param recordingfilename full UNC path of the recording file
    * \param lastwatchedposition last watched position in seconds
    */
-  int SetRecordingLastWatchedPosition(const std::string& recordingfilename, int lastwatchedposition);
+  int SetRecordingLastWatchedPosition(const std::string& recordingfilename,
+                                      int lastwatchedposition);
 
   /**
    * \brief Set the play count for this recording
@@ -294,7 +308,10 @@ namespace ArgusTV
   /**
    * \brief Cancel an upcoming program
    */
-  int CancelUpcomingProgram(const std::string& scheduleid, const std::string& channelid, const time_t starttime, const std::string& upcomingprogramid);
+  int CancelUpcomingProgram(const std::string& scheduleid,
+                            const std::string& channelid,
+                            const time_t starttime,
+                            const std::string& upcomingprogramid);
 
   /**
    * \brief Retrieve an empty schedule from the server
@@ -304,12 +321,25 @@ namespace ArgusTV
   /**
    * \brief Add a xbmc timer as a one time schedule
    */
-  int AddOneTimeSchedule(const std::string& channelid, const time_t starttime, const std::string& title, int prerecordseconds, int postrecordseconds, int lifetime, Json::Value& response);
+  int AddOneTimeSchedule(const std::string& channelid,
+                         const time_t starttime,
+                         const std::string& title,
+                         int prerecordseconds,
+                         int postrecordseconds,
+                         int lifetime,
+                         Json::Value& response);
 
   /**
    * \brief Add a xbmc timer as a manual schedule
    */
-  int AddManualSchedule(const std::string& channelid, const time_t starttime, const time_t duration, const std::string& title, int prerecordseconds, int postrecordseconds, int lifetime, Json::Value& response);
+  int AddManualSchedule(const std::string& channelid,
+                        const time_t starttime,
+                        const time_t duration,
+                        const std::string& title,
+                        int prerecordseconds,
+                        int postrecordseconds,
+                        int lifetime,
+                        Json::Value& response);
 
   /**
    * \brief Delete a ArgusTV schedule
@@ -365,16 +395,26 @@ namespace ArgusTV
 
   /*
    * \brief Convert a XBMC Lifetime value to the ARGUS keepUntilMode setting
-   * \param lifetime the XBMC lifetime value (in days) 
+   * \param lifetime the XBMC lifetime value (in days)
    */
   int lifetimeToKeepUntilMode(int lifetime);
 
   /*
    * \brief Convert a XBMC Lifetime value to the ARGUS keepUntilValue setting
-   * \param lifetime the XBMC lifetime value (in days) 
+   * \param lifetime the XBMC lifetime value (in days)
    */
   int lifetimeToKeepUntilValue(int lifetime);
 
-  time_t WCFDateToTimeT(const std::string& wcfdate, int& offset);
-  std::string TimeTToWCFDate(const time_t thetime);
-} //namespace ArgusTV
+  static time_t WCFDateToTimeT(const std::string& wcfdate, int& offset);
+  static std::string TimeTToWCFDate(const time_t thetime);
+
+private:
+  int RequestChannelGroups(enum ChannelType channelType, Json::Value& response);
+  int GetLiveStreams();
+
+  //Remember the last LiveStream object to be able to stop the stream again
+  Json::Value m_currentLivestream;
+
+  std::string m_baseURL;
+  P8PLATFORM::CMutex m_communicationMutex;
+}; // class ArgusTV

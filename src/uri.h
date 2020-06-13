@@ -1,44 +1,35 @@
-#pragma once
 /*
- *      Copyright (C) 2005-2011 Team XBMC
- *      http://www.xbmc.org
+ *  Copyright (C) 2005-2020 Team Kodi (https://kodi.tv)
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  SPDX-License-Identifier: GPL-2.0-or-later
+ *  See LICENSE.md for more information.
  */
+
+#pragma once
+
 #include <string>
 
 namespace uri
 {
-  /// Char class.
-  typedef enum char_class_e : signed char
-  {
-    CINV = -2, ///< invalid
-    CEND = -1, ///< end delimitor
-    CVAL = 0, ///< valid any position
-    CVA2 = 1, ///< valid anywhere but 1st position
-  } char_class_e_type;
+/// Char class.
+typedef enum char_class_e : signed char
+{
+  CINV = -2, ///< invalid
+  CEND = -1, ///< end delimitor
+  CVAL = 0, ///< valid any position
+  CVA2 = 1, ///< valid anywhere but 1st position
+} char_class_e_type;
 
-  /// Traits used for parsing and encoding components.
-  struct traits
-  {
-    char* begin_cstring; ///< begin cstring (or 0 if none)
-    char begin_char; ///< begin char (or 0 if none)
-    char end_char; ///< end char (or 0 if none)
-    char_class_e_type char_class[256]; ///< map of char to class
-  };
+/// Traits used for parsing and encoding components.
+struct traits
+{
+  char* begin_cstring; ///< begin cstring (or 0 if none)
+  char begin_char; ///< begin char (or 0 if none)
+  char end_char; ///< end char (or 0 if none)
+  char_class_e_type char_class[256]; ///< map of char to class
+};
 
-  /**
+/**
    * \brief Encode the URI (sub) component.
    * Note that this should be used on the subcomponents before appending to
    * subdelimiter chars, if any.
@@ -57,12 +48,12 @@ namespace uri
    * @see encode
    * \param s A reference to the std::string to decode
    */
-  bool decode(std::string& s);
+bool decode(std::string& s);
 
-  extern const char ENCODE_BEGIN_CHAR; ///< encode begin char ('\%')
-  extern const traits SCHEME_TRAITS; ///< scheme traits
-  extern const traits AUTHORITY_TRAITS; ///< authority traits
-  extern const traits PATH_TRAITS; ///< path traits
-  extern const traits QUERY_TRAITS; ///< query traits
-  extern const traits FRAGMENT_TRAITS; ///< fragment traits
-}
+extern const char ENCODE_BEGIN_CHAR; ///< encode begin char ('\%')
+extern const traits SCHEME_TRAITS; ///< scheme traits
+extern const traits AUTHORITY_TRAITS; ///< authority traits
+extern const traits PATH_TRAITS; ///< path traits
+extern const traits QUERY_TRAITS; ///< query traits
+extern const traits FRAGMENT_TRAITS; ///< fragment traits
+} // namespace uri

@@ -1,48 +1,40 @@
-#pragma once
 /*
- *      Copyright (C) 2010-2012 Marcel Groothuis, Fred Hoogduin
+ *  Copyright (C) 2020 Team Kodi (https://kodi.tv)
+ *  Copyright (C) 2010-2012 Marcel Groothuis, Fred Hoogduin
  *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
- *
- *  This Program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ *  SPDX-License-Identifier: GPL-2.0-or-later
+ *  See LICENSE.md for more information.
  */
 
-#include "p8-platform/os.h"
+#pragma once
 
-#include <vector>
-
-/* Master defines for client control */
-#include "kodi/xbmc_pvr_types.h"
-
-#include "channel.h"
-#include "recording.h"
-#include "guideprogram.h"
-
-#include "KeepAliveThread.h"
 #include "EventsThread.h"
+#include "KeepAliveThread.h"
+#include "addon.h"
+#include "argustvrpc.h"
+#include "channel.h"
+#include "guideprogram.h"
+#include "recording.h"
+
+#include <kodi/addon-instance/PVR.h>
+#include <map>
+#include <p8-platform/os.h>
+#include <vector>
 
 namespace ArgusTV
 {
-  class CTsReader;
+class CTsReader;
 }
 
 #undef ATV_DUMPTS
 
-class cPVRClientArgusTV
+class ATTRIBUTE_HIDDEN cPVRClientArgusTV : public kodi::addon::CInstancePVRClient
 {
 public:
   /* Class interface */
-  cPVRClientArgusTV();
+  cPVRClientArgusTV(const CArgusTVAddon& base,
+                    KODI_HANDLE instance,
+                    const std::string& kodiVersion);
   ~cPVRClientArgusTV();
 
   /* Server handling */
@@ -52,93 +44,105 @@ public:
   bool ShareErrorsFound(void);
 
   /* General handling */
-  const char* GetBackendName(void);
-  const char* GetBackendVersion(void);
-  const char* GetConnectionString(void);
-  PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed);
-  PVR_ERROR GetBackendTime(time_t *localTime, int *gmtOffset);
+  PVR_ERROR GetCapabilities(kodi::addon::PVRCapabilities& capabilities) override;
+  PVR_ERROR GetBackendName(std::string& name) override;
+  PVR_ERROR GetBackendVersion(std::string& version) override;
+  PVR_ERROR GetConnectionString(std::string& connection) override;
+  PVR_ERROR GetDriveSpace(uint64_t& total, uint64_t& used) override;
 
   /* EPG handling */
-  PVR_ERROR GetEpg(ADDON_HANDLE handle, int iChannelUid, time_t iStart, time_t iEnd);
+  PVR_ERROR GetEPGForChannel(int channelUid,
+                             time_t start,
+                             time_t end,
+                             kodi::addon::PVREPGTagsResultSet& results) override;
 
   /* Channel handling */
-  int GetNumChannels(void);
-  PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio);
+  PVR_ERROR GetChannelsAmount(int& amount) override;
+  PVR_ERROR GetChannels(bool radio, kodi::addon::PVRChannelsResultSet& results) override;
   /* Channel group handling */
-  int GetChannelGroupsAmount(void);
-  PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool bRadio);
-  PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group);
+  PVR_ERROR GetChannelGroupsAmount(int& amount) override;
+  PVR_ERROR GetChannelGroups(bool radio, kodi::addon::PVRChannelGroupsResultSet& results) override;
+  PVR_ERROR GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& group,
+                                   kodi::addon::PVRChannelGroupMembersResultSet& results) override;
 
   /* Record handling **/
-  int GetNumRecordings(void);
-  PVR_ERROR GetRecordings(ADDON_HANDLE handle);
-  PVR_ERROR DeleteRecording(const PVR_RECORDING &recinfo);
-  PVR_ERROR RenameRecording(const PVR_RECORDING &recinfo);
-  PVR_ERROR SetRecordingLastPlayedPosition(const PVR_RECORDING &recinfo, int lastplayedposition);
-  int GetRecordingLastPlayedPosition(const PVR_RECORDING &recinfo);
-  PVR_ERROR SetRecordingPlayCount(const PVR_RECORDING &recinfo, int playcount);
+  PVR_ERROR GetRecordingsAmount(bool deleted, int& amount) override;
+  PVR_ERROR GetRecordings(bool deleted, kodi::addon::PVRRecordingsResultSet& results) override;
+  PVR_ERROR DeleteRecording(const kodi::addon::PVRRecording& recinfo) override;
+  PVR_ERROR RenameRecording(const kodi::addon::PVRRecording& recinfo) override;
+  PVR_ERROR SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recinfo,
+                                           int lastplayedposition) override;
+  PVR_ERROR GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording,
+                                           int& position) override;
+  PVR_ERROR SetRecordingPlayCount(const kodi::addon::PVRRecording& recinfo, int playcount) override;
 
   /* Timer handling */
-  int GetNumTimers(void);
-  PVR_ERROR GetTimers(ADDON_HANDLE handle);
-  PVR_ERROR AddTimer(const PVR_TIMER &timer);
-  PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool bForceDelete = false);
-  PVR_ERROR UpdateTimer(const PVR_TIMER &timer);
+  PVR_ERROR GetTimersAmount(int& amount) override;
+  PVR_ERROR GetTimers(kodi::addon::PVRTimersResultSet& results) override;
+  PVR_ERROR AddTimer(const kodi::addon::PVRTimer& timer) override;
+  PVR_ERROR DeleteTimer(const kodi::addon::PVRTimer& timer, bool bForceDelete = false) override;
+  PVR_ERROR UpdateTimer(const kodi::addon::PVRTimer& timer) override;
 
   /* Live stream handling */
-  bool OpenLiveStream(const PVR_CHANNEL &channel);
-  void CloseLiveStream();
-  int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize);
-  long long SeekLiveStream(long long pos, int whence);
-  long long PositionLiveStream(void);
-  long long LengthLiveStream(void);
-  bool SwitchChannel(const PVR_CHANNEL &channel);
-  PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus);
-  bool CanPauseAndSeek(void);
-  void PauseStream(bool bPaused);
+  bool OpenLiveStream(const kodi::addon::PVRChannel& channel) override;
+  void CloseLiveStream() override;
+  int ReadLiveStream(unsigned char* pBuffer, unsigned int iBufferSize) override;
+  int64_t SeekLiveStream(int64_t pos, int whence) override;
+  int64_t LengthLiveStream() override;
+  PVR_ERROR GetSignalStatus(int channelUid, kodi::addon::PVRSignalStatus& signalStatus) override;
+  bool CanSeekStream() override;
+  bool CanPauseStream() override;
+  bool IsRealTimeStream() override { return !m_bRecordingPlayback; }
 
   /* Record stream handling */
-  bool OpenRecordedStream(const PVR_RECORDING &recording);
-  void CloseRecordedStream(void);
-  int ReadRecordedStream(unsigned char *pBuffer, unsigned int iBufferSize);
-  long long SeekRecordedStream(long long iPosition, int iWhence = SEEK_SET);
-  long long LengthRecordedStream(void);
-  long long PositionRecordedStream(void);
+  bool OpenRecordedStream(const kodi::addon::PVRRecording& recording) override;
+  void CloseRecordedStream() override;
+  int ReadRecordedStream(unsigned char* pBuffer, unsigned int iBufferSize) override;
+  int64_t SeekRecordedStream(int64_t iPosition, int iWhence) override;
+  int64_t LengthRecordedStream() override;
 
   /* Used for rtsp streaming */
-  const char* GetLiveStreamURL(const PVR_CHANNEL &channel);
+  const char* GetLiveStreamURL(const kodi::addon::PVRChannel& channel);
+
+  CArgusTV& GetRPC() { return m_rpc; }
 
 private:
   cChannel* FetchChannel(int channelid, bool LogError = true);
   cChannel* FetchChannel(std::vector<cChannel*> m_Channels, int channelid, bool LogError = true);
   void FreeChannels(std::vector<cChannel*> m_Channels);
   void Close();
-  bool _OpenLiveStream(const PVR_CHANNEL &channel);
-  bool FindRecEntryUNC(const std::string &recId, std::string &recEntryURL);
-  bool FindRecEntry(const std::string &recId, std::string &recEntryURL);
+  bool _OpenLiveStream(const kodi::addon::PVRChannel& channel);
+  bool FindRecEntryUNC(const std::string& recId, std::string& recEntryURL);
+  bool FindRecEntry(const std::string& recId, std::string& recEntryURL);
 
-  int                     m_iCurrentChannel;
-  bool                    m_bConnected;
-  bool                    m_bTimeShiftStarted;
-  std::string             m_PlaybackURL;
-  std::string             m_BackendName;
-  int                     m_iBackendVersion;
-  std::string             m_sBackendVersion;
-  time_t                  m_BackendUTCoffset;
-  time_t                  m_BackendTime;
+  int m_iCurrentChannel = -1;
+  bool m_bConnected = false;
+  bool m_bTimeShiftStarted = false;
+  std::string m_PlaybackURL;
+  int m_iBackendVersion = 0;
+  std::string m_sBackendVersion;
+  time_t m_BackendUTCoffset = 0;
+  time_t m_BackendTime = 0;
 
-  P8PLATFORM::CMutex        m_ChannelCacheMutex;
-  std::vector<cChannel*>   m_TVChannels; // Local TV channel cache list needed for id to guid conversion
-  std::vector<cChannel*>   m_RadioChannels; // Local Radio channel cache list needed for id to guid conversion
-  std::map <std::string, std::string> m_RecordingsMap; // <PVR_RECORDING.strRecordingId, URL of recording>
-  int                     m_epg_id_offset;
-  int                     m_signalqualityInterval;
-  ArgusTV::CTsReader*     m_tsreader;
-  CKeepAliveThread*       m_keepalive;
-  CEventsThread*          m_eventmonitor;
+  P8PLATFORM::CMutex m_ChannelCacheMutex;
+  std::vector<cChannel*>
+      m_TVChannels; // Local TV channel cache list needed for id to guid conversion
+  std::vector<cChannel*>
+      m_RadioChannels; // Local Radio channel cache list needed for id to guid conversion
+  std::map<std::string, std::string>
+      m_RecordingsMap; // <PVR_RECORDING.strRecordingId, URL of recording>
+  int m_epg_id_offset = 0;
+  int m_signalqualityInterval = 0;
+  ArgusTV::CTsReader* m_tsreader = nullptr;
+  CKeepAliveThread* m_keepalive = {new CKeepAliveThread(*this)};
+  CEventsThread* m_eventmonitor = {new CEventsThread(*this)};
+  bool m_bRecordingPlayback = false;
 #if defined(ATV_DUMPTS)
   char ofn[25];
   int ofd;
 #endif
 
+  std::string m_baseURL;
+  CArgusTV m_rpc;
+  const CArgusTVAddon& m_base;
 };

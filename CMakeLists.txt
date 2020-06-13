@@ -12,9 +12,9 @@ include_directories(${p8-platform_INCLUDE_DIRS}
 
 # Source files
 set(ARGUSTV_SOURCES src/activerecording.cpp
+                    src/addon.cpp
                     src/argustvrpc.cpp
                     src/channel.cpp
-                    src/client.cpp
                     src/epg.cpp
                     src/EventsThread.cpp
                     src/guideprogram.cpp
@@ -22,6 +22,7 @@ set(ARGUSTV_SOURCES src/activerecording.cpp
                     src/pvrclient-argustv.cpp
                     src/recording.cpp
                     src/recordinggroup.cpp
+                    src/settings.cpp
                     src/tools.cpp
                     src/upcomingrecording.cpp
                     src/uri.cpp
@@ -29,9 +30,9 @@ set(ARGUSTV_SOURCES src/activerecording.cpp
 
 # Header files
 set(ARGUSTV_HEADERS src/activerecording.h
+                    src/addon.h
                     src/argustvrpc.h
                     src/channel.h
-                    src/client.h
                     src/epg.h
                     src/EventsThread.h
                     src/guideprogram.h
@@ -39,6 +40,7 @@ set(ARGUSTV_HEADERS src/activerecording.h
                     src/pvrclient-argustv.h
                     src/recording.h
                     src/recordinggroup.h
+                    src/settings.h
                     src/tools.h
                     src/upcomingrecording.h
                     src/uri.h
