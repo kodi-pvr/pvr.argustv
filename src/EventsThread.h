@@ -9,13 +9,14 @@
 #pragma once
 
 #include <atomic>
+#include <kodi/AddonBase.h>
 #include <thread>
 
 #include <json/json.h>
 
 class cPVRClientArgusTV;
 
-class CEventsThread
+class ATTRIBUTE_HIDDEN CEventsThread
 {
 public:
   CEventsThread(cPVRClientArgusTV& instance);

@@ -9,9 +9,10 @@
 #pragma once
 
 #include <json/json.h>
+#include <kodi/AddonBase.h>
 #include <string>
 
-class cActiveRecording
+class ATTRIBUTE_HIDDEN cActiveRecording
 {
 public:
   cActiveRecording(void) = default;

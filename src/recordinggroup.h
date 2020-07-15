@@ -11,7 +11,7 @@
 #include <json/json.h>
 #include <string>
 
-class cRecordingGroup
+class ATTRIBUTE_HIDDEN cRecordingGroup
 {
 public:
   cRecordingGroup(void) = default;

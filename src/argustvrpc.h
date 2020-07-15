@@ -10,6 +10,7 @@
 
 #include <cstdlib>
 #include <json/json.h>
+#include <kodi/AddonBase.h>
 #include <mutex>
 #include <string>
 
@@ -21,7 +22,7 @@
 #define E_FAILED -1
 #define E_EMPTYRESPONSE -2
 
-class CArgusTV
+class ATTRIBUTE_HIDDEN CArgusTV
 {
 public:
   enum ChannelType

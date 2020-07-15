@@ -32,7 +32,7 @@
 
 namespace ArgusTV
 {
-class MultiFileReaderFile
+class ATTRIBUTE_HIDDEN MultiFileReaderFile
 {
 public:
   std::string filename;
@@ -41,7 +41,7 @@ public:
   long filePositionId;
 };
 
-class MultiFileReader : public FileReader
+class ATTRIBUTE_HIDDEN MultiFileReader : public FileReader
 {
 public:
   MultiFileReader() = default;

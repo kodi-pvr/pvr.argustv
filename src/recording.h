@@ -13,7 +13,7 @@
 #include <json/json.h>
 #include <string>
 
-class cRecording
+class ATTRIBUTE_HIDDEN cRecording
 {
 public:
   cRecording(void) = default;

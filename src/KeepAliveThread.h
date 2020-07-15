@@ -9,11 +9,12 @@
 #pragma once
 
 #include <atomic>
+#include <kodi/AddonBase.h>
 #include <thread>
 
 class cPVRClientArgusTV;
 
-class CKeepAliveThread
+class ATTRIBUTE_HIDDEN CKeepAliveThread
 {
 public:
   CKeepAliveThread(cPVRClientArgusTV& instance);

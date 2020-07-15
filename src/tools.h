@@ -10,6 +10,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <kodi/AddonBase.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -40,7 +41,7 @@
 //#define CHECK(s) { if ((s) < 0) LOG_ERROR; } // used for 'ioctl()' calls
 #define FATALERRNO (errno && errno != EAGAIN && errno != EINTR)
 
-class cTimeMs
+class ATTRIBUTE_HIDDEN cTimeMs
 {
 private:
   std::chrono::steady_clock::time_point m_begin;

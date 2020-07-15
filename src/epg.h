@@ -12,7 +12,7 @@
 #include <kodi/AddonBase.h>
 #include <string>
 
-class cEpg
+class ATTRIBUTE_HIDDEN cEpg
 {
 public:
   cEpg() = default;
