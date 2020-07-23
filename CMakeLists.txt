@@ -4,10 +4,8 @@ project(pvr.argustv)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
 
 find_package(Kodi REQUIRED)
-find_package(p8-platform REQUIRED)
 
-include_directories(${p8-platform_INCLUDE_DIRS}
-                    ${KODI_INCLUDE_DIR}/.. # Hack way with "/..", need bigger Kodi cmake rework to match right include ways
+include_directories(${KODI_INCLUDE_DIR}/.. # Hack way with "/..", need bigger Kodi cmake rework to match right include ways
                     ${PROJECT_SOURCE_DIR}/src)
 
 # Source files
@@ -26,6 +24,7 @@ set(ARGUSTV_SOURCES src/activerecording.cpp
                     src/tools.cpp
                     src/upcomingrecording.cpp
                     src/uri.cpp
+                    src/utilities/StringUtils.cpp
                     src/utils.cpp)
 
 # Header files
@@ -44,6 +43,7 @@ set(ARGUSTV_HEADERS src/activerecording.h
                     src/tools.h
                     src/upcomingrecording.h
                     src/uri.h
+                    src/utilities/StringUtils.h
                     src/utils.h)
 source_group("Header Files" FILES ${ARGUSTV_HEADERS})
 
@@ -60,7 +60,7 @@ endif(WIN32)
 # Make sure that CMake adds the headers to the MSVC project
 list(APPEND ARGUSTV_SOURCES ${ARGUSTV_HEADERS})
 
-set(DEPLIBS ${p8-platform_LIBRARIES} tsreader)
+set(DEPLIBS tsreader)
 
 find_package(JsonCpp REQUIRED)
 list(APPEND DEPLIBS ${JSONCPP_LIBRARIES})

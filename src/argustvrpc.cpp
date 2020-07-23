@@ -19,12 +19,12 @@
 #include "argustvrpc.h"
 
 #include "pvrclient-argustv.h"
+#include "utilities/StringUtils.h"
 #include "utils.h"
 
 #include <kodi/Filesystem.h>
 #include <memory>
 #include <p8-platform/os.h>
-#include <p8-platform/util/StringUtils.h>
 #include <stdio.h>
 #include <sys/stat.h>
 
