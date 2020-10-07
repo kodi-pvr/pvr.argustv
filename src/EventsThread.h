@@ -8,24 +8,31 @@
 
 #pragma once
 
+#include <atomic>
+#include <thread>
+
 #include <json/json.h>
-#include <p8-platform/threads/threads.h>
 
 class cPVRClientArgusTV;
 
-class CEventsThread : public P8PLATFORM::CThread
+class CEventsThread
 {
 public:
   CEventsThread(cPVRClientArgusTV& instance);
-  ~CEventsThread(void);
+  ~CEventsThread();
   void Connect(void);
 
+  void StartThread();
+  void StopThread();
+
 private:
-  virtual void* Process(void);
+  void Process();
 
   void HandleEvents(Json::Value events);
 
   bool m_subscribed = false;
   std::string m_monitorId;
   cPVRClientArgusTV& m_instance;
+  std::atomic<bool> m_running = {false};
+  std::thread m_thread;
 };

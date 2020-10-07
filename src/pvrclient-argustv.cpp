@@ -145,13 +145,7 @@ bool cPVRClientArgusTV::Connect()
 
   // Start service events monitor
   m_eventmonitor->Connect();
-  if (!m_eventmonitor->IsRunning())
-  {
-    if (!m_eventmonitor->CreateThread())
-    {
-      kodi::Log(ADDON_LOG_ERROR, "Start service monitor thread failed.");
-    }
-  }
+  m_eventmonitor->StartThread();
   m_bConnected = true;
   return true;
 }
@@ -163,13 +157,7 @@ void cPVRClientArgusTV::Disconnect()
   kodi::Log(ADDON_LOG_INFO, "Disconnect");
 
   // Stop service events monitor
-  if (m_eventmonitor->IsRunning())
-  {
-    if (!m_eventmonitor->StopThread())
-    {
-      kodi::Log(ADDON_LOG_ERROR, "Stop service monitor thread failed.");
-    }
-  }
+  m_eventmonitor->StopThread();
 
   if (m_bTimeShiftStarted)
   {
@@ -1318,13 +1306,7 @@ bool cPVRClientArgusTV::_OpenLiveStream(const kodi::addon::PVRChannel& channelin
     kodi::Log(ADDON_LOG_INFO, "Live stream file: %s", filename.c_str());
     m_bTimeShiftStarted = true;
     m_iCurrentChannel = channelinfo.GetUniqueId();
-    if (!m_keepalive->IsRunning())
-    {
-      if (!m_keepalive->CreateThread())
-      {
-        kodi::Log(ADDON_LOG_ERROR, "Start keepalive thread failed.");
-      }
-    }
+    m_keepalive->StartThread();
 
 #if defined(ATV_DUMPTS)
     if (ofd != -1)
@@ -1457,13 +1439,7 @@ void cPVRClientArgusTV::CloseLiveStream()
   std::string result;
   kodi::Log(ADDON_LOG_INFO, "CloseLiveStream");
 
-  if (m_keepalive->IsRunning())
-  {
-    if (!m_keepalive->StopThread())
-    {
-      kodi::Log(ADDON_LOG_ERROR, "Stop keepalive thread failed.");
-    }
-  }
+  m_keepalive->StopThread();
 
 #if defined(ATV_DUMPTS)
   if (ofd != -1)

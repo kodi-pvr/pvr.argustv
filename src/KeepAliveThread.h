@@ -8,18 +8,24 @@
 
 #pragma once
 
-#include <p8-platform/threads/threads.h>
+#include <atomic>
+#include <thread>
 
 class cPVRClientArgusTV;
 
-class CKeepAliveThread : public P8PLATFORM::CThread
+class CKeepAliveThread
 {
 public:
   CKeepAliveThread(cPVRClientArgusTV& instance);
-  virtual ~CKeepAliveThread(void);
+  ~CKeepAliveThread();
+
+  void StartThread();
+  void StopThread();
 
 private:
-  virtual void* Process(void);
+  void Process();
 
   cPVRClientArgusTV& m_instance;
+  std::atomic<bool> m_running = {false};
+  std::thread m_thread;
 };
