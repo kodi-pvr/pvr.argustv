@@ -22,9 +22,9 @@
 #include "utils.h"
 
 #include <kodi/Filesystem.h>
+#include <kodi/tools/StringUtils.h>
 #include <memory>
 #include <p8-platform/os.h>
-#include <p8-platform/util/StringUtils.h>
 #include <stdio.h>
 #include <sys/stat.h>
 
@@ -1149,7 +1149,7 @@ int CArgusTV::AddOneTimeSchedule(const std::string& channelid,
 
   // Fill relevant members
   std::string modifiedtitle = title;
-  StringUtils::Replace(modifiedtitle, "\"", "\\\"");
+  kodi::tools::StringUtils::Replace(modifiedtitle, "\"", "\\\"");
 
   newSchedule["KeepUntilMode"] = Json::Value(lifetimeToKeepUntilMode(lifetime));
   newSchedule["KeepUntilValue"] = Json::Value(lifetimeToKeepUntilValue(lifetime));
@@ -1238,7 +1238,7 @@ int CArgusTV::AddManualSchedule(const std::string& channelid,
 
   // Fill relevant members
   std::string modifiedtitle = title;
-  StringUtils::Replace(modifiedtitle, "\"", "\\\"");
+  kodi::tools::StringUtils::Replace(modifiedtitle, "\"", "\\\"");
 
   newSchedule["IsOneTime"] = Json::Value(true);
   newSchedule["KeepUntilMode"] = Json::Value(lifetimeToKeepUntilMode(lifetime));
