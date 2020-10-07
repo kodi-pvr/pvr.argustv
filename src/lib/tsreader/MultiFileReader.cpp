@@ -33,8 +33,6 @@
 #include <thread>
 
 #if !defined(TARGET_WINDOWS)
-#include "p8-platform/os.h"
-
 #include <sys/time.h>
 #if !defined(TARGET_DARWIN)
 #define SUCCEEDED(hr) (((HRESULT)(hr)) >= 0)

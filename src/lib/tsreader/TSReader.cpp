@@ -21,7 +21,6 @@
 #include "TSReader.h"
 
 #include "MultiFileReader.h"
-#include "p8-platform/os.h"
 #include "utils.h"
 
 #include <kodi/General.h>

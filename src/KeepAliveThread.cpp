@@ -13,7 +13,6 @@
 #include "utils.h"
 
 #include <kodi/General.h>
-#include <p8-platform/os.h>
 
 CKeepAliveThread::CKeepAliveThread(cPVRClientArgusTV& instance) : m_instance(instance)
 {

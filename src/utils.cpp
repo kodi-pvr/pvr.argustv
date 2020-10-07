@@ -16,7 +16,6 @@
 
 #include <algorithm> // sort
 #include <kodi/General.h>
-#include <p8-platform/os.h>
 #include <string>
 
 namespace Json

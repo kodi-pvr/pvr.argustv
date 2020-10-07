@@ -24,9 +24,10 @@
 #include <kodi/Filesystem.h>
 #include <kodi/tools/StringUtils.h>
 #include <memory>
-#include <p8-platform/os.h>
 #include <stdio.h>
 #include <sys/stat.h>
+
+#include "lib/tsreader/platform.h"
 
 
 // Some version dependent API strings

@@ -18,7 +18,6 @@
 
 #include <kodi/addon-instance/PVR.h>
 #include <map>
-#include <p8-platform/os.h>
 #include <vector>
 
 namespace ArgusTV
