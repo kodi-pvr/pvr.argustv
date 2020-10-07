@@ -22,7 +22,8 @@
 
 #include <kodi/General.h>
 #include <map>
-#include <p8-platform/util/timeutils.h>
+#include <thread>
+
 #include <p8-platform/util/util.h>
 
 using namespace P8PLATFORM;
@@ -128,7 +129,7 @@ bool cPVRClientArgusTV::Connect()
         return false;
       default:
         kodi::Log(ADDON_LOG_ERROR, "Ping failed... No connection to Argus TV.");
-        usleep(1000000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         if (attemps > 3)
         {
           return false;
@@ -1326,7 +1327,7 @@ bool cPVRClientArgusTV::_OpenLiveStream(const kodi::addon::PVRChannel& channelin
     if (m_tsreader != nullptr)
     {
       //kodi::Log(ADDON_LOG_DEBUG, "Re-using existing TsReader...");
-      //usleep(5000000);
+      //std::this_thread::sleep_for(std::chrono::milliseconds(5000));
       //m_tsreader->OnZap();
       kodi::Log(ADDON_LOG_DEBUG, "Close existing and open new TsReader...");
       m_tsreader->Close();
@@ -1339,7 +1340,7 @@ bool cPVRClientArgusTV::_OpenLiveStream(const kodi::addon::PVRChannel& channelin
     m_tsreader->Open(filename.c_str());
     m_tsreader->OnZap();
     kodi::Log(ADDON_LOG_DEBUG, "Delaying %ld milliseconds.", m_base.GetSettings().TuneDelay());
-    usleep(1000 * m_base.GetSettings().TuneDelay());
+    std::this_thread::sleep_for(std::chrono::milliseconds(m_base.GetSettings().TuneDelay()));
     return true;
   }
   else
@@ -1380,7 +1381,7 @@ int cPVRClientArgusTV::ReadLiveStream(unsigned char* pBuffer, unsigned int iBuff
     long lRc = 0;
     if ((lRc = m_tsreader->Read(bufptr, read_wanted, &read_wanted)) > 0)
     {
-      usleep(400000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(400));
       read_timeouts++;
       kodi::Log(ADDON_LOG_INFO, "ReadLiveStream requested %d but only read %d bytes.", iBufferSize,
                 read_wanted);
@@ -1398,7 +1399,7 @@ int cPVRClientArgusTV::ReadLiveStream(unsigned char* pBuffer, unsigned int iBuff
       }
       bufptr += read_wanted;
       read_timeouts++;
-      usleep(40000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(40));
     }
   }
 #if defined(ATV_DUMPTS)

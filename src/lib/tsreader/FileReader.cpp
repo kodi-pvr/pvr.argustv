@@ -25,9 +25,9 @@
 
 #include "FileReader.h"
 
-#include "p8-platform/util/timeutils.h" // for usleep
-
 #include <algorithm> //std::min, std::max
+#include <thread>
+
 #include <kodi/General.h>
 
 namespace ArgusTV
@@ -79,7 +79,7 @@ long FileReader::OpenFile()
 
     // Is this still needed on Windows?
     //CStdStringW strWFile = UTF8Util::ConvertUTF8ToUTF16(m_fileName.c_str());
-    usleep(20000);
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
   } while (--Tmo);
 
   if (Tmo)

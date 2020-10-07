@@ -25,12 +25,12 @@
 
 #include "MultiFileReader.h"
 
-#include "p8-platform/util/timeutils.h"
 #include "utils.h"
 
 #include <algorithm>
 #include <limits.h>
 #include <string>
+#include <thread>
 
 #if !defined(TARGET_WINDOWS)
 #include "p8-platform/os.h"
@@ -43,8 +43,9 @@
 
 #include <kodi/Filesystem.h>
 #include <kodi/General.h>
+#include <kodi/tools/EndTime.h>
 
-using namespace P8PLATFORM;
+//using namespace P8PLATFORM;
 
 //Maximum time in msec to wait for the buffer file to become available - Needed for DVB radio (this sometimes takes some time)
 #define MAX_BUFFER_TIMEOUT 1500
@@ -91,7 +92,7 @@ long MultiFileReader::OpenFile()
                 "MultiFileReader: buffer file has zero length, closing, waiting 500 ms and "
                 "re-opening. Try %d.",
                 retryCount);
-      usleep(500000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
       kodi::vfs::StatFile(bufferfilename, stat);
       fileLength = stat.GetSize();
     } while (fileLength == 0 && retryCount < 20);
@@ -104,12 +105,12 @@ long MultiFileReader::OpenFile()
   if (RefreshTSBufferFile() == S_FALSE)
   {
     // For radio the buffer sometimes needs some time to become available, so wait and try it more than once
-    P8PLATFORM::CTimeout timeout(MAX_BUFFER_TIMEOUT);
+    kodi::tools::CEndTime timeout(MAX_BUFFER_TIMEOUT);
 
     do
     {
-      usleep(100000);
-      if (timeout.TimeLeft() == 0)
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      if (timeout.MillisLeft() == 0)
       {
         kodi::Log(ADDON_LOG_ERROR,
                   "MultiFileReader: timed out while waiting for buffer file to become available");
@@ -398,7 +399,8 @@ long MultiFileReader::RefreshTSBufferFile()
       // try to clear local / remote SMB file cache. This should happen when we close the filehandle
       m_TSBufferFile.CloseFile();
       m_TSBufferFile.OpenFile();
-      usleep(5000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
+
     }
 
     if (Error)
