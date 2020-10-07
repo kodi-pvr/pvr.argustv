@@ -124,7 +124,7 @@ private:
   time_t m_BackendUTCoffset = 0;
   time_t m_BackendTime = 0;
 
-  P8PLATFORM::CMutex m_ChannelCacheMutex;
+  std::mutex m_ChannelCacheMutex;
   std::vector<cChannel*>
       m_TVChannels; // Local TV channel cache list needed for id to guid conversion
   std::vector<cChannel*>

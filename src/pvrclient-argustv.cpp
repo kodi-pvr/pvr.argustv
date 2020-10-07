@@ -421,7 +421,7 @@ PVR_ERROR cPVRClientArgusTV::GetChannelsAmount(int& amount)
 
 PVR_ERROR cPVRClientArgusTV::GetChannels(bool radio, kodi::addon::PVRChannelsResultSet& results)
 {
-  CLockObject lock(m_ChannelCacheMutex);
+  std::lock_guard<std::mutex> lock(m_ChannelCacheMutex);
   Json::Value response;
   int retval = -1;
 
@@ -1197,7 +1197,7 @@ PVR_ERROR cPVRClientArgusTV::UpdateTimer(const kodi::addon::PVRTimer& timerinfo)
 /** Live stream handling */
 cChannel* cPVRClientArgusTV::FetchChannel(int channelid, bool LogError)
 {
-  CLockObject lock(m_ChannelCacheMutex);
+  std::lock_guard<std::mutex> lock(m_ChannelCacheMutex);
   cChannel* rc = FetchChannel(m_TVChannels, channelid, false);
   if (rc == nullptr)
     rc = FetchChannel(m_RadioChannels, channelid, false);

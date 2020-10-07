@@ -56,7 +56,7 @@ int CArgusTV::ArgusTVRPC(const std::string& command,
                          const std::string& arguments,
                          std::string& json_response)
 {
-  P8PLATFORM::CLockObject critsec(m_communicationMutex);
+  std::lock_guard<std::mutex> critsec(m_communicationMutex);
   std::string url = m_baseURL + command;
   int retval = E_FAILED;
   kodi::Log(ADDON_LOG_DEBUG, "URL: %s\n", url.c_str());
@@ -96,7 +96,7 @@ int CArgusTV::ArgusTVRPCToFile(const std::string& command,
                                std::string& filename,
                                long& http_response)
 {
-  P8PLATFORM::CLockObject critsec(m_communicationMutex);
+  std::lock_guard<std::mutex> critsec(m_communicationMutex);
   std::string url = m_baseURL + command;
   int retval = E_FAILED;
   kodi::Log(ADDON_LOG_DEBUG, "URL: %s writing to file %s\n", url.c_str(), filename.c_str());
