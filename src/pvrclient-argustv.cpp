@@ -21,10 +21,10 @@
 #include "utils.h"
 
 #include <kodi/General.h>
+#include <chrono>
 #include <map>
 #include <thread>
 
-using namespace P8PLATFORM;
 using namespace ArgusTV;
 
 #define SIGNALQUALITY_INTERVAL 10
@@ -680,7 +680,7 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(bool deleted,
   m_RecordingsMap.clear();
 
   kodi::Log(ADDON_LOG_DEBUG, "RequestRecordingsList()");
-  int64_t t = GetTimeMs();
+  auto startTime = std::chrono::system_clock::now();
   retval = m_rpc.GetRecordingGroupByTitle(recordinggroupresponse);
   if (retval >= 0)
   {
@@ -749,8 +749,8 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(bool deleted,
       }
     }
   }
-  t = GetTimeMs() - t;
-  kodi::Log(ADDON_LOG_INFO, "Retrieving %d recordings took %d milliseconds.", iNumRecordings, t);
+  auto totalTime = std::chrono::system_clock::now() - startTime;
+  kodi::Log(ADDON_LOG_INFO, "Retrieving %d recordings took %d milliseconds.", iNumRecordings, std::chrono::duration_cast<std::chrono::milliseconds>(totalTime).count());
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -1362,10 +1362,10 @@ bool cPVRClientArgusTV::_OpenLiveStream(const kodi::addon::PVRChannel& channelin
 
 bool cPVRClientArgusTV::OpenLiveStream(const kodi::addon::PVRChannel& channelinfo)
 {
-  int64_t t = GetTimeMs();
+  auto startTime = std::chrono::system_clock::now();
   bool rc = _OpenLiveStream(channelinfo);
-  t = GetTimeMs() - t;
-  kodi::Log(ADDON_LOG_INFO, "Opening live stream took %d milliseconds.", t);
+  auto totalTime = std::chrono::system_clock::now() - startTime;
+  kodi::Log(ADDON_LOG_INFO, "Opening live stream took %d milliseconds.", std::chrono::duration_cast<std::chrono::milliseconds>(totalTime).count());
   return rc;
 }
 
