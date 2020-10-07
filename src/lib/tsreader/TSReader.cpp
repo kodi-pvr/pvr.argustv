@@ -22,11 +22,18 @@
 
 #include "MultiFileReader.h"
 #include "p8-platform/os.h"
-#include "p8-platform/util/util.h"
 #include "utils.h"
 
 #include <kodi/General.h>
 
+template<typename T> void SafeDelete(T*& p)
+{
+  if (p)
+  {
+    delete p;
+    p = nullptr;
+  }
+}
 namespace ArgusTV
 {
 CTsReader::CTsReader()
@@ -120,7 +127,7 @@ void CTsReader::Close()
   if (m_fileReader)
   {
     m_fileReader->CloseFile();
-    SAFE_DELETE(m_fileReader);
+    SafeDelete(m_fileReader);
   }
 }
 

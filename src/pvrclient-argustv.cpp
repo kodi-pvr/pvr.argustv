@@ -24,8 +24,6 @@
 #include <map>
 #include <thread>
 
-#include <p8-platform/util/util.h>
-
 using namespace P8PLATFORM;
 using namespace ArgusTV;
 
@@ -33,6 +31,14 @@ using namespace ArgusTV;
 #define MAXLIFETIME \
   99 //Based on VDR addon and VDR documentation. 99=Keep forever, 0=can be deleted at any time, 1..98=days to keep
 
+template<typename T> void SafeDelete(T*& p)
+{
+  if (p)
+  {
+    delete p;
+    p = nullptr;
+  }
+}
 
 /************************************************************/
 /** Class interface */
@@ -1230,7 +1236,7 @@ void cPVRClientArgusTV::FreeChannels(std::vector<cChannel*> m_Channels)
 
   for (it = m_Channels.begin(); it < m_Channels.end(); it++)
   {
-    SAFE_DELETE(*it);
+    SafeDelete(*it);
   }
 }
 
@@ -1331,7 +1337,7 @@ bool cPVRClientArgusTV::_OpenLiveStream(const kodi::addon::PVRChannel& channelin
       //m_tsreader->OnZap();
       kodi::Log(ADDON_LOG_DEBUG, "Close existing and open new TsReader...");
       m_tsreader->Close();
-      SAFE_DELETE(m_tsreader);
+      SafeDelete(m_tsreader);
     }
     // Open Timeshift buffer
     // TODO: rtsp support
@@ -1464,7 +1470,7 @@ void cPVRClientArgusTV::CloseLiveStream()
       kodi::Log(ADDON_LOG_DEBUG, "ReadLiveStream: %I64d calls took %I64d nanoseconds.",
                 m_tsreader->sigmaCount(), m_tsreader->sigmaTime());
 #endif
-      SAFE_DELETE(m_tsreader);
+      SafeDelete(m_tsreader);
     }
     m_rpc.StopLiveStream();
     m_bTimeShiftStarted = false;
@@ -1565,12 +1571,12 @@ bool cPVRClientArgusTV::OpenRecordedStream(const kodi::addon::PVRRecording& reci
   {
     kodi::Log(ADDON_LOG_DEBUG, "Close existing TsReader...");
     m_tsreader->Close();
-    SAFE_DELETE(m_tsreader);
+    SafeDelete(m_tsreader);
   }
   m_tsreader = new CTsReader();
   if (m_tsreader->Open(UNCname.c_str()) != S_OK)
   {
-    SAFE_DELETE(m_tsreader);
+    SafeDelete(m_tsreader);
     return false;
   }
 
@@ -1589,7 +1595,7 @@ void cPVRClientArgusTV::CloseRecordedStream(void)
   {
     kodi::Log(ADDON_LOG_DEBUG, "Close TsReader");
     m_tsreader->Close();
-    SAFE_DELETE(m_tsreader);
+    SafeDelete(m_tsreader);
   }
 }
 
