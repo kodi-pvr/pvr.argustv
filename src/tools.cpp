@@ -13,8 +13,6 @@
 
 #include <kodi/General.h>
 
-#include <chrono>
-
 // --- cTimeMs ---------------------------------------------------------------
 
 cTimeMs::cTimeMs(int Ms)

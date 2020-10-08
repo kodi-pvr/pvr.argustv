@@ -32,18 +32,9 @@
 #include <string>
 #include <thread>
 
-#if !defined(TARGET_WINDOWS)
-#include <sys/time.h>
-#if !defined(TARGET_DARWIN)
-#define SUCCEEDED(hr) (((HRESULT)(hr)) >= 0)
-#endif
-#endif
-
 #include <kodi/Filesystem.h>
 #include <kodi/General.h>
 #include <kodi/tools/EndTime.h>
-
-//using namespace P8PLATFORM;
 
 //Maximum time in msec to wait for the buffer file to become available - Needed for DVB radio (this sometimes takes some time)
 #define MAX_BUFFER_TIMEOUT 1500
@@ -398,7 +389,6 @@ long MultiFileReader::RefreshTSBufferFile()
       m_TSBufferFile.CloseFile();
       m_TSBufferFile.OpenFile();
       std::this_thread::sleep_for(std::chrono::milliseconds(5));
-
     }
 
     if (Error)
