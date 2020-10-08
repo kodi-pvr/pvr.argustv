@@ -22,12 +22,16 @@
 #include "utils.h"
 
 #include <kodi/Filesystem.h>
+#include <kodi/tools/StringUtils.h>
 #include <memory>
-#include <p8-platform/os.h>
-#include <p8-platform/util/StringUtils.h>
 #include <stdio.h>
 #include <sys/stat.h>
 
+#include "lib/tsreader/platform.h"
+
+#if defined(TARGET_WINDOWS)
+#include <windows.h>
+#endif
 
 // Some version dependent API strings
 #define ATV_GETEPG_45 \
@@ -56,7 +60,7 @@ int CArgusTV::ArgusTVRPC(const std::string& command,
                          const std::string& arguments,
                          std::string& json_response)
 {
-  P8PLATFORM::CLockObject critsec(m_communicationMutex);
+  std::lock_guard<std::mutex> critsec(m_communicationMutex);
   std::string url = m_baseURL + command;
   int retval = E_FAILED;
   kodi::Log(ADDON_LOG_DEBUG, "URL: %s\n", url.c_str());
@@ -96,7 +100,7 @@ int CArgusTV::ArgusTVRPCToFile(const std::string& command,
                                std::string& filename,
                                long& http_response)
 {
-  P8PLATFORM::CLockObject critsec(m_communicationMutex);
+  std::lock_guard<std::mutex> critsec(m_communicationMutex);
   std::string url = m_baseURL + command;
   int retval = E_FAILED;
   kodi::Log(ADDON_LOG_DEBUG, "URL: %s writing to file %s\n", url.c_str(), filename.c_str());
@@ -1149,7 +1153,7 @@ int CArgusTV::AddOneTimeSchedule(const std::string& channelid,
 
   // Fill relevant members
   std::string modifiedtitle = title;
-  StringUtils::Replace(modifiedtitle, "\"", "\\\"");
+  kodi::tools::StringUtils::Replace(modifiedtitle, "\"", "\\\"");
 
   newSchedule["KeepUntilMode"] = Json::Value(lifetimeToKeepUntilMode(lifetime));
   newSchedule["KeepUntilValue"] = Json::Value(lifetimeToKeepUntilValue(lifetime));
@@ -1238,7 +1242,7 @@ int CArgusTV::AddManualSchedule(const std::string& channelid,
 
   // Fill relevant members
   std::string modifiedtitle = title;
-  StringUtils::Replace(modifiedtitle, "\"", "\\\"");
+  kodi::tools::StringUtils::Replace(modifiedtitle, "\"", "\\\"");
 
   newSchedule["IsOneTime"] = Json::Value(true);
   newSchedule["KeepUntilMode"] = Json::Value(lifetimeToKeepUntilMode(lifetime));

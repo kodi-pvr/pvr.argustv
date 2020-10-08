@@ -18,7 +18,7 @@
 #define DEFAULT_TUNEDELAY 200
 #define DEFAULT_USEFOLDER false
 
-class ATTRIBUTE_HIDDEN CSettings
+class CSettings
 {
 public:
   CSettings() = default;

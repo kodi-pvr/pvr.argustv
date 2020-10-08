@@ -18,4 +18,10 @@ if(WIN32)
 endif()
 
 add_library(tsreader STATIC ${HEADERS} ${SOURCES})
-set_property(TARGET tsreader PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_target_properties(tsreader PROPERTIES
+    C_VISIBILITY_PRESET       hidden
+    CXX_VISIBILITY_PRESET     hidden
+    VISIBILITY_INLINES_HIDDEN YES
+    POSITION_INDEPENDENT_CODE ON
+)
+

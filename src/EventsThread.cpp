@@ -19,11 +19,34 @@ CEventsThread::CEventsThread(cPVRClientArgusTV& instance) : m_instance(instance)
 }
 
 
-CEventsThread::~CEventsThread(void)
+CEventsThread::~CEventsThread()
 {
   kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: destructor");
   // v17 Krypton. When exiting Kodi with this addon still subscribed,
   // network services are already unavailable. CArgusTV::UnsubscribeServiceEvents won't succeed
+  StopThread();
+}
+
+void CEventsThread::StartThread()
+{
+  kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: start");
+
+  if (!m_running)
+  {
+    m_running = true;
+    m_thread = std::thread([&] { Process(); });
+  }
+}
+
+void CEventsThread::StopThread()
+{
+  kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: stop");
+  if (m_running)
+  {
+    m_running = false;
+    if (m_thread.joinable())
+      m_thread.join();
+  }
 }
 
 void CEventsThread::Connect()
@@ -45,10 +68,10 @@ void CEventsThread::Connect()
   }
 }
 
-void* CEventsThread::Process()
+void CEventsThread::Process()
 {
   kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: thread started");
-  while (!IsStopped() && m_subscribed)
+  while (m_running && m_subscribed)
   {
     // Get service events
     Json::Value response;
@@ -68,15 +91,15 @@ void* CEventsThread::Process()
           HandleEvents(events);
       }
     }
-    // The new P8PLATFORM:: thread library has a problem with stopping a thread that is doing a long sleep
+
     for (int i = 0; i < 100; i++)
     {
-      if (Sleep(100))
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      if (!m_running)
         break;
     }
   }
   kodi::Log(ADDON_LOG_DEBUG, "CEventsThread:: thread stopped");
-  return nullptr;
 }
 
 void CEventsThread::HandleEvents(Json::Value events)

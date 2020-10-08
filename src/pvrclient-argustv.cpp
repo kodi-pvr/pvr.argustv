@@ -21,17 +21,24 @@
 #include "utils.h"
 
 #include <kodi/General.h>
+#include <chrono>
 #include <map>
-#include <p8-platform/util/timeutils.h>
-#include <p8-platform/util/util.h>
+#include <thread>
 
-using namespace P8PLATFORM;
 using namespace ArgusTV;
 
 #define SIGNALQUALITY_INTERVAL 10
 #define MAXLIFETIME \
   99 //Based on VDR addon and VDR documentation. 99=Keep forever, 0=can be deleted at any time, 1..98=days to keep
 
+template<typename T> void SafeDelete(T*& p)
+{
+  if (p)
+  {
+    delete p;
+    p = nullptr;
+  }
+}
 
 /************************************************************/
 /** Class interface */
@@ -128,7 +135,7 @@ bool cPVRClientArgusTV::Connect()
         return false;
       default:
         kodi::Log(ADDON_LOG_ERROR, "Ping failed... No connection to Argus TV.");
-        usleep(1000000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         if (attemps > 3)
         {
           return false;
@@ -145,13 +152,7 @@ bool cPVRClientArgusTV::Connect()
 
   // Start service events monitor
   m_eventmonitor->Connect();
-  if (!m_eventmonitor->IsRunning())
-  {
-    if (!m_eventmonitor->CreateThread())
-    {
-      kodi::Log(ADDON_LOG_ERROR, "Start service monitor thread failed.");
-    }
-  }
+  m_eventmonitor->StartThread();
   m_bConnected = true;
   return true;
 }
@@ -163,13 +164,7 @@ void cPVRClientArgusTV::Disconnect()
   kodi::Log(ADDON_LOG_INFO, "Disconnect");
 
   // Stop service events monitor
-  if (m_eventmonitor->IsRunning())
-  {
-    if (!m_eventmonitor->StopThread())
-    {
-      kodi::Log(ADDON_LOG_ERROR, "Stop service monitor thread failed.");
-    }
-  }
+  m_eventmonitor->StopThread();
 
   if (m_bTimeShiftStarted)
   {
@@ -426,7 +421,7 @@ PVR_ERROR cPVRClientArgusTV::GetChannelsAmount(int& amount)
 
 PVR_ERROR cPVRClientArgusTV::GetChannels(bool radio, kodi::addon::PVRChannelsResultSet& results)
 {
-  CLockObject lock(m_ChannelCacheMutex);
+  std::lock_guard<std::mutex> lock(m_ChannelCacheMutex);
   Json::Value response;
   int retval = -1;
 
@@ -685,7 +680,7 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(bool deleted,
   m_RecordingsMap.clear();
 
   kodi::Log(ADDON_LOG_DEBUG, "RequestRecordingsList()");
-  int64_t t = GetTimeMs();
+  auto startTime = std::chrono::system_clock::now();
   retval = m_rpc.GetRecordingGroupByTitle(recordinggroupresponse);
   if (retval >= 0)
   {
@@ -754,8 +749,8 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(bool deleted,
       }
     }
   }
-  t = GetTimeMs() - t;
-  kodi::Log(ADDON_LOG_INFO, "Retrieving %d recordings took %d milliseconds.", iNumRecordings, t);
+  auto totalTime = std::chrono::system_clock::now() - startTime;
+  kodi::Log(ADDON_LOG_INFO, "Retrieving %d recordings took %d milliseconds.", iNumRecordings, std::chrono::duration_cast<std::chrono::milliseconds>(totalTime).count());
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -1202,7 +1197,7 @@ PVR_ERROR cPVRClientArgusTV::UpdateTimer(const kodi::addon::PVRTimer& timerinfo)
 /** Live stream handling */
 cChannel* cPVRClientArgusTV::FetchChannel(int channelid, bool LogError)
 {
-  CLockObject lock(m_ChannelCacheMutex);
+  std::lock_guard<std::mutex> lock(m_ChannelCacheMutex);
   cChannel* rc = FetchChannel(m_TVChannels, channelid, false);
   if (rc == nullptr)
     rc = FetchChannel(m_RadioChannels, channelid, false);
@@ -1241,7 +1236,7 @@ void cPVRClientArgusTV::FreeChannels(std::vector<cChannel*> m_Channels)
 
   for (it = m_Channels.begin(); it < m_Channels.end(); it++)
   {
-    SAFE_DELETE(*it);
+    SafeDelete(*it);
   }
 }
 
@@ -1318,13 +1313,7 @@ bool cPVRClientArgusTV::_OpenLiveStream(const kodi::addon::PVRChannel& channelin
     kodi::Log(ADDON_LOG_INFO, "Live stream file: %s", filename.c_str());
     m_bTimeShiftStarted = true;
     m_iCurrentChannel = channelinfo.GetUniqueId();
-    if (!m_keepalive->IsRunning())
-    {
-      if (!m_keepalive->CreateThread())
-      {
-        kodi::Log(ADDON_LOG_ERROR, "Start keepalive thread failed.");
-      }
-    }
+    m_keepalive->StartThread();
 
 #if defined(ATV_DUMPTS)
     if (ofd != -1)
@@ -1344,11 +1333,11 @@ bool cPVRClientArgusTV::_OpenLiveStream(const kodi::addon::PVRChannel& channelin
     if (m_tsreader != nullptr)
     {
       //kodi::Log(ADDON_LOG_DEBUG, "Re-using existing TsReader...");
-      //usleep(5000000);
+      //std::this_thread::sleep_for(std::chrono::milliseconds(5000));
       //m_tsreader->OnZap();
       kodi::Log(ADDON_LOG_DEBUG, "Close existing and open new TsReader...");
       m_tsreader->Close();
-      SAFE_DELETE(m_tsreader);
+      SafeDelete(m_tsreader);
     }
     // Open Timeshift buffer
     // TODO: rtsp support
@@ -1357,7 +1346,7 @@ bool cPVRClientArgusTV::_OpenLiveStream(const kodi::addon::PVRChannel& channelin
     m_tsreader->Open(filename.c_str());
     m_tsreader->OnZap();
     kodi::Log(ADDON_LOG_DEBUG, "Delaying %ld milliseconds.", m_base.GetSettings().TuneDelay());
-    usleep(1000 * m_base.GetSettings().TuneDelay());
+    std::this_thread::sleep_for(std::chrono::milliseconds(m_base.GetSettings().TuneDelay()));
     return true;
   }
   else
@@ -1373,10 +1362,10 @@ bool cPVRClientArgusTV::_OpenLiveStream(const kodi::addon::PVRChannel& channelin
 
 bool cPVRClientArgusTV::OpenLiveStream(const kodi::addon::PVRChannel& channelinfo)
 {
-  int64_t t = GetTimeMs();
+  auto startTime = std::chrono::system_clock::now();
   bool rc = _OpenLiveStream(channelinfo);
-  t = GetTimeMs() - t;
-  kodi::Log(ADDON_LOG_INFO, "Opening live stream took %d milliseconds.", t);
+  auto totalTime = std::chrono::system_clock::now() - startTime;
+  kodi::Log(ADDON_LOG_INFO, "Opening live stream took %d milliseconds.", std::chrono::duration_cast<std::chrono::milliseconds>(totalTime).count());
   return rc;
 }
 
@@ -1398,7 +1387,7 @@ int cPVRClientArgusTV::ReadLiveStream(unsigned char* pBuffer, unsigned int iBuff
     long lRc = 0;
     if ((lRc = m_tsreader->Read(bufptr, read_wanted, &read_wanted)) > 0)
     {
-      usleep(400000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(400));
       read_timeouts++;
       kodi::Log(ADDON_LOG_INFO, "ReadLiveStream requested %d but only read %d bytes.", iBufferSize,
                 read_wanted);
@@ -1416,7 +1405,7 @@ int cPVRClientArgusTV::ReadLiveStream(unsigned char* pBuffer, unsigned int iBuff
       }
       bufptr += read_wanted;
       read_timeouts++;
-      usleep(40000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(40));
     }
   }
 #if defined(ATV_DUMPTS)
@@ -1457,13 +1446,7 @@ void cPVRClientArgusTV::CloseLiveStream()
   std::string result;
   kodi::Log(ADDON_LOG_INFO, "CloseLiveStream");
 
-  if (m_keepalive->IsRunning())
-  {
-    if (!m_keepalive->StopThread())
-    {
-      kodi::Log(ADDON_LOG_ERROR, "Stop keepalive thread failed.");
-    }
-  }
+  m_keepalive->StopThread();
 
 #if defined(ATV_DUMPTS)
   if (ofd != -1)
@@ -1487,7 +1470,7 @@ void cPVRClientArgusTV::CloseLiveStream()
       kodi::Log(ADDON_LOG_DEBUG, "ReadLiveStream: %I64d calls took %I64d nanoseconds.",
                 m_tsreader->sigmaCount(), m_tsreader->sigmaTime());
 #endif
-      SAFE_DELETE(m_tsreader);
+      SafeDelete(m_tsreader);
     }
     m_rpc.StopLiveStream();
     m_bTimeShiftStarted = false;
@@ -1588,12 +1571,12 @@ bool cPVRClientArgusTV::OpenRecordedStream(const kodi::addon::PVRRecording& reci
   {
     kodi::Log(ADDON_LOG_DEBUG, "Close existing TsReader...");
     m_tsreader->Close();
-    SAFE_DELETE(m_tsreader);
+    SafeDelete(m_tsreader);
   }
   m_tsreader = new CTsReader();
   if (m_tsreader->Open(UNCname.c_str()) != S_OK)
   {
-    SAFE_DELETE(m_tsreader);
+    SafeDelete(m_tsreader);
     return false;
   }
 
@@ -1612,7 +1595,7 @@ void cPVRClientArgusTV::CloseRecordedStream(void)
   {
     kodi::Log(ADDON_LOG_DEBUG, "Close TsReader");
     m_tsreader->Close();
-    SAFE_DELETE(m_tsreader);
+    SafeDelete(m_tsreader);
   }
 }
 

@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "p8-platform/os.h"
-
 #include <kodi/Filesystem.h>
+
+#include "platform.h"
 
 namespace ArgusTV
 {

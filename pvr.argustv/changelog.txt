@@ -1,3 +1,16 @@
+v6.0.2
+- Remove p8-platform dependency
+- Remove p8-platform OS includes
+- Use chrono to get millis time
+- Use std::mutex
+- Use kodi StringUtils
+- Remove SAFE_DELETE
+- Remove p8-platform time utils
+- Use chrono for timing
+- Use std::thread
+- Include windows.h for LARGE_INTEGER, MAX_PATH and GetTempAthA support
+- add temporary workaround about attribute hidden
+
 v6.0.1
 - Source rebuild trigger
 
@@ -139,7 +152,7 @@ v1.10.9 (29-06-2015)
 v1.10.8 (28-06-2015)
 - Updated language files from Transifex
 v1.10.7 (11-04-2015)
-- Added option for all recordings to be in folders 
+- Added option for all recordings to be in folders
 v1.10.6 (04-05-2015)
 - Updated to use new libplatform-dev
 v1.10.5 (09-04-2015)
@@ -223,8 +236,8 @@ v1.6.161 (12-12-2012)
 - New version number by Team XBMC
 v1.6.160.145 (11-12-2012)
 - Support ARGUS TV channel numbers on XBMC, switch on:
-  Settings / Live-TV / General / 
-    "Use backend channels..." and 
+  Settings / Live-TV / General /
+    "Use backend channels..." and
     "Always use the channel order..."
 - New version number by Team XBMC
 v1.0.150.144 (18-11-2012)
@@ -270,9 +283,9 @@ v0.0.1.134 (07-04-2012)
 v0.0.1.133 (31-03-2012)
 - The add-on now sets the time a recording was last watched on the server
 v0.0.1.132 (20-03-2012)
-- Small fix to correct one invalid GUID error message at start 
+- Small fix to correct one invalid GUID error message at start
 v0.0.1.131 (16-03-2012)
-- Added many internal verifications to the <FTR GUID> to <XBMC number> 
+- Added many internal verifications to the <FTR GUID> to <XBMC number>
   channel mappings. External factors can break the mapping and these
   checks will hopefully warn the user to reset the PVR database
 v0.0.1.130 (11-03-2012)
@@ -311,7 +324,7 @@ v0.0.1.117 (unreleased)
 - Adaptation to many changes within XBMC
 v0.0.1.116 (16-06-2011)
 - Greatly improved channel zapping
-- Add timer will now force a recording when no matching show title 
+- Add timer will now force a recording when no matching show title
   is found in the channel epg data on the server
 - Add timer fixed: new PVR API
 - GUI update triggers added: new PVR API
@@ -337,7 +350,7 @@ v0.0.1.109 (13-01-2011)
 - Initial support for retrieval of recordings on the ForTheRecord Argus server
 - Overview of recordings, grouped by Title
 - Viewing of a selected recording via the ForTheRecord shares
-- Fixes some memory corruptions 
+- Fixes some memory corruptions
 - Support for retrieval of recordings on the ForTheRecord Argus server
 - Overview of recordings, grouped by Title, including recording starttime, and description
 - Credits: Red-F

@@ -18,7 +18,6 @@
 
 #include <kodi/addon-instance/PVR.h>
 #include <map>
-#include <p8-platform/os.h>
 #include <vector>
 
 namespace ArgusTV
@@ -28,7 +27,7 @@ class CTsReader;
 
 #undef ATV_DUMPTS
 
-class ATTRIBUTE_HIDDEN cPVRClientArgusTV : public kodi::addon::CInstancePVRClient
+class cPVRClientArgusTV : public kodi::addon::CInstancePVRClient
 {
 public:
   /* Class interface */
@@ -124,7 +123,7 @@ private:
   time_t m_BackendUTCoffset = 0;
   time_t m_BackendTime = 0;
 
-  P8PLATFORM::CMutex m_ChannelCacheMutex;
+  std::mutex m_ChannelCacheMutex;
   std::vector<cChannel*>
       m_TVChannels; // Local TV channel cache list needed for id to guid conversion
   std::vector<cChannel*>

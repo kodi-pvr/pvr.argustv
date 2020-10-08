@@ -13,7 +13,6 @@
 #include "utils.h"
 
 #include <kodi/General.h>
-#include <p8-platform/os.h>
 
 CKeepAliveThread::CKeepAliveThread(cPVRClientArgusTV& instance) : m_instance(instance)
 {
@@ -23,22 +22,45 @@ CKeepAliveThread::CKeepAliveThread(cPVRClientArgusTV& instance) : m_instance(ins
 CKeepAliveThread::~CKeepAliveThread()
 {
   kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: destructor");
+  StopThread();
 }
 
-void* CKeepAliveThread::Process()
+void CKeepAliveThread::StartThread()
+{
+  kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: start");
+
+  if (!m_running)
+  {
+    m_running = true;
+    m_thread = std::thread([&] { Process(); });
+  }
+}
+
+void CKeepAliveThread::StopThread()
+{
+  kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: stop");
+  if (m_running)
+  {
+    m_running = false;
+    if (m_thread.joinable())
+      m_thread.join();
+  }
+}
+
+void CKeepAliveThread::Process()
 {
   kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: thread started");
-  while (!IsStopped())
+  while (m_running)
   {
     int retval = m_instance.GetRPC().KeepLiveStreamAlive();
     kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: KeepLiveStreamAlive returned %i", (int)retval);
-    // The new P8PLATFORM:: thread library has a problem with stopping a thread that is doing a long sleep
+
     for (int i = 0; i < 100; i++)
     {
-      if (Sleep(100))
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      if (!m_running)
         break;
     }
   }
   kodi::Log(ADDON_LOG_DEBUG, "CKeepAliveThread:: thread stopped");
-  return nullptr;
 }

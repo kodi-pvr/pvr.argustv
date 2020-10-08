@@ -10,7 +10,7 @@
 
 #include <cstdlib>
 #include <json/json.h>
-#include <p8-platform/threads/mutex.h>
+#include <mutex>
 #include <string>
 
 #define ATV_2_2_0 (60)
@@ -416,5 +416,5 @@ private:
   Json::Value m_currentLivestream;
 
   std::string m_baseURL;
-  P8PLATFORM::CMutex m_communicationMutex;
+  std::mutex m_communicationMutex;
 }; // class ArgusTV

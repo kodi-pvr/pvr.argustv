@@ -4,10 +4,8 @@ project(pvr.argustv)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
 
 find_package(Kodi REQUIRED)
-find_package(p8-platform REQUIRED)
 
-include_directories(${p8-platform_INCLUDE_DIRS}
-                    ${KODI_INCLUDE_DIR}/.. # Hack way with "/..", need bigger Kodi cmake rework to match right include ways
+include_directories(${KODI_INCLUDE_DIR}/.. # Hack way with "/..", need bigger Kodi cmake rework to match right include ways
                     ${PROJECT_SOURCE_DIR}/src)
 
 # Source files
@@ -60,7 +58,7 @@ endif(WIN32)
 # Make sure that CMake adds the headers to the MSVC project
 list(APPEND ARGUSTV_SOURCES ${ARGUSTV_HEADERS})
 
-set(DEPLIBS ${p8-platform_LIBRARIES} tsreader)
+set(DEPLIBS tsreader)
 
 find_package(JsonCpp REQUIRED)
 list(APPEND DEPLIBS ${JSONCPP_LIBRARIES})
@@ -71,5 +69,12 @@ include_directories(${INCLUDES})
 add_subdirectory(src/lib/tsreader)
 
 build_addon(pvr.argustv ARGUSTV DEPLIBS)
+
+# Temp workaround, this becomes later added to kodi-dev-kit system
+set_target_properties(pvr.argustv PROPERTIES
+    C_VISIBILITY_PRESET       hidden
+    CXX_VISIBILITY_PRESET     hidden
+    VISIBILITY_INLINES_HIDDEN YES
+)
 
 include(CPack)
