@@ -22,6 +22,10 @@
 
 #include "FileReader.h"
 
+#if defined(TARGET_WINDOWS)
+#include <windows.h>
+#endif
+
 namespace ArgusTV
 {
 class CTsReader

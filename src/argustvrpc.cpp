@@ -29,6 +29,9 @@
 
 #include "lib/tsreader/platform.h"
 
+#if defined(TARGET_WINDOWS)
+#include <windows.h>
+#endif
 
 // Some version dependent API strings
 #define ATV_GETEPG_45 \
