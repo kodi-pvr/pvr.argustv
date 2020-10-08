@@ -15,7 +15,7 @@
 
 class cPVRClientArgusTV;
 
-class ATTRIBUTE_HIDDEN CArgusTVAddon : public kodi::addon::CAddonBase
+class CArgusTVAddon : public kodi::addon::CAddonBase
 {
 public:
   CArgusTVAddon() = default;

@@ -60,4 +60,7 @@ ADDON_STATUS CArgusTVAddon::SetSetting(const std::string& settingName,
   return m_settings.SetSetting(settingName, settingValue);
 }
 
+#pragma GCC visibility push(default) // Temp workaround, this becomes later added to kodi-dev-kit system
 ADDONCREATOR(CArgusTVAddon)
+#pragma GCC visibility pop
+

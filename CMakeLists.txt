@@ -70,4 +70,11 @@ add_subdirectory(src/lib/tsreader)
 
 build_addon(pvr.argustv ARGUSTV DEPLIBS)
 
+# Temp workaround, this becomes later added to kodi-dev-kit system
+set_target_properties(pvr.argustv PROPERTIES
+    C_VISIBILITY_PRESET       hidden
+    CXX_VISIBILITY_PRESET     hidden
+    VISIBILITY_INLINES_HIDDEN YES
+)
+
 include(CPack)

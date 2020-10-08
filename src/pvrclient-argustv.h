@@ -27,7 +27,7 @@ class CTsReader;
 
 #undef ATV_DUMPTS
 
-class ATTRIBUTE_HIDDEN cPVRClientArgusTV : public kodi::addon::CInstancePVRClient
+class cPVRClientArgusTV : public kodi::addon::CInstancePVRClient
 {
 public:
   /* Class interface */
