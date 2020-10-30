@@ -28,7 +28,7 @@
 
 namespace ArgusTV
 {
-class CTsReader
+class ATTRIBUTE_HIDDEN CTsReader
 {
 public:
   CTsReader();

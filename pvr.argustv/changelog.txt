@@ -1,3 +1,8 @@
+v7.0.0
+- Update PVR API 7.0.2
+- Change settings.xml to new format
+- Prevent some compile warnings by add of ATTRIBUTE_HIDDEN
+
 v6.0.2
 - Remove p8-platform dependency
 - Remove p8-platform OS includes

@@ -13,7 +13,7 @@
 #include <json/json.h>
 #include <string>
 
-class cChannel
+class ATTRIBUTE_HIDDEN cChannel
 {
 public:
   cChannel() = default;
