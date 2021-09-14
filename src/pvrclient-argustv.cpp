@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020 Team Kodi (https://kodi.tv)
+ *  Copyright (C) 2020-2021 Team Kodi (https://kodi.tv)
  *  Copyright (C) 2014 Fred Hoogduin
  *  Copyright (C) 2010 Marcel Groothuis
  *
