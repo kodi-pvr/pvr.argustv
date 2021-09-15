@@ -16,6 +16,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
+msgctxt "Addon Summary"
+msgid "Kodi frontend for the ARGUS TV PVR https://www.argus-tv.com/"
+msgstr "Rozhraní Kodi pro nahrávač videa ARGUS TV https://www.argus-tv.com/"
+
+msgctxt "Addon Description"
+msgid "ARGUS TV PVR frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and schedules."
+msgstr "Rozhraní ARGUS TV PVR. Podporuje streamování živého vysílání a nahrávání, poslech kanálů rádia, televizní program a plánování."
+
+msgctxt "Addon Disclaimer"
+msgid "This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
+msgstr "Tento software není stabilní! Autoři nejsou žádným způsobem zodpovědní za neúspěšná nahrávání, chybné časovače, ztracený čas nebo jakékoliv jiné nežádoucí výsledky…"
+
 msgctxt "#30000"
 msgid "ARGUS TV Hostname"
 msgstr "Název hostitele ARGUS TV"
