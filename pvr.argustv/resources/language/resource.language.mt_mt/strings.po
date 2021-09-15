@@ -16,6 +16,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : n==0 || ( n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20 ) ? 2 : 3);\n"
 
+msgctxt "Addon Summary"
+msgid "Kodi frontend for the ARGUS TV PVR https://www.argus-tv.com/"
+msgstr "Faċċata tal-Kodi għall- ARGUS TV PVR https://www.argus-tv.com/"
+
+msgctxt "Addon Description"
+msgid "ARGUS TV PVR frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and schedules."
+msgstr "Faċċata tal- ARGUS TV PVR. Jiflaħ għal streaming ta' TV Lajv u Rekordings, smiegħ ta' stazzjonijiet tar- Radju, EPG u skedi."
+
+msgctxt "Addon Disclaimer"
+msgid "This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
+msgstr "Dan il-programm mhuwiex stabbli! L-Awturi m'humiex responsabbli bl-ebda mod għal rekordings li ma jirnexxewx, arloġġi żbaljati, siegħat moħlija, jew kwalunkwe effett ieħor mhux mixtieq."
+
 msgctxt "#30000"
 msgid "ARGUS TV Hostname"
 msgstr "Hostname tal- ARGUS TV"

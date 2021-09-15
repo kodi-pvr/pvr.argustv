@@ -4,7 +4,7 @@ Source: https://github.com/kodi-pvr/pvr.argustv
 
 Files: *
 Copyright: 2010-2011 Marcel Groothuis, Fred Hoogduin
-           2020 Team Kodi
+           2020-2021 Team Kodi
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ License: GPL-2+
 # the following clauses, or change it to suit. Delete these two lines
 Files: debian/*
 Copyright: 2013 Arne Morten Kvarving <arne.morten.kvarving@sintef.no>
-           2020 Team Kodi
+           2020-2021 Team Kodi
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

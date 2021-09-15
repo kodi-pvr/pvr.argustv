@@ -16,6 +16,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
+msgctxt "Addon Summary"
+msgid "Kodi frontend for the ARGUS TV PVR https://www.argus-tv.com/"
+msgstr "Frontale Kodi pour le numériscope ARGUS TV https://www.argus-tv.com/"
+
+msgctxt "Addon Description"
+msgid "ARGUS TV PVR frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and schedules."
+msgstr "Frontale de numériscope pour ARGUS TV, prenant en charge la diffusion en continu des télés en direct et les enregistrements, l’écoute de chaînes radio, le GÉP et les horaires."
+
+msgctxt "Addon Disclaimer"
+msgid "This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
+msgstr "Ce logiciel est instable ! Les auteurs ne sont aucunement responsables des enregistrements défaillants, des minuteries erronées, des heures perdues ou tout autre effet indésirable."
+
 msgctxt "#30000"
 msgid "ARGUS TV Hostname"
 msgstr "Nom d’hôte ARGUS TV"

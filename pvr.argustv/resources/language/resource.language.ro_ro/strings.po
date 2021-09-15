@@ -17,6 +17,18 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2;\n"
 "X-Generator: Weblate 4.7\n"
 
+msgctxt "Addon Summary"
+msgid "Kodi frontend for the ARGUS TV PVR https://www.argus-tv.com/"
+msgstr "Interfața Kodi pentru PVR-ul ARGUS TV https://www.argus-tv.com/"
+
+msgctxt "Addon Description"
+msgid "ARGUS TV PVR frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and schedules."
+msgstr "Frontend PVR ARGUS TV. Suportă difuzare în flux pentru televiziune în direct și pentru înregistrări, ascultarea canalelor radio, EPG și planificări."
+
+msgctxt "Addon Disclaimer"
+msgid "This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
+msgstr "Acesta nu este o aplicație definitivă! Autorii nu sunt în nici un fel responsabili pentru înregistrări eșuate, cronometre incorecte, ore pierdute, sau orice alte efecte nedorite."
+
 msgctxt "#30000"
 msgid "ARGUS TV Hostname"
 msgstr "Nume gazdă ARGUS TV"
