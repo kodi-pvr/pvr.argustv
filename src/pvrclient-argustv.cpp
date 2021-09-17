@@ -75,6 +75,7 @@ PVR_ERROR cPVRClientArgusTV::GetCapabilities(kodi::addon::PVRCapabilities& capab
 
   capabilities.SetSupportsEPG(true);
   capabilities.SetSupportsRecordings(true);
+  capabilities.SetSupportsRecordingsDelete(true);
   capabilities.SetSupportsRecordingsUndelete(false);
   capabilities.SetSupportsTimers(true);
   capabilities.SetSupportsTV(true);
