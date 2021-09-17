@@ -1,3 +1,6 @@
+v20.1.0
+- Add supports recordings delete capability for PVR API 8.0.0
+
 v20.0.0
 - Update jsoncpp on depends to version 1.9.4
 - Translations updates from Weblate
