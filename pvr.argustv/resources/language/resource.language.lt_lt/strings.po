@@ -22,7 +22,7 @@ msgid "Kodi frontend for the ARGUS TV PVR https://www.argus-tv.com/"
 msgstr "Kodi sąsaja su ARGUS TV PVR https://www.argus-tv.com/"
 
 msgctxt "Addon Description"
-msgid "ARGUS TV PVR frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and schedules."
+msgid "ARGUS TV PVR frontend. Supports streaming of Live TV & Recordings, listening to Radio channels, EPG and schedules."
 msgstr "ARGUS TV PVR frontend. Palaiko transliaciją ir įrašus iš Live TV. Klausykite radijo kanalus ir derinkite EPG tvarkaraščius."
 
 msgctxt "Addon Disclaimer"
