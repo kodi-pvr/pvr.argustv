@@ -18,6 +18,7 @@
 
 #include "argustvrpc.h"
 
+#include "lib/tsreader/platform.h"
 #include "pvrclient-argustv.h"
 #include "utils.h"
 
@@ -26,8 +27,6 @@
 #include <memory>
 #include <stdio.h>
 #include <sys/stat.h>
-
-#include "lib/tsreader/platform.h"
 
 #if defined(TARGET_WINDOWS)
 #include <windows.h>

@@ -12,7 +12,7 @@
 #include <kodi/AddonBase.h>
 #include <string>
 
-class ATTRIBUTE_HIDDEN cUpcomingRecording
+class ATTR_DLL_LOCAL cUpcomingRecording
 {
 public:
   cUpcomingRecording(void) = default;

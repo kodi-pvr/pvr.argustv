@@ -28,7 +28,7 @@
 
 namespace ArgusTV
 {
-class ATTRIBUTE_HIDDEN CTsReader
+class ATTR_DLL_LOCAL CTsReader
 {
 public:
   CTsReader();

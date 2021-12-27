@@ -14,7 +14,7 @@
 
 class cPVRClientArgusTV;
 
-class ATTRIBUTE_HIDDEN CKeepAliveThread
+class ATTR_DLL_LOCAL CKeepAliveThread
 {
 public:
   CKeepAliveThread(cPVRClientArgusTV& instance);

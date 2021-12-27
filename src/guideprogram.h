@@ -13,7 +13,7 @@
 #include <json/json.h>
 #include <string>
 
-class ATTRIBUTE_HIDDEN cGuideProgram
+class ATTR_DLL_LOCAL cGuideProgram
 {
 public:
   cGuideProgram(void) = default;

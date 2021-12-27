@@ -10,22 +10,19 @@
 
 #include "pvrclient-argustv.h"
 
-ADDON_STATUS CArgusTVAddon::CreateInstance(int instanceType,
-                                           const std::string& instanceID,
-                                           KODI_HANDLE instance,
-                                           const std::string& version,
-                                           KODI_HANDLE& addonInstance)
+ADDON_STATUS CArgusTVAddon::CreateInstance(const kodi::addon::IInstanceInfo& instance,
+                                           KODI_ADDON_INSTANCE_HDL& hdl)
 {
   ADDON_STATUS curStatus = ADDON_STATUS_UNKNOWN;
 
-  if (instanceType == ADDON_INSTANCE_PVR)
+  if (instance.IsType(ADDON_INSTANCE_PVR))
   {
     kodi::Log(ADDON_LOG_DEBUG, "%s: Creating octonet pvr instance", __func__);
 
     m_settings.Load();
 
     /* Connect to ARGUS TV */
-    cPVRClientArgusTV* client = new cPVRClientArgusTV(*this, instance, version);
+    cPVRClientArgusTV* client = new cPVRClientArgusTV(*this, instance);
     if (!client->Connect())
     {
       curStatus = ADDON_STATUS_LOST_CONNECTION;
@@ -35,18 +32,17 @@ ADDON_STATUS CArgusTVAddon::CreateInstance(int instanceType,
       curStatus = ADDON_STATUS_OK;
     }
 
-    addonInstance = client;
-    m_usedInstances.emplace(std::make_pair(instanceID, client));
+    hdl = client;
+    m_usedInstances.emplace(std::make_pair(instance.GetID(), client));
   }
 
   return curStatus;
 }
 
-void CArgusTVAddon::DestroyInstance(int instanceType,
-                                    const std::string& instanceID,
-                                    KODI_HANDLE addonInstance)
+void CArgusTVAddon::DestroyInstance(const kodi::addon::IInstanceInfo& instance,
+                                    const KODI_ADDON_INSTANCE_HDL hdl)
 {
-  const auto& it = m_usedInstances.find(instanceID);
+  const auto& it = m_usedInstances.find(instance.GetID());
   if (it != m_usedInstances.end())
   {
     it->second->Disconnect();
@@ -55,12 +51,12 @@ void CArgusTVAddon::DestroyInstance(int instanceType,
 }
 
 ADDON_STATUS CArgusTVAddon::SetSetting(const std::string& settingName,
-                                       const kodi::CSettingValue& settingValue)
+                                       const kodi::addon::CSettingValue& settingValue)
 {
   return m_settings.SetSetting(settingName, settingValue);
 }
 
-#pragma GCC visibility push(default) // Temp workaround, this becomes later added to kodi-dev-kit system
+#pragma GCC visibility push( \
+    default) // Temp workaround, this becomes later added to kodi-dev-kit system
 ADDONCREATOR(CArgusTVAddon)
 #pragma GCC visibility pop
-

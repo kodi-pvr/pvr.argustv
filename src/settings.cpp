@@ -14,7 +14,7 @@ bool CSettings::Load()
   //  See also addons/pvr.argustv/resources/settings.xml
   //  and addons/pvr.argustv/resources/language/.../strings.xml
 
-  if (!kodi::CheckSettingString("host", m_szHostname))
+  if (!kodi::addon::CheckSettingString("host", m_szHostname))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -23,7 +23,7 @@ bool CSettings::Load()
   }
 
   /* Read setting "port" from settings.xml */
-  if (!kodi::CheckSettingInt("port", m_iPort))
+  if (!kodi::addon::CheckSettingInt("port", m_iPort))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR, "Couldn't get 'port' setting, falling back to '49943' as default");
@@ -31,7 +31,7 @@ bool CSettings::Load()
   }
 
   /* Read setting "useradio" from settings.xml */
-  if (!kodi::CheckSettingBoolean("useradio", m_bRadioEnabled))
+  if (!kodi::addon::CheckSettingBoolean("useradio", m_bRadioEnabled))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -40,7 +40,7 @@ bool CSettings::Load()
   }
 
   /* Read setting "timeout" from settings.xml */
-  if (!kodi::CheckSettingInt("timeout", m_iConnectTimeout))
+  if (!kodi::addon::CheckSettingInt("timeout", m_iConnectTimeout))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -50,7 +50,7 @@ bool CSettings::Load()
   }
 
   /* read setting "user" from settings.xml */
-  if (!kodi::CheckSettingString("user", m_szUser))
+  if (!kodi::addon::CheckSettingString("user", m_szUser))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR, "Couldn't get 'user' setting, falling back to '%s' as default",
@@ -59,7 +59,7 @@ bool CSettings::Load()
   }
 
   /* read setting "pass" from settings.xml */
-  if (!kodi::CheckSettingString("pass", m_szPass))
+  if (!kodi::addon::CheckSettingString("pass", m_szPass))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR, "Couldn't get 'pass' setting, leaved empty");
@@ -67,7 +67,7 @@ bool CSettings::Load()
   }
 
   /* Read setting "tunedelay" from settings.xml */
-  if (!kodi::CheckSettingInt("tunedelay", m_iTuneDelay))
+  if (!kodi::addon::CheckSettingInt("tunedelay", m_iTuneDelay))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -76,7 +76,7 @@ bool CSettings::Load()
   }
 
   /* Read setting "usefolder" from settings.xml */
-  if (!kodi::CheckSettingBoolean("usefolder", m_bUseFolder))
+  if (!kodi::addon::CheckSettingBoolean("usefolder", m_bUseFolder))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -88,7 +88,7 @@ bool CSettings::Load()
 }
 
 ADDON_STATUS CSettings::SetSetting(const std::string& settingName,
-                                   const kodi::CSettingValue& settingValue)
+                                   const kodi::addon::CSettingValue& settingValue)
 {
   if (settingName == "host")
   {

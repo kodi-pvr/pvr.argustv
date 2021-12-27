@@ -31,9 +31,7 @@ class cPVRClientArgusTV : public kodi::addon::CInstancePVRClient
 {
 public:
   /* Class interface */
-  cPVRClientArgusTV(const CArgusTVAddon& base,
-                    KODI_HANDLE instance,
-                    const std::string& kodiVersion);
+  cPVRClientArgusTV(const CArgusTVAddon& base, const kodi::addon::IInstanceInfo& instance);
   ~cPVRClientArgusTV();
 
   /* Server handling */

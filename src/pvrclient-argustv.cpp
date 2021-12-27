@@ -20,8 +20,8 @@
 #include "upcomingrecording.h"
 #include "utils.h"
 
-#include <kodi/General.h>
 #include <chrono>
+#include <kodi/General.h>
 #include <map>
 #include <thread>
 
@@ -31,7 +31,8 @@ using namespace ArgusTV;
 #define MAXLIFETIME \
   99 //Based on VDR addon and VDR documentation. 99=Keep forever, 0=can be deleted at any time, 1..98=days to keep
 
-template<typename T> void SafeDelete(T*& p)
+template<typename T>
+void SafeDelete(T*& p)
 {
   if (p)
   {
@@ -44,9 +45,8 @@ template<typename T> void SafeDelete(T*& p)
 /** Class interface */
 
 cPVRClientArgusTV::cPVRClientArgusTV(const CArgusTVAddon& base,
-                                     KODI_HANDLE instance,
-                                     const std::string& kodiVersion)
-  : kodi::addon::CInstancePVRClient(instance, kodiVersion), m_base(base)
+                                     const kodi::addon::IInstanceInfo& instance)
+  : kodi::addon::CInstancePVRClient(instance), m_base(base)
 {
 #if defined(ATV_DUMPTS)
   strncpy(ofn, "/tmp/atv.XXXXXX", sizeof(ofn));
@@ -751,7 +751,8 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(bool deleted,
     }
   }
   auto totalTime = std::chrono::system_clock::now() - startTime;
-  kodi::Log(ADDON_LOG_INFO, "Retrieving %d recordings took %d milliseconds.", iNumRecordings, std::chrono::duration_cast<std::chrono::milliseconds>(totalTime).count());
+  kodi::Log(ADDON_LOG_INFO, "Retrieving %d recordings took %d milliseconds.", iNumRecordings,
+            std::chrono::duration_cast<std::chrono::milliseconds>(totalTime).count());
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -1366,7 +1367,8 @@ bool cPVRClientArgusTV::OpenLiveStream(const kodi::addon::PVRChannel& channelinf
   auto startTime = std::chrono::system_clock::now();
   bool rc = _OpenLiveStream(channelinfo);
   auto totalTime = std::chrono::system_clock::now() - startTime;
-  kodi::Log(ADDON_LOG_INFO, "Opening live stream took %d milliseconds.", std::chrono::duration_cast<std::chrono::milliseconds>(totalTime).count());
+  kodi::Log(ADDON_LOG_INFO, "Opening live stream took %d milliseconds.",
+            std::chrono::duration_cast<std::chrono::milliseconds>(totalTime).count());
   return rc;
 }
 
