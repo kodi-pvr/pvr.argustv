@@ -21,7 +21,7 @@ msgid "Kodi frontend for the ARGUS TV PVR https://www.argus-tv.com/"
 msgstr "Interface logicielle pour l'enregistreur vidéo (PVR) ARGUS TV https://www.argus-tv.com/"
 
 msgctxt "Addon Description"
-msgid "ARGUS TV PVR frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and schedules."
+msgid "ARGUS TV PVR frontend. Supports streaming of Live TV & Recordings, listening to Radio channels, EPG and schedules."
 msgstr "Interface logicielle pour l'enregistreur vidéo (PVR) ARGUS TV. Gère la diffusion de la TV en direct, l'enregistrement, l'écoute de radios, le guide électronique des programmes TV et les programmations."
 
 msgctxt "Addon Disclaimer"

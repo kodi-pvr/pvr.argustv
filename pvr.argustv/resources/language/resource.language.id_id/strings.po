@@ -21,7 +21,7 @@ msgid "Kodi frontend for the ARGUS TV PVR https://www.argus-tv.com/"
 msgstr "Antarmuka Kodi untuk ARGUS TV PVR https://www.argus-tv.com/"
 
 msgctxt "Addon Description"
-msgid "ARGUS TV PVR frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and schedules."
+msgid "ARGUS TV PVR frontend. Supports streaming of Live TV & Recordings, listening to Radio channels, EPG and schedules."
 msgstr "Antarmuka PVR ARGUS TV. Mendukung streaming TV dan Rekaman langsung, mendengarkan kanal radio, EPG dan jadwal."
 
 msgctxt "Addon Disclaimer"
