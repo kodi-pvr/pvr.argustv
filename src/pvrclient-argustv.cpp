@@ -22,6 +22,7 @@
 
 #include <chrono>
 #include <kodi/General.h>
+#include <kodi/tools/StringUtils.h>
 #include <map>
 #include <thread>
 
@@ -89,6 +90,7 @@ PVR_ERROR cPVRClientArgusTV::GetCapabilities(kodi::addon::PVRCapabilities& capab
   capabilities.SetSupportsRecordingsRename(true);
   capabilities.SetSupportsRecordingsLifetimeChange(false);
   capabilities.SetSupportsDescrambleInfo(false);
+  capabilities.SetSupportsRecordingEdl(true);
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -867,6 +869,63 @@ PVR_ERROR cPVRClientArgusTV::SetRecordingPlayCount(const kodi::addon::PVRRecordi
   }
 
   return PVR_ERROR_NO_ERROR;
+}
+
+// GetRecordingEdl source borrowed from pvr.wmc
+PVR_ERROR cPVRClientArgusTV::GetRecordingEdl(const kodi::addon::PVRRecording& recording,
+                                             std::vector<kodi::addon::PVREDLEntry>& edl)
+{
+  std::string streamFileName; // the name of the stream file
+  if (!FindRecEntry(recording.GetRecordingId(), streamFileName))
+    return PVR_ERROR_SERVER_ERROR;
+
+  if (!streamFileName.empty()) // read the edl for the current stream file
+  {
+    // see if edl file for currently streaming recording exists
+    std::string theEdlFile = streamFileName;
+    // swap .wtv extension for .edl
+    std::string::size_type result = theEdlFile.find_last_of('.');
+    if (std::string::npos != result)
+      theEdlFile.erase(result);
+    else
+    {
+      kodi::Log(ADDON_LOG_DEBUG, "File extender error: '%s'", theEdlFile.c_str());
+      return PVR_ERROR_FAILED;
+    }
+    theEdlFile.append(".edl");
+
+    kodi::Log(ADDON_LOG_DEBUG, "Opening EDL file: '%s'", theEdlFile.c_str());
+
+    kodi::vfs::CFile fileHandle;
+    if (fileHandle.OpenFile(theEdlFile))
+    {
+      std::string svals;
+      while (fileHandle.ReadLine(svals))
+      {
+        size_t nidx = svals.find_last_not_of("\r");
+        svals.erase(svals.npos == nidx ? 0 : ++nidx); // trim windows /r if its there
+
+        std::vector<std::string> vals = kodi::tools::StringUtils::Split(svals, "\t"); // split on tabs
+        if (vals.size() == 3)
+        {
+          kodi::addon::PVREDLEntry entry;
+          entry.SetStart(static_cast<int64_t>(std::strtod(vals[0].c_str(), nullptr) *
+                                              1000)); // convert s to ms
+          entry.SetEnd(static_cast<int64_t>(std::strtod(vals[1].c_str(), nullptr) * 1000));
+          entry.SetType(PVR_EDL_TYPE(atoi(vals[2].c_str())));
+          edl.emplace_back(entry);
+        }
+      }
+      if (!edl.empty())
+        kodi::Log(ADDON_LOG_DEBUG, "EDL data found.");
+      else
+        kodi::Log(ADDON_LOG_DEBUG, "No EDL data found.");
+      return PVR_ERROR_NO_ERROR;
+    }
+    else
+      kodi::Log(ADDON_LOG_DEBUG, "No EDL file found.");
+  }
+  return PVR_ERROR_FAILED;
 }
 
 
