@@ -22,7 +22,7 @@
 #define E_FAILED -1
 #define E_EMPTYRESPONSE -2
 
-class ATTRIBUTE_HIDDEN CArgusTV
+class ATTR_DLL_LOCAL CArgusTV
 {
 public:
   enum ChannelType

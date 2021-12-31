@@ -31,7 +31,7 @@
 
 namespace ArgusTV
 {
-class ATTRIBUTE_HIDDEN FileReader
+class ATTR_DLL_LOCAL FileReader
 {
 public:
   FileReader() = default;

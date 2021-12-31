@@ -21,7 +21,7 @@ msgid "Kodi frontend for the ARGUS TV PVR https://www.argus-tv.com/"
 msgstr "Frontale Kodi pour le numériscope ARGUS TV https://www.argus-tv.com/"
 
 msgctxt "Addon Description"
-msgid "ARGUS TV PVR frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and schedules."
+msgid "ARGUS TV PVR frontend. Supports streaming of Live TV & Recordings, listening to Radio channels, EPG and schedules."
 msgstr "Frontale de numériscope pour ARGUS TV, prenant en charge la diffusion en continu des télés en direct et les enregistrements, l’écoute de chaînes radio, le GÉP et les horaires."
 
 msgctxt "Addon Disclaimer"

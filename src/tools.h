@@ -8,6 +8,7 @@
 #ifndef __TOOLS_H
 #define __TOOLS_H
 
+#include <chrono>
 #include <errno.h>
 #include <fcntl.h>
 #include <kodi/AddonBase.h>
@@ -15,8 +16,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <chrono>
 
 #define ERRNUL(e) \
   { \
@@ -41,7 +40,7 @@
 //#define CHECK(s) { if ((s) < 0) LOG_ERROR; } // used for 'ioctl()' calls
 #define FATALERRNO (errno && errno != EAGAIN && errno != EINTR)
 
-class ATTRIBUTE_HIDDEN cTimeMs
+class ATTR_DLL_LOCAL cTimeMs
 {
 private:
   std::chrono::steady_clock::time_point m_begin;
