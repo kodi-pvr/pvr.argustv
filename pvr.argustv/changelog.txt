@@ -1,3 +1,6 @@
+v19.1.1
+- Add EDL support for Recordings
+
 v19.0.1
 - Translations updates from Weblate
 
