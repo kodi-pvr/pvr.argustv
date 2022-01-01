@@ -73,6 +73,10 @@ public:
                                            int& position) override;
   PVR_ERROR SetRecordingPlayCount(const kodi::addon::PVRRecording& recinfo, int playcount) override;
 
+  // comm skip
+  PVR_ERROR GetRecordingEdl(const kodi::addon::PVRRecording& recording,
+                            std::vector<kodi::addon::PVREDLEntry>& edl) override;
+
   /* Timer handling */
   PVR_ERROR GetTimersAmount(int& amount) override;
   PVR_ERROR GetTimers(kodi::addon::PVRTimersResultSet& results) override;
