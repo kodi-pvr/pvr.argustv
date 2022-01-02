@@ -17,6 +17,7 @@
 #define DEFAULT_PASS ""
 #define DEFAULT_TUNEDELAY 200
 #define DEFAULT_USEFOLDER false
+#define DEFAULT_SHOWSERIESEPISODE false
 
 class CSettings
 {
@@ -39,6 +40,7 @@ public:
   const std::string& Pass() const { return m_szPass; }
   int TuneDelay() const { return m_iTuneDelay; }
   bool UseFolder() const { return m_bUseFolder; }
+  bool ShowSeriesEpisode() const { return m_bShowSeriesEpisode; }
 
 private:
   std::string m_szHostname = DEFAULT_HOST;
@@ -49,4 +51,5 @@ private:
   std::string m_szPass = DEFAULT_PASS;
   int m_iTuneDelay = DEFAULT_TUNEDELAY;
   bool m_bUseFolder = DEFAULT_USEFOLDER;
+  bool m_bShowSeriesEpisode = DEFAULT_SHOWSERIESEPISODE;
 };
