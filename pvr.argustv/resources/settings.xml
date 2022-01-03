@@ -61,6 +61,11 @@
           <default>false</default>
           <control type="toggle"/>
         </setting>
+        <setting id="showseriesepisode" type="boolean" label="30008" help="-1">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle"/>
+        </setting>
       </group>
     </category>
   </section>

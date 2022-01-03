@@ -84,6 +84,15 @@ bool CSettings::Load()
     m_bUseFolder = DEFAULT_USEFOLDER;
   }
 
+  /* Read setting "showseriesepisode" from settings.xml */
+  if (!kodi::addon::CheckSettingBoolean("showseriesepisode", m_bShowSeriesEpisode))
+  {
+    /* If setting is unknown fallback to defaults */
+    kodi::Log(ADDON_LOG_ERROR,
+              "Couldn't get 'showseriesepisode' setting, falling back to 'false' as default");
+    m_bShowSeriesEpisode = DEFAULT_SHOWSERIESEPISODE;
+  }
+
   return true;
 }
 
@@ -145,6 +154,12 @@ ADDON_STATUS CSettings::SetSetting(const std::string& settingName,
     kodi::Log(ADDON_LOG_INFO, "Changed setting 'usefolder' from %u to %u", m_bUseFolder,
               settingValue.GetBoolean());
     m_bUseFolder = settingValue.GetBoolean();
+  }
+  else if (settingName == "showseriesepisode")
+  {
+    kodi::Log(ADDON_LOG_INFO, "Changed setting 'showseriesepisode' from %u to %u", m_bShowSeriesEpisode,
+              settingValue.GetBoolean());
+    m_bShowSeriesEpisode = settingValue.GetBoolean();
   }
 
   return ADDON_STATUS_OK;

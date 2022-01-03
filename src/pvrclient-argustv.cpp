@@ -733,7 +733,36 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(bool deleted,
                 recording.Transform(false);
                 tag.SetDirectory("");
               }
-              tag.SetTitle(recording.Title());
+
+              std::vector<std::string> titles = kodi::tools::StringUtils::Split(recording.Title(), " - "); 
+              std::string subTitle = "";
+              if (titles.size() > 1)
+                subTitle = titles[1];
+                
+              std::string displayTitle = recordinggroup.ProgramTitle();
+              //if user set configuration to show series and episode and series and episode exist, append them to the title
+              if (m_base.GetSettings().ShowSeriesEpisode() &&  recording.SeriesNumber() > 0 && recording.EpisodeNumber() > 0)
+              {
+                //left pad series and episode with zeros to allow proper sorting for series or episodes up to 99.
+                std::string series = std::to_string(recording.SeriesNumber());
+                if (recording.SeriesNumber() < 10)
+                  series = "S0" + series;
+                else
+                  series = "S" + series;
+
+                std::string episode = std::to_string(recording.EpisodeNumber());
+                if (recording.EpisodeNumber() < 10)
+                  episode = "E0" + episode;
+                else
+                  episode = "E" + episode;
+
+                displayTitle = displayTitle + " - " + series + episode;
+              }
+              if (subTitle.length() > 0)
+                displayTitle = displayTitle + " - " +  subTitle;
+              
+              tag.SetTitle(displayTitle);
+              /*tag.SetTitle(recording.Title());*/
               tag.SetPlotOutline(recording.SubTitle());
 
               m_RecordingsMap[tag.GetRecordingId()] = recording.RecordingFileName();
