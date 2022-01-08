@@ -709,8 +709,8 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(bool deleted,
             {
               kodi::addon::PVRRecording tag;
 
-              tag.SetSeriesNumber(PVR_RECORDING_INVALID_SERIES_EPISODE);
-              tag.SetEpisodeNumber(PVR_RECORDING_INVALID_SERIES_EPISODE);
+              tag.SetSeriesNumber(recording.SeriesNumber());
+              tag.SetEpisodeNumber(recording.EpisodeNumber());
 
               tag.SetRecordingId(recording.RecordingId());
               tag.SetChannelName(recording.ChannelDisplayName());
@@ -721,20 +721,10 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(bool deleted,
               tag.SetPlot(recording.Description());
               tag.SetPlayCount(recording.FullyWatchedCount());
               tag.SetLastPlayedPosition(recording.LastWatchedPosition());
-              if (nrOfRecordings > 1 || m_base.GetSettings().UseFolder())
-              {
-                recording.Transform(true);
-                tag.SetDirectory(
-                    recordinggroup
-                        .ProgramTitle()); //used in Kodi as directory structure below "Server X - hostname"
-              }
-              else
-              {
-                recording.Transform(false);
-                tag.SetDirectory("");
-              }
               tag.SetTitle(recording.Title());
-              tag.SetPlotOutline(recording.SubTitle());
+              tag.SetEpisodeName(recording.SubTitle());
+              if (nrOfRecordings > 1 || m_base.GetSettings().UseFolder())
+                tag.SetDirectory(recording.Title());
 
               m_RecordingsMap[tag.GetRecordingId()] = recording.RecordingFileName();
 
