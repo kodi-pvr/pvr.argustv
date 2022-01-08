@@ -1,3 +1,6 @@
+v20.4.1
+- Don't set series and episode unless one of them has a value greater than zero
+
 v20.4.0
 - Update and standardize recording fields
   - Add series number
