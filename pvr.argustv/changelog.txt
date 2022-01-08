@@ -1,3 +1,11 @@
+v19.2.0
+- Update and standardize recording fields
+  - Add series number
+  - Add episode number
+  - Add episode name
+  - Remove episode name from title
+  - Remove episode name from plot outline
+
 v19.1.1
 - Add EDL support for Recordings
 
