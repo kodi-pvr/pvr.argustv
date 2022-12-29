@@ -95,7 +95,7 @@
     <description lang="fr_FR">Interface logicielle pour l&apos;enregistreur vidéo (PVR) ARGUS TV. Gère la diffusion de la TV en direct, l&apos;enregistrement, l&apos;écoute de radios, le guide électronique des programmes TV et les programmations.</description>
     <description lang="gl_ES">Interface do PVR de ARGUS TV. Soporta transmisión de TV en directo e Gravacións, escoita de canles de radio, Guía e programacións.</description>
     <description lang="he_IL">לקוח טלוויזיה חיה של ARGUS TV PVR. תומך בהזרמת שידורים חיים והקלטות, האזנה לרדיו, הצגת לוח שידורים ותזמון הקלטות.</description>
-    <description lang="hr_HR">ARGUS TV PVR pozadinski softver. Podržava stremanje televizije i snimanje, slušanje radio programa, EPG i zakazano snimanje.</description>
+    <description lang="hr_HR">ARGUS TV PVR pozadinski softver. Podržava strujanje TV programa i snimanje, slušanje radio programa, elektronski programski vodič (EPG) i zakazano snimanje.</description>
     <description lang="hu_HU">ARGUS TV PVR előtét. Élő adások, felvételek és rádiócsatornák támogatása, EPG-vel és időzítésekkel.</description>
     <description lang="hy_AM">ARGUS TV PVR արտաքին տեսքը: TV հիմա, Ձայնագրություններ, Ռադիո ալիքների ունկնդրում, EPG և ժամանակացույցի հնարավորություն:</description>
     <description lang="id_ID">Antarmuka PVR ARGUS TV. Mendukung streaming TV dan Rekaman langsung, mendengarkan kanal radio, EPG dan jadwal.</description>
@@ -150,7 +150,7 @@
     <disclaimer lang="fr_FR">Logiciel en cours d&apos;élaboration ! Les auteurs ne sont en aucun cas responsables de l&apos;échec des enregistrements, programmations défectueuses, temps perdu ou autres effets indésirables.</disclaimer>
     <disclaimer lang="gl_ES">Software non estable! Os autores non se fan responsábeis dos erros nas gravacións, temporizadores incorrectos, e outros efectos non desexados.</disclaimer>
     <disclaimer lang="he_IL">זוהי איננה הרחבה יציבה! המפתחים אינם אחראים על כשלון בניגון, זמנים שגויים במדריך השידורים, שעות מבוזבזות או כל תופעה לא רצויה אחרת.</disclaimer>
-    <disclaimer lang="hr_HR">Ovo je nestabilan softver! Autori nisu ni na koji način odgovorani za neuspjelo snimanje, netočna zakazana snimanja, izgubjene sate, ili bilo koje druge neželjene učinke .</disclaimer>
+    <disclaimer lang="hr_HR">Ovo je nestabilan softver! Autori nisu ni na koji način odgovorni za neuspjelo snimanje, netočna zakazana snimanja, izgubljene sate, ili bilo koje druge neželjene učinke.</disclaimer>
     <disclaimer lang="hu_HU">Ez nem stabil szoftver! A készítők nem vállalnak felelősséget, a hibás felvételért, rossz időzítésért, elvesztegetett időért.</disclaimer>
     <disclaimer lang="hy_AM">Սա անկայուն ծրագրային ապահովում է: Հեղինակները պատասխանատու չեն վատ ձայնագրումների, սխալ ժամանակացույցերի, կորած ժամանակի կամ այլ ոչ ցանկալի երևույթների համար:</disclaimer>
     <disclaimer lang="id_ID">Ini merupakan software yang tidak stabil! Penulis tidak bertanggung jawab untuk rekaman gagal, timer salah, waktu terbuang, atau efek tak diinginkan lainnya.</disclaimer>
