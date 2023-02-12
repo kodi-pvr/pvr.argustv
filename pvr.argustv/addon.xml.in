@@ -30,7 +30,7 @@
     <summary lang="en_NZ">Kodi frontend for the ARGUS TV PVR https://www.argus-tv.com/</summary>
     <summary lang="en_US">Kodi frontend for the ARGUS TV PVR https://www.argus-tv.com/</summary>
     <summary lang="es_AR">Frontend de Kodi para ARGUS TV PVR https://www.argus-tv.com/</summary>
-    <summary lang="es_ES">Frontend de Kodi para ARGUS TV PVR https://www.argus-tv.com/</summary>
+    <summary lang="es_ES">Interfaz Kodi para ARGUS TV PVR https://www.argus-tv.com/</summary>
     <summary lang="es_MX">Frontend de Kodi para ARGUS TV PVR https://www.argus-tv.com/</summary>
     <summary lang="et_EE">Kodi liides ARGUS TV PVR&apos;ile https://www.argus-tv.com/</summary>
     <summary lang="eu_ES">Kodiren interfazea ARGUS TV PVRrako https://www.argus-tv.com/</summary>
@@ -39,7 +39,7 @@
     <summary lang="fr_FR">Interface logicielle pour l&apos;enregistreur vidéo (PVR) ARGUS TV https://www.argus-tv.com/</summary>
     <summary lang="gl_ES">Interface de Kodi para o PRV de ARGUS TV https://www.argus-tv.com/</summary>
     <summary lang="he_IL">לקוח טלוויזיה חיה עבור ARGUS TV מהכתובת http://www.argus-tv.com</summary>
-    <summary lang="hr_HR">Kodi pozadinski softver za ARGUS TV PVR https://www.argus-tv.com/</summary>
+    <summary lang="hr_HR">Kodi sučelje za ARGUS TV PVR https://www.argus-tv.com/</summary>
     <summary lang="hu_HU">Kodi előtét az ARGUS TV-hez https://www.argus-tv.com/</summary>
     <summary lang="hy_AM">Kodi արտաքին տեսքը ARGUS TV PVR համար https://www.argus-tv.com/</summary>
     <summary lang="id_ID">Antarmuka Kodi untuk ARGUS TV PVR https://www.argus-tv.com/</summary>
@@ -86,7 +86,7 @@
     <description lang="en_NZ">ARGUS TV PVR frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and schedules.</description>
     <description lang="en_US">ARGUS TV PVR frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and schedules.</description>
     <description lang="es_AR">Frontend de ARGUS TV PVR. Soporta transmisiones de TV en Vivo y Grabaciones, escuchar canales de Radio, Guía Electrónica de Programas (GEP) y temporizadores.</description>
-    <description lang="es_ES">Frontend de ARGUS TV PVR. Soporta transmisiones de TV en Vivo y Grabaciones, escuchar canales de Radio, Guía Electrónica de Programas (EPG) y temporizadores.</description>
+    <description lang="es_ES">Interfaz ARGUS TV PVR. Soporta transmisiones de TV en Vivo y Grabaciones, escuchar canales de Radio, Guía Electrónica de Programas (EPG) y programaciones.</description>
     <description lang="es_MX">Frontend de ARGUS TV PVR. Soporta transmisiones de TV en vivo y grabaciones, escuchar canales de Radio, Guía Electrónica de Programas y temporizadores.</description>
     <description lang="et_EE">ARGUS TV PVR&apos;i liides. Toetab telekanalite striimimist ja salvestamist, raadio kuulamist ja elektroonilist saatekava.</description>
     <description lang="eu_ES">ARGUS TV PVR interfazea. Ondokoa ahalbidetzen du: zuzeneko telebistaren streaming-a eta grabazioak, irrati kateak entzutea, PGEa eta programatzeko egutegiak.</description>
@@ -95,12 +95,12 @@
     <description lang="fr_FR">Interface logicielle pour l&apos;enregistreur vidéo (PVR) ARGUS TV. Gère la diffusion de la TV en direct, l&apos;enregistrement, l&apos;écoute de radios, le guide électronique des programmes TV et les programmations.</description>
     <description lang="gl_ES">Interface do PVR de ARGUS TV. Soporta transmisión de TV en directo e Gravacións, escoita de canles de radio, Guía e programacións.</description>
     <description lang="he_IL">לקוח טלוויזיה חיה של ARGUS TV PVR. תומך בהזרמת שידורים חיים והקלטות, האזנה לרדיו, הצגת לוח שידורים ותזמון הקלטות.</description>
-    <description lang="hr_HR">ARGUS TV PVR pozadinski softver. Podržava strujanje TV programa i snimanje, slušanje radio programa, elektronski programski vodič (EPG) i zakazano snimanje.</description>
+    <description lang="hr_HR">ARGUS TV PVR sučelje. Podržava strujanje TV programa i snimanje, slušanje radio programa, elektronski programski vodič (EPG) i zakazano snimanje.</description>
     <description lang="hu_HU">ARGUS TV PVR előtét. Élő adások, felvételek és rádiócsatornák támogatása, EPG-vel és időzítésekkel.</description>
     <description lang="hy_AM">ARGUS TV PVR արտաքին տեսքը: TV հիմա, Ձայնագրություններ, Ռադիո ալիքների ունկնդրում, EPG և ժամանակացույցի հնարավորություն:</description>
     <description lang="id_ID">Antarmuka PVR ARGUS TV. Mendukung streaming TV dan Rekaman langsung, mendengarkan kanal radio, EPG dan jadwal.</description>
     <description lang="is_IS">ARGUS TV framendi; styður streymingu á beinum útsendingum og upptökum, hlustun á útvarpsstöðvar sjónvarpsvísum (EGP) og dagskráryfirlitum.</description>
-    <description lang="it_IT">Frontend ARGUS TV PVR. Supporta lo streaming e la registrazione di Live TV, l&apos;ascolto dei canali radio, EPG e programmazione.</description>
+    <description lang="it_IT">Frontend ARGUS TV PVR. Supporta lo stream e la registrazione di Live TV, l&apos;ascolto dei canali radio, EPG e programmazione.</description>
     <description lang="ja_JP">ARGUS TV PVR フロントエンドです。テレビ放送のストリーミング、録画、ラジオチャンネルの視聴、EPG、録画予約をサポートしています。</description>
     <description lang="ko_KR">ARGUS TV PVR 프론트엔드. 라이브 TV 스트리밍과 녹화, 라디오 청취, EPG와 예약 지원.</description>
     <description lang="lt_LT">ARGUS TV PVR frontend. Palaiko transliaciją ir įrašus iš Live TV. Klausykite radijo kanalus ir derinkite EPG tvarkaraščius.</description>
@@ -141,7 +141,7 @@
     <disclaimer lang="en_NZ">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects.</disclaimer>
     <disclaimer lang="en_US">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects.</disclaimer>
     <disclaimer lang="es_AR">¡Este software es inestable! Los autores no se responsabilizan por grabaciones fallidas, temporizadores incorrectos, horas perdidas, o cualquier otro efecto no deseado.</disclaimer>
-    <disclaimer lang="es_ES">¡Este software es aún inestable! Los autores no son responsables en forma alguna por grabaciones fallidas, temporizaciones incorrectas, tiempo perdido o ningún otro efecto no deseado.</disclaimer>
+    <disclaimer lang="es_ES">¡Este software es inestable! Los autores no se hacen responsables de grabaciones fallidas, temporizadores incorrectos, horas perdidas o cualquier otro efecto no deseado...</disclaimer>
     <disclaimer lang="es_MX">¡Esto es software inestable! Los autores no son responsables de ninguna forma por grabaciones fallidas, temporizadores incorrectos, horas perdidas, o cualquier otro efecto no deseado.</disclaimer>
     <disclaimer lang="et_EE">See on ebastabiilne tarkvara! Autorid ei ole kuidagi moodi vastutavad nurjunud salvestiste, vale taimeri, raisatud aja ega muude soovimatute asjade eest.</disclaimer>
     <disclaimer lang="eu_ES">Software hau ezegonkorra da! Egilea ez da arduratzen grabazio-erroreetaz, kronometro-erroreetaz, ordu galduetaz edo beste edozein ondorio ezerosoetaz.</disclaimer>
@@ -155,7 +155,7 @@
     <disclaimer lang="hy_AM">Սա անկայուն ծրագրային ապահովում է: Հեղինակները պատասխանատու չեն վատ ձայնագրումների, սխալ ժամանակացույցերի, կորած ժամանակի կամ այլ ոչ ցանկալի երևույթների համար:</disclaimer>
     <disclaimer lang="id_ID">Ini merupakan software yang tidak stabil! Penulis tidak bertanggung jawab untuk rekaman gagal, timer salah, waktu terbuang, atau efek tak diinginkan lainnya.</disclaimer>
     <disclaimer lang="is_IS">Þetta er óstöðugur hugbúnaður! Höfundar eru á engann hátt ábyrgir fyrir mistökum í upptöku, röngum tíma, klukkustundum sem fara í súginn, eða nokkru öðrum óæskilegum hegðunum.</disclaimer>
-    <disclaimer lang="it_IT">Questo software è instabile! Gli autori non sono in alcun modo responsabili per le registrazioni fallite ì, timer non corretti, ore perse o qualsiasi altro effetto non desiderato.</disclaimer>
+    <disclaimer lang="it_IT">Questo è un software instabile! Gli autori non sono in alcun modo responsabili per registrazioni fallite, timer errati, ore sprecate o qualsiasi altro effetto indesiderato.</disclaimer>
     <disclaimer lang="ja_JP">これは不安定なソフトウェアです！本プログラムの作者は、録画の失敗、正確に作動しなかったタイマー、無駄にした時間、その他あらゆる好ましくない結果について責任を負わないものとします。</disclaimer>
     <disclaimer lang="ko_KR">완성되지 않은 소프트웨어입니다! 개발자는 녹화와 예약의 실패, 시간 허비나 다른 의도하지 않은 결과에 대한 책임을 지지 않습니다.</disclaimer>
     <disclaimer lang="lt_LT">Tai nestabili programinė įranga! Autoriai jokiu būdu neatsako už nepavykusius įrašus, neteisingus laikmačius, sugaištas valandas ar bet kokius kitus nepageidaujamus padarinius.</disclaimer>
