@@ -1,3 +1,7 @@
+v21.0.1
+- Translations updates from Weblate
+	- ast_es, be_by, ca_es, cs_cz, da_dk, de_de, es_es, es_mx, et_ee, fi_fi, fr_fr, hr_hr, is_is, it_it, ja_jp, ko_kr, lt_lt, nb_no, nl_nl, ru_ru, sk_sk, sv_se, uk_ua
+
 v20.5.0
 - Update PVR API 8.0.2
 
