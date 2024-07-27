@@ -86,7 +86,7 @@
     <description lang="en_NZ">ARGUS TV PVR frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and schedules.</description>
     <description lang="en_US">ARGUS TV PVR frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and schedules.</description>
     <description lang="es_AR">Frontend de ARGUS TV PVR. Soporta transmisiones de TV en Vivo y Grabaciones, escuchar canales de Radio, Guía Electrónica de Programas (GEP) y temporizadores.</description>
-    <description lang="es_ES">Interfaz ARGUS TV PVR. Soporta transmisiones de TV en Vivo y Grabaciones, escuchar canales de Radio, Guía Electrónica de Programas (EPG) y programaciones.</description>
+    <description lang="es_ES">Interfaz ARGUS TV PVR. Soporta transmisiones de TV en directo y Grabaciones, escuchar canales de Radio, Guía Electrónica de Programas (EPG) y programaciones.</description>
     <description lang="es_MX">Frontend de ARGUS TV PVR. Soporta transmisiones de TV en vivo y grabaciones, escuchar canales de Radio, Guía Electrónica de Programas y temporizadores.</description>
     <description lang="et_EE">ARGUS TV PVR&apos;i liides. Toetab telekanalite striimimist ja salvestamist, raadio kuulamist ja elektroonilist saatekava.</description>
     <description lang="eu_ES">ARGUS TV PVR interfazea. Ondokoa ahalbidetzen du: zuzeneko telebistaren streaming-a eta grabazioak, irrati kateak entzutea, PGEa eta programatzeko egutegiak.</description>
