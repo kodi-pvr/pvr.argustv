@@ -1615,7 +1615,7 @@ bool cPVRClientArgusTV::FindRecEntry(const std::string& recId, std::string& recE
 
 /************************************************************/
 /** Record stream handling */
-bool cPVRClientArgusTV::OpenRecordedStream(const kodi::addon::PVRRecording& recinfo)
+bool cPVRClientArgusTV::OpenRecordedStream(const kodi::addon::PVRRecording& recinfo, int64_t& streamId)
 {
   std::string UNCname;
 
@@ -1642,7 +1642,7 @@ bool cPVRClientArgusTV::OpenRecordedStream(const kodi::addon::PVRRecording& reci
   return true;
 }
 
-void cPVRClientArgusTV::CloseRecordedStream(void)
+void cPVRClientArgusTV::CloseRecordedStream(int64_t streamId)
 {
   kodi::Log(ADDON_LOG_DEBUG, "->CloseRecordedStream()");
 
@@ -1656,7 +1656,7 @@ void cPVRClientArgusTV::CloseRecordedStream(void)
   }
 }
 
-int cPVRClientArgusTV::ReadRecordedStream(unsigned char* pBuffer, unsigned int iBuffersize)
+int cPVRClientArgusTV::ReadRecordedStream(int64_t streamId, unsigned char* pBuffer, unsigned int iBuffersize)
 {
   unsigned long read_done = 0;
 
@@ -1673,7 +1673,7 @@ int cPVRClientArgusTV::ReadRecordedStream(unsigned char* pBuffer, unsigned int i
   return read_done;
 }
 
-int64_t cPVRClientArgusTV::SeekRecordedStream(int64_t iPosition, int iWhence)
+int64_t cPVRClientArgusTV::SeekRecordedStream(int64_t streamId, int64_t iPosition, int iWhence)
 {
   if (!m_tsreader)
   {
@@ -1686,7 +1686,7 @@ int64_t cPVRClientArgusTV::SeekRecordedStream(int64_t iPosition, int iWhence)
   return m_tsreader->SetFilePointer(iPosition, iWhence);
 }
 
-int64_t cPVRClientArgusTV::LengthRecordedStream(void)
+int64_t cPVRClientArgusTV::LengthRecordedStream(int64_t streamId)
 {
   if (!m_tsreader)
   {

@@ -96,11 +96,11 @@ public:
   bool IsRealTimeStream() override { return !m_bRecordingPlayback; }
 
   /* Record stream handling */
-  bool OpenRecordedStream(const kodi::addon::PVRRecording& recording) override;
-  void CloseRecordedStream() override;
-  int ReadRecordedStream(unsigned char* pBuffer, unsigned int iBufferSize) override;
-  int64_t SeekRecordedStream(int64_t iPosition, int iWhence) override;
-  int64_t LengthRecordedStream() override;
+  bool OpenRecordedStream(const kodi::addon::PVRRecording& recording, int64_t& streamId) override;
+  void CloseRecordedStream(int64_t streamId) override;
+  int ReadRecordedStream(int64_t streamId, unsigned char* pBuffer, unsigned int iBufferSize) override;
+  int64_t SeekRecordedStream(int64_t streamId, int64_t iPosition, int iWhence) override;
+  int64_t LengthRecordedStream(int64_t streamId) override;
 
   /* Used for rtsp streaming */
   const char* GetLiveStreamURL(const kodi::addon::PVRChannel& channel);
