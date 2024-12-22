@@ -51,6 +51,9 @@ long FileReader::SetFileName(const std::string& fileName)
 //
 long FileReader::OpenFile()
 {
+  // Temporary definition - this flag was added in Kodi 21, but doesn't appear in filesystem.h until Kodi 22.
+  int ADDON_READ_NO_BUFFER = 0x200;
+
   int Tmo = 25; //5 in MediaPortal
 
   // Is the file already opened
@@ -72,7 +75,7 @@ long FileReader::OpenFile()
   do
   {
     kodi::Log(ADDON_LOG_INFO, "FileReader::OpenFile() %s.", m_fileName.c_str());
-    if (m_file.OpenFile(m_fileName, ADDON_READ_CHUNKED))
+    if (m_file.OpenFile(m_fileName, ADDON_READ_NO_BUFFER))
     {
       break;
     }

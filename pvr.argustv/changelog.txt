@@ -1,3 +1,6 @@
+v21.1.0
+- Updated file-open mode to ADDON_READ_NO_BUFFER for compatibility with Kodi 21
+
 v21.0.2
 - Translations updates from Weblate
 	- es_es, et_ee
