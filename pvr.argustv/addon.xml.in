@@ -30,7 +30,7 @@
     <summary lang="en_NZ">Kodi frontend for the ARGUS TV PVR https://www.argus-tv.com/</summary>
     <summary lang="en_US">Kodi frontend for the ARGUS TV PVR https://www.argus-tv.com/</summary>
     <summary lang="es_AR">Frontend de Kodi para ARGUS TV PVR https://www.argus-tv.com/</summary>
-    <summary lang="es_ES">Interfaz Kodi para ARGUS TV PVR https://www.argus-tv.com/</summary>
+    <summary lang="es_ES">Interfaz de Kodi para ARGUS TV PVR https://www.argus-tv.com/</summary>
     <summary lang="es_MX">Frontend de Kodi para ARGUS TV PVR https://www.argus-tv.com/</summary>
     <summary lang="et_EE">Kodi liides ARGUS TV PVR&apos;ile https://www.argus-tv.com/</summary>
     <summary lang="eu_ES">Kodiren interfazea ARGUS TV PVRrako https://www.argus-tv.com/</summary>
@@ -86,7 +86,7 @@
     <description lang="en_NZ">ARGUS TV PVR frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and schedules.</description>
     <description lang="en_US">ARGUS TV PVR frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and schedules.</description>
     <description lang="es_AR">Frontend de ARGUS TV PVR. Soporta transmisiones de TV en Vivo y Grabaciones, escuchar canales de Radio, Guía Electrónica de Programas (GEP) y temporizadores.</description>
-    <description lang="es_ES">Interfaz ARGUS TV PVR. Soporta transmisiones de TV en directo y Grabaciones, escuchar canales de Radio, Guía Electrónica de Programas (EPG) y programaciones.</description>
+    <description lang="es_ES">Interfaz de ARGUS TV PVR. Soporta transmisiones de TV en directo y Grabaciones, escuchar canales de Radio, Guía Electrónica de Programas (EPG) y programaciones.</description>
     <description lang="es_MX">Frontend de ARGUS TV PVR. Soporta transmisiones de TV en vivo y grabaciones, escuchar canales de Radio, Guía Electrónica de Programas y temporizadores.</description>
     <description lang="et_EE">ARGUS TV PVR&apos;i liides. Toetab telekanalite striimimist ja salvestamist, raadio kuulamist ja elektroonilist saatekava.</description>
     <description lang="eu_ES">ARGUS TV PVR interfazea. Ondokoa ahalbidetzen du: zuzeneko telebistaren streaming-a eta grabazioak, irrati kateak entzutea, PGEa eta programatzeko egutegiak.</description>
@@ -141,7 +141,7 @@
     <disclaimer lang="en_NZ">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects.</disclaimer>
     <disclaimer lang="en_US">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects.</disclaimer>
     <disclaimer lang="es_AR">¡Este software es inestable! Los autores no se responsabilizan por grabaciones fallidas, temporizadores incorrectos, horas perdidas, o cualquier otro efecto no deseado.</disclaimer>
-    <disclaimer lang="es_ES">¡Este software es inestable! Los autores no se hacen responsables de grabaciones fallidas, temporizadores incorrectos, horas perdidas o cualquier otro efecto no deseado.</disclaimer>
+    <disclaimer lang="es_ES">¡Este software es inestable! Los autores no se hacen responsables de grabaciones erróneas, temporizadores incorrectos, horas perdidas o cualquier otro efecto no deseado.</disclaimer>
     <disclaimer lang="es_MX">¡Esto es software inestable! Los autores no son responsables de ninguna forma por grabaciones fallidas, temporizadores incorrectos, horas perdidas, o cualquier otro efecto no deseado.</disclaimer>
     <disclaimer lang="et_EE">See on ebastabiilne tarkvara! Autorid ei ole kuidagi moodi vastutavad nurjunud salvestiste, vale taimeri, raisatud aja ega muude soovimatute asjade eest.</disclaimer>
     <disclaimer lang="eu_ES">Software hau ezegonkorra da! Egilea ez da arduratzen grabazio-erroreetaz, kronometro-erroreetaz, ordu galduetaz edo beste edozein ondorio ezerosoetaz.</disclaimer>
