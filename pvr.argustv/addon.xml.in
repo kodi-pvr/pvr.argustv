@@ -21,7 +21,7 @@
     <summary lang="bg_BG">Клиент за ПВР „ARGUS TV“ – https://www.argus-tv.com/</summary>
     <summary lang="bs_BA">Kodi predokraj za ARGUS TV PVR https://www.argus-tv.com/</summary>
     <summary lang="ca_ES">Frontal de Kodi per al PVR ARGUS TV https://www.argus-tv.com/</summary>
-    <summary lang="cs_CZ">Rozhraní Kodi pro nahrávač videa ARGUS TV https://www.argus-tv.com/</summary>
+    <summary lang="cs_CZ">Rozhraní Kodi pro PVR ARGUS TV https://www.argus-tv.com/</summary>
     <summary lang="cy_GB">Pen blaen Kodi ar gyfer ARGUS TV PVR https://www.argus-tv.com/</summary>
     <summary lang="da_DK">Kodi frontend til ARGUS TV PVR https://www.argus-tv.com/</summary>
     <summary lang="de_DE">Kodi Oberfläche für ARGUS TV PVR https://www.argus-tv.com/</summary>
@@ -78,7 +78,7 @@
     <description lang="bg_BG">Клиент за ПВР „ARGUS TV“. Поддържа телевизия на живо и записване, слушане на радио канали, електронен програмен справочник и графици.</description>
     <description lang="bs_BA">ARGUS TV PVR predokraj. Podržava prijenos uživo TV programa i snimaka, slušanje radio kanala, EPG i rasporede.</description>
     <description lang="ca_ES">Frontal del PVR ARGUS TV. És compatible amb les transmissions en línia de TV en directe i enregistraments, escolta d&apos;emissores de ràdio, guia electrònica de programació (EPG) i programacions.</description>
-    <description lang="cs_CZ">Rozhraní ARGUS TV PVR. Podporuje streamování živého vysílání a nahrávání, poslech kanálů rádia, televizní program a plánování.</description>
+    <description lang="cs_CZ">Rozhraní PVR ARGUS TV. Podporuje streamování živé TV a nahrávek, poslech rozhlasových kanálů, EPG a plánování.</description>
     <description lang="cy_GB">Pen blaen ARGUS TV PVR. Mae&apos;n cynnal ffrydio Teledu Byw a Recordiadau, gwrando ar sianeli Radio ac Amserlenni Rhaglenni Electronig.</description>
     <description lang="da_DK">ARGUS TV PVR frontend understøtter streaming af direkte tv og optagelser, radiokanaler, EPG og tidsplaner.</description>
     <description lang="de_DE">ARGUS TV PVR Oberfläche. Unterstützt Live TV &amp; Aufnahmen, Radiokanäle, EPG und Aufnahmepläne.</description>
@@ -134,7 +134,7 @@
     <disclaimer lang="bg_BG">Тази програма е нестабилна! Авторите не носят отговорност за неуспешно записване, некоректни броячи, пропиляно време и други нежелани ефекти.</disclaimer>
     <disclaimer lang="bs_BA">Ovo je nestabilan softver! Autori ni na koji način nisu odgovorni za neuspjela snimanja, netačne mjerače vremena, izgubljene sate ili bilo koje druge neželjene efekte.</disclaimer>
     <disclaimer lang="ca_ES">Aquest és programari inestable! Els autors no són de cap manera responsables dels enregistraments que fallin, temporitzadors incorrectes, hores perdudes, o qualsevol altre efecte indesitjat.</disclaimer>
-    <disclaimer lang="cs_CZ">Tento software není stabilní! Autoři nejsou žádným způsobem zodpovědní za neúspěšná nahrávání, chybné časovače, ztracený čas nebo jakékoliv jiné nežádoucí výsledky.</disclaimer>
+    <disclaimer lang="cs_CZ">Autoři nenesou žádnou odpovědnost za neúspěšná nahrávání, nesprávné časovače, ztracený čas ani jakékoli jiné nežádoucí následky.</disclaimer>
     <disclaimer lang="cy_GB">Mae&apos;r feddalwedd hon yn ansefydlog! Nid yw&apos;r awduron yn gyfrifol mewn unrhyw ffordd am fethu recordio, amseru gwallus, oriau wedi eu gwastraffu, nac effeithiau annymunol eraill.</disclaimer>
     <disclaimer lang="da_DK">Denne software er ustabil. Udviklerne er på ingen måde ansvarlige for mislykkede optagelser, fejlagtige timere, spildte timer eller andre uønskede konsekvenser.</disclaimer>
     <disclaimer lang="de_DE">Diese Software ist noch in der Entwicklung! Die Autoren sind nicht für fehlgeschlagene Aufnahmen, falsche Timer, verschwendete Zeit oder andere ungewollte Effekte verantwortlich.</disclaimer>
