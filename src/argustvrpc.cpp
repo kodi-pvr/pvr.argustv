@@ -205,7 +205,7 @@ std::string CArgusTV::GetChannelLogo(const std::string& channelGUID)
 #if defined(TARGET_WINDOWS)
   char tmppath[MAX_PATH];
   GetTempPathA(MAX_PATH, tmppath);
-#elif defined(TARGET_LINUX) || defined(TARGET_DARWIN) || defined(TARGET_FREEBSD)
+#elif defined(TARGET_POSIX)
   std::string tmppath = "/tmp/";
 #else
 #error implement for your OS!
